@@ -12,3 +12,9 @@ Nome: Enzo Rodrigues Leal
 Função: Desenvolvedor Front-end
 
 Contribuição: Organização do repositorio
+
+Nome: Gleidson Brian Muniz Lira
+
+Função: Desenvolvedor Front-End
+
+Contribuição: Estilizar o Front-End do site
