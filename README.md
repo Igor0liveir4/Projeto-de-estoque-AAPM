@@ -6,7 +6,7 @@ Nome: Igor Oliveira
 função: Desenvolvedor Back-end
 
 Contribuição: funções do site regra de negócio
-----------------------------------------------
+
 Nome: Enzo Rodrigues Leal
  
 Função: Desenvolvedor Front-end
