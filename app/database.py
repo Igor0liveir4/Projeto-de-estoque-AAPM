@@ -3,8 +3,7 @@ from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = "supabase:///./banco.db"
 
 engine = create_engine(
     DATABASE_URL,
@@ -21,9 +20,7 @@ Base = DeclarativeBase()
 
 def get_db():
     db = SessionLocal()
-
     try:
         yield db
-
     finally:
-        db.close
+        db.close()
