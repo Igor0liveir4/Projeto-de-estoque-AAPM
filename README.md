@@ -18,3 +18,9 @@ Nome: Gleidson Brian Muniz Lira
 Função: Desenvolvedor Front-End
 
 Contribuição: Estilizar o Front-End do site
+
+nome: Francisco Araujo lima 
+
+função: Desenvolvedor Front-end 
+
+contribuição: estilos e html 
