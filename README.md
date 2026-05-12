@@ -18,8 +18,3 @@ Nome: Gleidson Brian Muniz Lira
 Função: Desenvolvedor Front-End
 
 Contribuição: Estilizar o Front-End do site
-
-# instalar 
-```bash
-pip install -r requirements.txt
-```
