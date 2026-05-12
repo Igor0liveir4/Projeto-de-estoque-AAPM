@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABSE_URL = "supabase:///./banco.db"
+DATABASE_URL = "supabase:///./banco.db"
 
 engine = create_engine(
     DATABASE_URL,
@@ -9,8 +9,8 @@ engine = create_engine(
 )
 
 SessionLocal = sessionmaker(
-    autocommit=False
-    autoflush=False
+    autocommit=False,
+    autoflush=False,
     bind=engine
 )
 

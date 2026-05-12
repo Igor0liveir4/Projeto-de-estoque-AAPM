@@ -1,4 +1,5 @@
-from sqlalchemy import Coumn, Integer, String, Bollean
+from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from datetime import datetime, timedelta
 from database import Base
 
 class Usuario(Base):
@@ -17,7 +18,7 @@ class Usuario(Base):
 
     expira_em = Column(
         DateTime,
-        default=lambda: datetime.utcnow() + timedelta(days)
+        default=lambda: datetime.utcnow() + timedelta(days=30)
     )
 
 
