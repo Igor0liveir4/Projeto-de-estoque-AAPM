@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
-from datetime import datetime, timedelta
+from sqlalchemy.sql import func 
 from database import Base
 
 class Usuario(Base):
@@ -11,16 +11,8 @@ class Usuario(Base):
 
     role = Column(String, default=True)
 
-    criado_em = Column(
-        DateTime,
-        default=datetime.utcnow
-    )
-
-    expira_em = Column(
-        DateTime,
-        default=lambda: datetime.utcnow() + timedelta(days=30)
-    )
-
+    ativo = Column(Boolean, default=True)
+    criado_em = Column(DateTime, server_default=func.now())
 
 
 
