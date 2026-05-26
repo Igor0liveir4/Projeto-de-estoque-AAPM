@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Request, HTTPException, status
+from fastapi.responses import RedirectResponse
 from dotenv import load_dotenv
 import os
 
@@ -47,8 +48,8 @@ def get_usuario_logado(request: Request):
     token = request.cookies.get("access_token")
     if not token:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token não fornecido"
+            status_code=status.HTTP_307_TEMPORARY_REDIRECT,
+            headers={"Location": "/"}
         )
 
     try:
@@ -57,14 +58,14 @@ def get_usuario_logado(request: Request):
 
         if email is None:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token inválido"
+                status_code=status.HTTP_307_TEMPORARY_REDIRECT,
+                headers={"Location": "/"}
             )
         return payload
     except JWTError:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido"
+            status_code=status.HTTP_307_TEMPORARY_REDIRECT,
+            headers={"Location": "/"}
         )
     
 def get_usuario_opcional(request: Request):
