@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Movimentar Estoque{% endblock %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 40px auto; padding: 20px;">
+    <div style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 35px; border-radius: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
+        
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h2 style="color: #1e293b; font-weight: 800; font-size: 22px;">Registrar Movimento</h2>
+            <p style="color: #64748b; font-size: 14px;">Atualize o saldo de itens do sistema.</p>
+        </div>
+
+        <form method="POST">
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px;">Tipo</label>
+                <select name="tipo" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 12px; outline: none;">
+                    <option value="entrada">⬆️ Entrada (Aumentar)</option>
+                    <option value="saida">⬇️ Saída (Diminuir)</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px;">Produto</label>
+                <select name="produto_id" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 12px; outline: none;">
+                    {% for p in produtos %}
+                        <option value="{{ p.id }}">{{ p.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px;">Quantidade</label>
+                <input type="number" name="quantidade" placeholder="0" required
+                       style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 12px; outline: none;">
+            </div>
+
+            <button type="submit" style="width: 100%; background: linear-gradient(135deg, #0f2279 0%, #764ba2 100%); color: white; padding: 15px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 20px rgba(15, 34, 121, 0.2);">
+                Salvar Movimentação
+            </button>
+            
+            <a href="/estoque" style="display: block; text-align: center; margin-top: 20px; color: #64748b; text-decoration: none; font-weight: 600; font-size: 13px;">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

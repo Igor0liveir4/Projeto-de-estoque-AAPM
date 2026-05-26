@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Inventário - AAPM{% endblock %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto; padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <h2 style="color: white; font-weight: 700; font-size: 24px;">📦 Status do <span style="opacity: 0.7;">Estoque</span></h2>
+        <a href="/estoque/movimentar" style="background: white; color: #0f2279; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 14px; transition: 0.3s;">
+            <i class="fas fa-plus-circle"></i> Nova Movimentação
+        </a>
+    </div>
+
+    <div style="background: rgba(255, 255, 255, 0.98); border-radius: 20px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.2);">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #f8fafc; text-align: left;">
+                    <th style="padding: 15px 20px; color: #64748b; font-size: 13px; text-transform: uppercase;">Produto</th>
+                    <th style="padding: 15px 20px; color: #64748b; font-size: 13px; text-transform: uppercase;">Quantidade</th>
+                    <th style="padding: 15px 20px; color: #64748b; font-size: 13px; text-transform: uppercase;">Status</th>
+                    <th style="padding: 15px 20px; color: #64748b; font-size: 13px; text-transform: uppercase;">Última Atualização</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in estoque %}
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td style="padding: 15px 20px; font-weight: 600; color: #1e293b;">{{ item.nome }}</td>
+                    <td style="padding: 15px 20px; font-weight: 700; color: #1e293b;">{{ item.quantidade }}</td>
+                    <td style="padding: 15px 20px;">
+                        {% if item.quantidade < 5 %}
+                            <span style="background: #fee2e2; color: #ef4444; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800;">CRÍTICO</span>
+                        {% else %}
+                            <span style="background: #dcfce7; color: #22c55e; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800;">ESTÁVEL</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 15px 20px; color: #94a3b8; font-size: 13px;">{{ item.data }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
