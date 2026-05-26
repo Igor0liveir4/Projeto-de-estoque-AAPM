@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Movimentação de Estoque - AAPM{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 40px auto; padding: 20px;">
+    <div style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); padding: 40px; border-radius: 28px; box-shadow: 0 25px 50px rgba(0,0,0,0.25);">
+        
+        <div style="text-align: center; margin-bottom: 35px;">
+            <h2 style="color: #2d3748; font-size: 26px; font-weight: 800;">📦 Registrar <span style="color: #667eea;">Movimentação</span></h2>
+            <p style="color: #718096; margin-top: 8px;">Controle de entradas e saídas de materiais.</p>
+        </div>
+
+        <form method="POST">
+            <div style="margin-bottom: 25px;">
+                <label style="display: block; color: #4a5568; font-weight: 700; margin-bottom: 10px;">Tipo de Operação</label>
+                <div style="display: flex; gap: 15px;">
+                    <label style="flex: 1; cursor: pointer;">
+                        <input type="radio" name="tipo" value="entrada" checked style="display: none;" onchange="this.parentElement.style.borderColor='#38a169'; this.parentElement.nextElementSibling.style.borderColor='#edf2f7'">
+                        <div style="border: 2px solid #38a169; padding: 15px; border-radius: 12px; text-align: center; color: #38a169; font-weight: 700;">
+                            <i class="fas fa-arrow-down"></i> Entrada
+                        </div>
+                    </label>
+                    <label style="flex: 1; cursor: pointer;">
+                        <input type="radio" name="tipo" value="saida" style="display: none;">
+                        <div style="border: 2px solid #edf2f7; padding: 15px; border-radius: 12px; text-align: center; color: #e53e3e; font-weight: 700;">
+                            <i class="fas fa-arrow-up"></i> Saída
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; color: #4a5568; font-weight: 700; margin-bottom: 8px;">Selecionar Produto</label>
+                <select name="produto_id" style="width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #edf2f7; background: #f8fafc; font-size: 15px;">
+                    {% for produto in produtos %}
+                        <option value="{{ produto.id }}">{{ produto.nome }} (Atual: {{ produto.quantidade }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <label style="display: block; color: #4a5568; font-weight: 700; margin-bottom: 8px;">Quantidade</label>
+                <input type="number" name="quantidade" required min="1" placeholder="Ex: 10"
+                       style="width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #edf2f7; font-size: 16px;">
+            </div>
+
+            <button type="submit" style="width: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px; border: none; border-radius: 14px; font-weight: 800; font-size: 16px; cursor: pointer; box-shadow: 0 10px 20px rgba(102,126,234,0.3); transition: 0.3s;">
+                Confirmar Registro
+            </button>
+            
+            <a href="/estoque" style="display: block; text-align: center; margin-top: 20px; color: #718096; text-decoration: none; font-weight: 600; font-size: 14px;">Voltar ao painel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

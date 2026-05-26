@@ -1,243 +1,44 @@
 {% extends "base.html" %}
-{% block title %}Produtos - Estoque AAPM{% endblock %}
 
-{% block head %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-  body { font-family: 'Plus Jakarta Sans', sans-serif; }
-
-  .page-header {
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;
-  }
-  .page-title { font-size: 26px; font-weight: 800; color: #1a202c; letter-spacing: -0.5px; }
-  .page-title span { color: #667eea; }
-
-  .btn-novo {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white; padding: 11px 22px; border-radius: 12px;
-    text-decoration: none; font-weight: 700; font-size: 14px;
-    display: inline-flex; align-items: center; gap: 8px;
-    transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 4px 14px rgba(102,126,234,0.35);
-  }
-  .btn-novo:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102,126,234,0.45); }
-
-  .alert-banner {
-    padding: 14px 18px; border-radius: 12px; margin-bottom: 20px;
-    font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 10px;
-  }
-  .alert-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
-
-  /* Filtros */
-  .filters {
-    background: white; border-radius: 16px; padding: 18px 20px;
-    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
-    margin-bottom: 22px; border: 1px solid #f0f0f0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  }
-  .filter-search {
-    flex: 1; min-width: 200px; position: relative;
-  }
-  .filter-search i {
-    position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #a0aec0;
-  }
-  .filter-search input {
-    width: 100%; padding: 10px 12px 10px 36px;
-    border: 2px solid #edf2f7; border-radius: 10px; font-size: 14px;
-    font-family: 'Plus Jakarta Sans', sans-serif; outline: none; transition: 0.2s;
-    box-sizing: border-box;
-  }
-  .filter-search input:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
-
-  .filter-select {
-    padding: 10px 14px; border: 2px solid #edf2f7; border-radius: 10px;
-    font-size: 14px; font-family: 'Plus Jakarta Sans', sans-serif;
-    outline: none; transition: 0.2s; background: white; cursor: pointer;
-    color: #4a5568; font-weight: 500;
-  }
-  .filter-select:focus { border-color: #667eea; }
-
-  .btn-filter {
-    padding: 10px 18px; background: #667eea; color: white;
-    border: none; border-radius: 10px; font-size: 14px; font-weight: 600;
-    cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
-    display: inline-flex; align-items: center; gap: 7px; transition: 0.2s;
-  }
-  .btn-filter:hover { background: #764ba2; }
-
-  /* Grid de produtos */
-  .products-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 18px;
-  }
-
-  .product-card {
-    background: white; border-radius: 18px; overflow: hidden;
-    border: 1px solid #f0f0f0; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    transition: transform 0.2s, box-shadow 0.2s;
-    display: flex; flex-direction: column;
-  }
-  .product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(0,0,0,0.1); }
-
-  .product-img {
-    width: 100%; height: 160px; object-fit: cover;
-    background: #f8f9ff;
-  }
-  .product-img-placeholder {
-    width: 100%; height: 160px;
-    background: linear-gradient(135deg, #f0f2ff 0%, #f8f0ff 100%);
-    display: flex; align-items: center; justify-content: center;
-    color: #c4b5fd; font-size: 40px;
-  }
-
-  .product-body { padding: 18px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
-  .product-name { font-weight: 700; color: #1a202c; font-size: 15px; line-height: 1.3; }
-
-  .product-meta { display: flex; align-items: center; justify-content: space-between; }
-  .product-price { font-weight: 800; color: #667eea; font-size: 17px; }
-  .product-stock {
-    font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 20px;
-  }
-  .stock-ok   { background: #f0fdf4; color: #16a34a; }
-  .stock-low  { background: #fffbeb; color: #d97706; }
-  .stock-zero { background: #fef2f2; color: #dc2626; }
-
-  .product-cat {
-    font-size: 12px; color: #a0aec0; font-weight: 600;
-    display: flex; align-items: center; gap: 5px;
-  }
-
-  .product-footer {
-    padding: 12px 18px; border-top: 1px solid #f5f5f5;
-    display: flex; gap: 8px;
-  }
-  .btn-action {
-    flex: 1; padding: 8px; border-radius: 8px; font-size: 13px; font-weight: 600;
-    text-decoration: none; border: none; cursor: pointer;
-    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-    transition: 0.2s; font-family: 'Plus Jakarta Sans', sans-serif;
-  }
-  .btn-view   { background: #eef0ff; color: #667eea; }
-  .btn-view:hover { background: #dde1ff; }
-  .btn-edit   { background: #f8f9fa; color: #4a5568; }
-  .btn-edit:hover { background: #e9ecef; }
-
-  /* Alterado para que o form do botão de desativar ocupe flex space correto */
-  .form-deact { display: flex; flex: 1; margin: 0; }
-
-/* Remova o {% if usuario.role == 'admin' %} daqui */
-.btn-deact { 
-  background: #fff5f5; 
-  color: #e53e3e; 
-  width: 100%; 
-}
-.btn-deact:hover { 
-  background: #fed7d7; 
-}
-/* Remova o {% endif %} daqui */
-
-  .empty-state { text-align: center; padding: 70px 20px; color: #a0aec0; }
-  .empty-state i { font-size: 48px; margin-bottom: 14px; display: block; }
-
-  .results-info { font-size: 14px; color: #718096; margin-bottom: 16px; font-weight: 500; }
-</style>
-{% endblock %}
+{% block title %}Produtos - AAPM{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div>
-    <h1 class="page-title">Catálogo de <span>Produtos</span></h1>
-    <p style="color:#718096; font-size:14px; margin-top:4px;">{{ produtos|length }} produto(s) encontrado(s)</p>
-  </div>
-  {% if usuario.role == 'admin' %}
-  <a href="/produtos/novo" class="btn-novo"><i class="fas fa-plus"></i> Novo Produto</a>
-  {% endif %}
-</div>
-
-{% if request.query_params.get('criado') == 'ok' %}
-<div class="alert-banner alert-success"><i class="fas fa-check-circle"></i> Produto criado com sucesso!</div>
-{% endif %}
-{% if request.query_params.get('desativado') == 'ok' %}
-<div class="alert-banner" style="background:#fff7ed;color:#92400e;border:1px solid #fde68a;">
-  <i class="fas fa-archive"></i> Produto desativado com sucesso.
-</div>
-{% endif %}
-
-<form action="/produtos" method="get" class="filters">
-  <div class="filter-search">
-    <i class="fas fa-search"></i>
-    <input type="text" name="busca" placeholder="Buscar produto..." value="{{ busca or '' }}">
-  </div>
-  <select name="categoria_id" class="filter-select">
-    <option value="0">Todas as categorias</option>
-    {% for cat in categorias %}
-    <option value="{{ cat.id }}" {% if categoria_id|string == cat.id|string %}selected{% endif %}>{{ cat.nome }}</option>
-    {% endfor %}
-  </select>
-  <button type="submit" class="btn-filter"><i class="fas fa-filter"></i> Filtrar</button>
-  {% if busca or (categoria_id and categoria_id|int != 0) %}
-  <a href="/produtos" style="color:#a0aec0; text-decoration:none; font-size:13px; font-weight:600; margin-left: 8px;">
-    <i class="fas fa-xmark"></i> Limpar
-  </a>
-  {% endif %}
-</form>
-
-{% if produtos %}
-<div class="products-grid">
-  {% for p in produtos %}
-  <div class="product-card">
-    {% if p.imagem_path %}
-    <img src="/static/{{ p.imagem_path }}" alt="{{ p.nome }}" class="product-img">
-    {% else %}
-    <div class="product-img-placeholder"><i class="fas fa-box-open"></i></div>
-    {% endif %}
-
-    <div class="product-body">
-      <div class="product-name">{{ p.nome }}</div>
-      <div class="product-meta">
-        <span class="product-price">R$ {{ "%.2f"|format(p.preco) }}</span>
-        <span class="product-stock {{ 'stock-zero' if p.estoque_atual == 0 else ('stock-low' if p.estoque_atual <= 5 else 'stock-ok') }}">
-          {{ p.estoque_atual }} un.
-        </span>
-      </div>
-      {% if p.categoria %}
-      <div class="product-cat"><i class="fas fa-tag"></i> {{ p.categoria.nome }}</div>
-      {% endif %}
+<div style="max-width: 1100px; margin: 0 auto; padding: 20px; font-family: 'Segoe UI', sans-serif;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <div>
+            <h2 style="color: white; font-size: 28px; font-weight: 700;">📦 Catálogo de <span style="color: #cbd5e0;">Produtos</span></h2>
+            <p style="color: rgba(255,255,255,0.7);">Gestão de itens e categorias do sistema.</p>
+        </div>
+        <a href="/produtos/novo" style="background: white; color: #0f2279; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 700; box-shadow: 0 10px 20px rgba(0,0,0,0.2); transition: 0.3s;">
+            + Adicionar Item
+        </a>
     </div>
 
-    <div class="product-footer">
-      <a href="/produtos/{{ p.id }}" class="btn-action btn-view">
-        <i class="fas fa-eye"></i> Ver
-      </a>
-      {% if usuario.role == 'admin' %}
-      <a href="/produtos/{{ p.id }}/editar" class="btn-action btn-edit">
-        <i class="fas fa-pen"></i> Editar
-      </a>
-      <form action="/produtos/{{ p.id }}/desativar" method="post" class="form-deact">
-        <button type="submit" class="btn-action btn-deact"
-          onclick="return confirm('Tem certeza que deseja desativar este produto?')">
-          <i class="fas fa-archive"></i>
-        </button>
-      </form>
-      {% endif %}
+    <div style="background: rgba(255, 255, 255, 0.98); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.3);">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #f1f5f9; text-align: left;">
+                    <th style="padding: 20px; color: #4a5568; font-weight: 700;">Nome</th>
+                    <th style="padding: 20px; color: #4a5568; font-weight: 700;">Categoria</th>
+                    <th style="padding: 20px; color: #4a5568; font-weight: 700;">Preço Unit.</th>
+                    <th style="padding: 20px; color: #4a5568; font-weight: 700; text-align: center;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produto in produtos %}
+                <tr style="border-bottom: 1px solid #edf2f7; transition: 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                    <td style="padding: 18px 20px; font-weight: 600; color: #2d3748;">{{ produto.nome }}</td>
+                    <td style="padding: 18px 20px;"><span style="background: #e2e8f0; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700;">{{ produto.categoria }}</span></td>
+                    <td style="padding: 18px 20px; color: #4a5568;">R$ {{ produto.preco }}</td>
+                    <td style="padding: 18px 20px; text-align: center;">
+                        <a href="/produtos/editar/{{ produto.id }}" style="color: #667eea; margin-right: 15px; text-decoration: none;"><i class="fas fa-edit"></i></a>
+                        <a href="/produtos/excluir/{{ produto.id }}" style="color: #e53e3e; text-decoration: none;"><i class="fas fa-trash"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-  </div>
-  {% endfor %}
 </div>
-{% else %}
-<div style="background:white; border-radius:20px; border:1px solid #f0f0f0; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
-  <div class="empty-state">
-    <i class="fas fa-box-open"></i>
-    <p style="font-weight:700; color:#4a5568; font-size:16px;">Nenhum produto encontrado</p>
-    <p style="font-size:14px; margin-top:4px;">Tente outros filtros ou cadastre um novo produto.</p>
-    {% if usuario.role == 'admin' %}
-    <a href="/produtos/novo" class="btn-novo" style="margin-top:18px; display:inline-flex;">
-      <i class="fas fa-plus"></i> Cadastrar produto
-    </a>
-    {% endif %}
-  </div>
-</div>
-{% endif %}
 {% endblock %}
