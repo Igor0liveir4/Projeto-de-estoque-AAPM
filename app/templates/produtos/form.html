@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% block title %}{% if editando %}Editar Produto{% else %}Novo Produto{% endif %} - Estoque AAPM{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+
+  .page-header {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 24px;
+  }
+  .btn-voltar {
+    background: white; color: #4a5568; width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; text-decoration: none;
+    border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: 0.2s;
+  }
+  .btn-voltar:hover { background: #edf2f7; color: #1a202c; }
+  
+  .page-title { font-size: 24px; font-weight: 800; color: #1a202c; letter-spacing: -0.5px; margin: 0; }
+  .page-title span { color: #667eea; }
+
+  .form-container {
+    background: white; border-radius: 20px; border: 1px solid #edf2f7;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04); max-width: 650px; padding: 30px; margin-bottom: 40px;
+  }
+
+  .alert-erro {
+    background: #fef2f2; color: #991b1b; border: 1px solid #fee2e2;
+    padding: 14px 18px; border-radius: 12px; margin-bottom: 24px;
+    font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 10px;
+  }
+
+  .form-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  label { font-size: 14px; font-weight: 700; color: #4a5568; }
+  
+  .form-control {
+    width: 100%; padding: 11px 14px; border: 2px solid #edf2f7; border-radius: 10px;
+    font-size: 14px; font-family: 'Plus Jakarta Sans', sans-serif; outline: none;
+    transition: 0.2s; box-sizing: border-box; color: #1a202c; font-weight: 500;
+  }
+  .form-control:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+  
+  .input-prefix { position: relative; }
+  .input-prefix i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #a0aec0; font-weight: 600; font-style: normal; }
+  .input-prefix .form-control { padding-left: 38px; }
+
+  /* Upload de Imagem */
+  .image-preview-container {
+    display: flex; align-items: center; gap: 16px; margin-top: 4px;
+  }
+  .current-img-preview {
+    width: 70px; height: 70px; object-fit: cover; border-radius: 10px; border: 2px solid #edf2f7;
+  }
+
+  .form-actions {
+    display: flex; justify-content: flex-end; gap: 12px; margin-top: 30px;
+    padding-top: 20px; border-top: 1px solid #f1f5f9;
+  }
+  .btn-cancelar {
+    background: #f1f5f9; color: #64748b; padding: 11px 22px; border-radius: 12px;
+    text-decoration: none; font-weight: 700; font-size: 14px; transition: 0.2s;
+  }
+  .btn-cancelar:hover { background: #e2e8f0; color: #475569; }
+
+  .btn-salvar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white; padding: 11px 24px; border-radius: 12px; border: none;
+    font-weight: 700; font-size: 14px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px; transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 14px rgba(102,126,234,0.35); font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .btn-salvar:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(102,126,234,0.45); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <a href="/produtos" class="btn-voltar" title="Voltar para o catálogo">
+    <i class="fas fa-arrow-left"></i>
+  </a>
+  <h1 class="page-title">
+    {% if editando %}Editar <span>Produto</span>{% else %}Cadastrar Novo <span>Produto</span>{% endif %}
+  </h1>
+</div>
+
+<div class="form-container">
+  {% if erro %}
+  <div class="alert-erro">
+    <i class="fas fa-exclamation-circle"></i> {{ erro }}
+  </div>
+  {% endif %}
+
+  <form action="{% if editando %}/produtos/{{ editando.id }}/editar{% else %}/produtos/novo{% endif %}" 
+        method="post" 
+        enctype="multipart/form-data">
+    
+    <div class="form-group">
+      <label for="nome">Nome do Produto *</label>
+      <input type="text" 
+             id="nome" 
+             name="nome" 
+             class="form-control" 
+             placeholder="Ex: Camiseta Oficial AAPM" 
+             required 
+             value="{% if valores %}{{ valores.nome }}{% elif editando %}{{ editando.nome }}{% endif %}">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="preco">Preço de Venda *</label>
+        <div class="input-prefix">
+          <i>R$</i>
+          <input type="number" 
+                 id="preco" 
+                 name="preco" 
+                 class="form-control" 
+                 placeholder="0.00" 
+                 step="0.01" 
+                 min="0.01" 
+                 required 
+                 value="{% if valores %}{{ valores.preco }}{% elif editando %}{{ editando.preco }}{% endif %}">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="estoque_atual">Quantidade em Estoque *</label>
+        <input type="number" 
+               id="estoque_atual" 
+               name="estoque_atual" 
+               class="form-control" 
+               placeholder="Ex: 10" 
+               min="0" 
+               required 
+               value="{% if valores %}{{ valores.estoque_atual }}{% elif editando %}{{ editando.estoque_atual }}{% endif %}">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="categoria_id">Categoria do Produto</label>
+      <select id="categoria_id" name="categoria_id" class="form-control">
+        <option value="0">Sem categoria (Nenhuma)</option>
+        {% for cat in categorias %}
+          {% set cat_id_str = cat.id|string %}
+          {% set sel_id_str = (valores.categoria_id if valores else (editando.categoria_id if editando else 0))|string %}
+          <option value="{{ cat.id }}" {% if cat_id_str == sel_id_str %}selected{% endif %}>
+            {{ cat.nome }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="imagem">Imagem do Produto</label>
+      <div class="image-preview-container">
+        {% if editando and editando.imagem_path %}
+          <img src="/static/{{ editando.imagem_path }}" alt="Preview" class="current-img-preview" id="img-preview">
+        {% endif %}
+        <input type="file" 
+               id="imagem" 
+               name="imagem" 
+               class="form-control" 
+               accept=".jpg,.jpeg,.png,.webp"
+               onchange="previewImage(this)">
+      </div>
+      <small style="color: #a0aec0; font-size: 12px; font-weight: 500; margin-top: 4px;">
+        Formatos permitidos: JPG, PNG ou WEBP.{% if editando and editando.imagem_path %} Enviar uma nova foto substituirá a antiga.{% endif %}
+      </small>
+    </div>
+
+    <div class="form-actions">
+      <a href="/produtos" class="btn-cancelar">Cancelar</a>
+      <button type="submit" class="btn-salvar">
+        <i class="fas fa-save"></i> {% if editando %}Salvar Alterações{% else %}Cadastrar Produto{% endif %}
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  // Script simples para gerar um preview da imagem antes do usuário enviar o formulário
+  function previewImage(input) {
+    if (input.files && input.files[0]) {
+      let reader = new FileReader();
+      reader.onload = function(e) {
+        let preview = document.getElementById('img-preview');
+        if (!preview) {
+          preview = document.createElement('img');
+          preview.id = 'img-preview';
+          preview.className = 'current-img-preview';
+          input.parentNode.insertBefore(preview, input);
+        }
+        preview.src = e.target.result;
+      }
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+</script>
+{% endblock %}
