@@ -19,6 +19,12 @@ Função: Desenvolvedor Front-End
 
 Contribuição: Estilizar o Front-End do site
 
+Nome: Francisco Araujo Lima
+
+Função: Desenvolvedor Front-End
+
+Contribuição: Estilizar o Front-End do site
+
 # instalar o requirements.txt
 
 ```bash
