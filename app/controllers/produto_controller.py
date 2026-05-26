@@ -1,20 +1,24 @@
-# controllers/categoria_controller.py
-# Categorias são gerenciadas apenas por admins.
-# Operadores apenas visualizam (via select no form de produto).
-# ============================================================
-
-from fastapi import APIRouter, Depends, Request, Form
+# controllers/produto_controller.py
+import os
+import shutil
+import uuid
+from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.models.produto import Produto
 from app.models.categoria import Categoria
-from app.auth import get_admin
+from app.auth import get_usuario_logado, get_admin
 
-router = APIRouter(prefix="/categorias", tags=["Categorias"])
+router = APIRouter(prefix="/produtos", tags=["Produtos"])
 
 templates = Jinja2Templates(directory="app/templates")
+
+# Pasta onde as imagens serão salvas dentro de /static
+UPLOAD_DIR = "app/static/uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)  # cria a pasta se não existir
 
 
 # ============================================================
@@ -22,25 +26,34 @@ templates = Jinja2Templates(directory="app/templates")
 # ============================================================
 
 @router.get("/")
-def listar_categorias(
+def listar_produtos(
     request: Request,
+    busca: str = "",
+    categoria_id: int = 0,       # 0 = todas as categorias
     db: Session = Depends(get_db),
-    admin = Depends(get_admin)
+    usuario = Depends(get_usuario_logado)
 ):
-    """
-    Lista todas as categorias ordenadas por nome.
-    Inclui a contagem de produtos de cada categoria
-    para dar contexto ao admin antes de desativar.
-    """
-    categorias = db.query(Categoria).order_by(Categoria.nome).all()
+    query = db.query(Produto).filter(Produto.ativo == True)
+
+    if busca:
+        query = query.filter(Produto.nome.ilike(f"%{busca}%"))
+
+    if categoria_id:
+        query = query.filter(Produto.categoria_id == categoria_id)
+
+    produtos    = query.order_by(Produto.nome).all()
+    categorias  = db.query(Categoria).filter(Categoria.ativo == True).all()
 
     return templates.TemplateResponse(
         request,
-        "categorias/index.html",
+        "produtos/index.html",
         {
-            "request":    request,
-            "usuario":    admin,
-            "categorias": categorias,
+            "request":      request,
+            "usuario":      usuario,
+            "produtos":     produtos,
+            "categorias":   categorias,
+            "busca":        busca,
+            "categoria_id": categoria_id,
         }
     )
 
@@ -49,162 +62,242 @@ def listar_categorias(
 # CADASTRO
 # ============================================================
 
-@router.get("/nova")
-def form_nova_categoria(
+@router.get("/novo")
+def form_novo_produto(
     request: Request,
+    db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
-    """Exibe o formulário de cadastro de categoria."""
+    categorias = db.query(Categoria).filter(Categoria.ativo == True).all()
+
     return templates.TemplateResponse(
         request,
-        "categorias/form.html",
+        "produtos/form.html",
         {
-            "request":  request,
-            "usuario":  admin,
-            "editando": None,
+            "request":    request,
+            "usuario":    admin,
+            "editando":   None,
+            "categorias": categorias
         }
     )
 
 
-@router.post("/nova")
-def criar_categoria(
+@router.post("/novo")
+async def criar_produto(
     request: Request,
-    nome: str = Form(...),
-    db: Session = Depends(get_db),
-    admin = Depends(get_admin)
+    nome: str          = Form(...),
+    preco: float       = Form(...),
+    estoque_atual: int = Form(...),
+    categoria_id: int  = Form(0),   # 0 = sem categoria
+    imagem: UploadFile = File(None), # None = campo opcional
+    db: Session        = Depends(get_db),
+    admin              = Depends(get_admin)
 ):
-    """Cria uma nova categoria verificando duplicidade de nome."""
+    categorias = db.query(Categoria).filter(Categoria.ativo == True).all()
 
-    existente = db.query(Categoria).filter(
-        Categoria.nome.ilike(nome)
-    ).first()
-
-    if existente:
+    # Verifica duplicidade de nome
+    # ilike() para comparação case-insensitive, evitando produtos "Camiseta" e "camiseta".
+    if db.query(Produto).filter(Produto.nome.ilike(nome)).first():
         return templates.TemplateResponse(
             request,
-            "categorias/form.html",
+            "produtos/form.html",
             {
-                "request":  request,
-                "usuario":  admin,
-                "editando": None,
-                "erro":     "Já existe uma categoria com este nome.",
-                "valores":  {"nome": nome},
+                "request":    request,
+                "usuario":    admin,
+                "editando":   None,
+                "categorias": categorias,
+                "erro":       "Já existe um produto com este nome.",
+                "valores":    {"nome": nome, "preco": preco,
+                               "estoque_atual": estoque_atual,
+                               "categoria_id": categoria_id}
             },
             status_code=400
         )
 
-    db.add(Categoria(nome=nome.strip()))
+    # Processa o upload da imagem
+    imagem_path = await _salvar_imagem(imagem)
+
+    produto = Produto(
+        nome          = nome,
+        preco         = preco,
+        estoque_atual = estoque_atual,
+        categoria_id  = categoria_id or None,  # 0 vira NULL no banco
+        imagem_path   = imagem_path,
+    )
+
+    db.add(produto)
     db.commit()
 
-    return RedirectResponse(url="/categorias?criado=ok", status_code=302)
+    return RedirectResponse(url="/produtos?criado=ok", status_code=302)
 
 
-# ============================================================
+# DETALHE
+@router.get("/{produto_id}")
+def detalhe_produto(
+    produto_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    usuario = Depends(get_usuario_logado)
+):
+    produto = db.query(Produto).filter(
+        Produto.id == produto_id,
+        Produto.ativo == True
+    ).first()
+
+    if not produto:
+        return RedirectResponse(url="/produtos", status_code=302)
+
+    return templates.TemplateResponse(
+        request,
+        "produtos/detalhe.html",
+        {"request": request, "usuario": usuario, "produto": produto}
+    )
+
+
+
 # EDIÇÃO
-# ============================================================
-
-@router.get("/{categoria_id}/editar")
-def form_editar_categoria(
-    categoria_id: int,
+@router.get("/{produto_id}/editar")
+def form_editar_produto(
+    produto_id: int,
     request: Request,
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
-    """Exibe o formulário preenchido com os dados da categoria."""
-    editando = db.query(Categoria).filter(
-        Categoria.id == categoria_id
-    ).first()
+    editando   = db.query(Produto).filter(Produto.id == produto_id).first()
+    categorias = db.query(Categoria).filter(Categoria.ativo == True).all()
 
     if not editando:
-        return RedirectResponse(url="/categorias", status_code=302)
+        return RedirectResponse(url="/produtos", status_code=302)
 
     return templates.TemplateResponse(
         request,
-        "categorias/form.html",
+        "produtos/form.html",
         {
-            "request":  request,
-            "usuario":  admin,
-            "editando": editando,
+            "request":    request,
+            "usuario":    admin,
+            "editando":   editando,
+            "categorias": categorias
         }
     )
 
 
-@router.post("/{categoria_id}/editar")
-def editar_categoria(
-    categoria_id: int,
+@router.post("/{produto_id}/editar")
+async def editar_produto(
+    produto_id: int,
     request: Request,
-    nome: str = Form(...),
-    db: Session = Depends(get_db),
-    admin = Depends(get_admin)
+    nome: str          = Form(...),
+    preco: float       = Form(...),
+    estoque_atual: int = Form(...),
+    categoria_id: int  = Form(0),
+    imagem: UploadFile = File(None),
+    db: Session        = Depends(get_db),
+    admin              = Depends(get_admin)
 ):
-    """Atualiza o nome da categoria."""
-    editando = db.query(Categoria).filter(
-        Categoria.id == categoria_id
-    ).first()
+    editando   = db.query(Produto).filter(Produto.id == produto_id).first()
+    categorias = db.query(Categoria).filter(Categoria.ativo == True).all()
 
     if not editando:
-        return RedirectResponse(url="/categorias", status_code=302)
+        return RedirectResponse(url="/produtos", status_code=302)
 
-    # Verifica conflito com outra categoria (ignora a própria)
-    conflito = db.query(Categoria).filter(
-        Categoria.nome.ilike(nome),
-        Categoria.id != categoria_id
+    # Verifica conflito de nome com outro produto
+    conflito = db.query(Produto).filter(
+        Produto.nome.ilike(nome),
+        Produto.id != produto_id
     ).first()
 
     if conflito:
         return templates.TemplateResponse(
             request,
-            "categorias/form.html",
+            "produtos/form.html",
             {
-                "request":  request,
-                "usuario":  admin,
-                "editando": editando,
-                "erro":     "Já existe outra categoria com este nome.",
+                "request":    request,
+                "usuario":    admin,
+                "editando":   editando,
+                "categorias": categorias,
+                "erro":       "Já existe outro produto com este nome.",
             },
             status_code=400
         )
 
-    editando.nome = nome.strip()
+    # Processa nova imagem — só substitui se um arquivo foi enviado
+    nova_imagem_path = await _salvar_imagem(imagem)
+    if nova_imagem_path:
+        # Remove a imagem antiga do disco para não acumular arquivos
+        _remover_imagem(editando.imagem_path)
+        editando.imagem_path = nova_imagem_path
+
+    editando.nome          = nome
+    editando.preco         = preco
+    editando.estoque_atual = estoque_atual
+    editando.categoria_id  = categoria_id or None
+
     db.commit()
 
-    return RedirectResponse(url="/categorias?editado=ok", status_code=302)
+    return RedirectResponse(url=f"/produtos/{produto_id}?editado=ok", status_code=302)
 
 
 # ============================================================
-# TOGGLE ATIVO
+# DESATIVAR
 # ============================================================
 
-@router.post("/{categoria_id}/toggle-ativo")
-def toggle_ativo(
-    categoria_id: int,
+@router.post("/{produto_id}/desativar")
+def desativar_produto(
+    produto_id: int,
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
+    produto = db.query(Produto).filter(Produto.id == produto_id).first()
+
+    if produto:
+        produto.ativo = False
+        db.commit()
+
+    return RedirectResponse(url="/produtos?desativado=ok", status_code=302)
+
+
+# ============================================================
+# FUNÇÕES AUXILIARES DE IMAGEM
+# ============================================================
+
+async def _salvar_imagem(imagem: UploadFile | None):
     """
-    Ativa ou desativa uma categoria.
+    Salva o arquivo enviado em /static/uploads/ e retorna
+    o path relativo para guardar no banco.
 
-    Não deletamos pois a categoria pode estar vinculada
-    a produtos existentes. Desativar apenas esconde do
-    select do formulário de produto — os vínculos permanecem.
+    Retorna None se nenhum arquivo foi enviado ou se o
+    arquivo enviado estiver vazio (campo deixado em branco).
     """
-    categoria = db.query(Categoria).filter(
-        Categoria.id == categoria_id
-    ).first()
+    # UploadFile com filename vazio = campo não preenchido
+    if not imagem or not imagem.filename:
+        return None
 
-    if not categoria:
-        return RedirectResponse(url="/categorias", status_code=302)
+    # Valida a extensão — aceita apenas imagens
+    extensoes_permitidas = {".jpg", ".jpeg", ".png", ".webp"}
+    _, ext = os.path.splitext(imagem.filename.lower())
 
-    # Bloqueia desativação se houver produtos ativos vinculados
-    if categoria.ativo:
-        produtos_ativos = [p for p in categoria.produtos if p.ativo]
+    if ext not in extensoes_permitidas:
+        return None  # ignora silenciosamente — pode virar erro em produção
 
-        if produtos_ativos:
-            return RedirectResponse(
-                url=f"/categorias?erro=produtos_vinculados&categoria={categoria.nome}",
-                status_code=302
-            )
+    # Garante nome de arquivo único usando o nome original
+    # Em produção: use uuid4() para evitar colisões e exposição de nomes
+    # nome_arquivo = f"{imagem.filename}"
+    nome_arquivo = f"{uuid.uuid4()}{ext}"
+    caminho_completo = os.path.join(UPLOAD_DIR, nome_arquivo)
 
-    categoria.ativo = not categoria.ativo
-    db.commit()
+    # Salva o arquivo no disco
+    with open(caminho_completo, "wb") as buffer:
+        shutil.copyfileobj(imagem.file, buffer)
 
-    return RedirectResponse(url="/categorias", status_code=302)
+    # Retorna o path relativo ao /static (para montar a URL)
+    return f"uploads/{nome_arquivo}"
+
+
+def _remover_imagem(imagem_path: str | None) -> None:
+    """Remove o arquivo de imagem do disco se ele existir."""
+    if not imagem_path:
+        return
+
+    caminho = os.path.join("app/static", imagem_path)
+
+    if os.path.exists(caminho):
+        os.remove(caminho)
