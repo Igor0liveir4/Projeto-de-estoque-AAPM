@@ -1,5 +1,21 @@
-<h1>Bem-vindo ao Sistema de Estoque</h1>
-<p>Gerencie seu estoque de forma eficiente e fácil.</p>
+{% extends "base.html" %}
 
-<a href="/auth/login">Faça login</a>
-<a href="/auth/cadastro">Cadastre-se</a>
+{% block title %}Login - Projeto de Estoque AAPM{% endblock %}
+
+{% block content %}
+    <div style="max-width: 600px; margin: 0 auto;">
+        <div style="background-color: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center;">
+            <h2 style="color: #667eea; margin-bottom: 15px; font-size: 32px;">📦 Sistema de Estoque</h2>
+            <p style="color: #666; font-size: 16px; margin-bottom: 30px;">Gerencie seu estoque de forma eficiente e fácil.</p>
+
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <a href="/auth/login" style="background-color: #667eea; color: white; padding: 15px 24px; text-decoration: none; border-radius: 4px; font-size: 16px; font-weight: 500; transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#764ba2'" onmouseout="this.style.backgroundColor='#667eea'">
+                    🔐 Faça Login
+                </a>
+                <a href="/auth/cadastro" style="background-color: #28a745; color: white; padding: 15px 24px; text-decoration: none; border-radius: 4px; font-size: 16px; font-weight: 500; transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#218838'" onmouseout="this.style.backgroundColor='#28a745'">
+                    ✍️ Cadastre-se
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

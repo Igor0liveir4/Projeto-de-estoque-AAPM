@@ -1,7 +1,22 @@
-<h1>Ola {{ usuario.nome }}!</h1>
-<p>Perfil: {{ usuario.role }}</p>
+{% extends "base.html" %}
 
-<a href="/usuarios">Tela de cadastro</a>
-<br>
-<br>
-<a href="/auth/logout">Sair</a>
+{% block title %}Início - Projeto de Estoque AAPM{% endblock %}
+
+{% block content %}
+    <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <h2 style="color: #667eea; margin-bottom: 20px;">Olá, {{ usuario.nome }}! 👋</h2>
+        
+        <div style="background-color: #f0f4ff; padding: 15px; border-radius: 4px; margin-bottom: 25px;">
+            <p style="font-size: 16px;"><strong>Perfil:</strong> <span style="color: #764ba2;">{{ usuario.role }}</span></p>
+        </div>
+
+        <div style="display: flex; gap: 15px;">
+            <a href="/usuarios" style="background-color: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#764ba2'" onmouseout="this.style.backgroundColor='#667eea'">
+                📋 Tela de Cadastro
+            </a>
+            <a href="/auth/logout" style="background-color: #dc3545; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#c82333'" onmouseout="this.style.backgroundColor='#dc3545'">
+                🚪 Sair
+            </a>
+        </div>
+    </div>
+{% endblock %}
