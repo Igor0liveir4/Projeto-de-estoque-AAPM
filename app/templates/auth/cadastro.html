@@ -3,26 +3,97 @@
 {% block title %}Cadastro - Projeto de Estoque AAPM{% endblock %}
 
 {% block content %}
-    <div style="max-width: 500px; margin: 0 auto;">
-        <div style="background-color: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-            <h2 style="color: #667eea; margin-bottom: 30px; text-align: center; font-size: 28px;">✍️ Cadastro</h2>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<div style="max-width: 480px; margin: 40px auto; font-family: 'Segoe UI', Roboto, sans-serif;">
+    <div style="
+        background: #ffffff;
+        padding: 45px;
+        border-radius: 24px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.07);
+        border: 1px solid #f0f0f0;
+    ">
+        <div style="text-align: center; margin-bottom: 35px;">
+            <div style="
+                background: linear-gradient(135deg, #2e2cb9 0%, #ce2e28 100%);
+                width: 60px;
+                height: 60px;
+                border-radius: 15px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 24px;
+                margin-bottom: 15px;
+                box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+            ">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h2 style="color: #1a202c; margin: 0; font-size: 28px; font-weight: 700;">Criar Conta</h2>
+            <p style="color: #718096; margin-top: 8px; font-size: 15px;">Preencha os dados para acessar o sistema</p>
+        </div>
+        
+        <form action="/auth/cadastro" method="post" style="display: flex; flex-direction: column;">
             
-            <form action="/auth/cadastro" method="post" style="display: flex; flex-direction: column;">
-                <label style="font-weight: 600; color: #333; margin-bottom: 5px;">Nome</label>
-                <input type="text" name="nome" required style="margin-bottom: 20px;">
-                
-                <label style="font-weight: 600; color: #333; margin-bottom: 5px;">E-mail</label>
-                <input type="email" name="email" required style="margin-bottom: 20px;">
-                
-                <label style="font-weight: 600; color: #333; margin-bottom: 5px;">Senha</label>
-                <input type="password" name="senha" required style="margin-bottom: 25px;">
-                
-                <button type="submit" style="background-color: #28a745; color: white; padding: 12px; border: none; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#218838'" onmouseout="this.style.backgroundColor='#28a745'">Cadastrar</button>
-            </form>
-            
-            <p style="text-align: center; margin-top: 20px; color: #666;">
-                Já tem uma conta? <a href="/auth/login" style="color: #667eea; text-decoration: none; font-weight: 600;" onmouseover="this.style.color='#764ba2'" onmouseout="this.style.color='#667eea'">Faça login</a>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; color: #4a5568; margin-bottom: 8px; font-size: 14px;">Nome Completo</label>
+                <div style="position: relative;">
+                    <i class="fas fa-user" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #a0aec0;"></i>
+                    <input type="text" name="nome" placeholder="Seu nome" required 
+                        style="width: 100%; padding: 12px 15px 12px 42px; border-radius: 10px; border: 2px solid #edf2f7; outline: none; transition: all 0.3s; box-sizing: border-box; font-size: 15px;"
+                        onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 4px rgba(102, 126, 234, 0.1)'"
+                        onblur="this.style.borderColor='#edf2f7'; this.style.boxShadow='none'">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; color: #4a5568; margin-bottom: 8px; font-size: 14px;">E-mail Corporativo</label>
+                <div style="position: relative;">
+                    <i class="fas fa-envelope" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #a0aec0;"></i>
+                    <input type="email" name="email" placeholder="exemplo@aapm.com" required 
+                        style="width: 100%; padding: 12px 15px 12px 42px; border-radius: 10px; border: 2px solid #edf2f7; outline: none; transition: all 0.3s; box-sizing: border-box; font-size: 15px;"
+                        onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 4px rgba(102, 126, 234, 0.1)'"
+                        onblur="this.style.borderColor='#edf2f7'; this.style.boxShadow='none'">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 30px;">
+                <label style="display: block; font-weight: 600; color: #4a5568; margin-bottom: 8px; font-size: 14px;">Senha de Acesso</label>
+                <div style="position: relative;">
+                    <i class="fas fa-lock" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #a0aec0;"></i>
+                    <input type="password" name="senha" placeholder="••••••••" required 
+                        style="width: 100%; padding: 12px 15px 12px 42px; border-radius: 10px; border: 2px solid #edf2f7; outline: none; transition: all 0.3s; box-sizing: border-box; font-size: 15px;"
+                        onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 4px rgba(102, 126, 234, 0.1)'"
+                        onblur="this.style.borderColor='#edf2f7'; this.style.boxShadow='none'">
+                </div>
+            </div>
+
+            <button type="submit" style="
+                background: linear-gradient(135deg, #eb451b 0%, #275ccf 100%);
+                color: white;
+                padding: 14px;
+                border: none;
+                border-radius: 12px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 12px rgba(37, 81, 226, 0.2);
+            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(40, 167, 69, 0.3)'" 
+               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(40, 167, 69, 0.2)'">
+                Finalizar Cadastro
+            </button>
+        </form>
+        
+        <div style="text-align: center; margin-top: 25px; border-top: 1px solid #f0f0f0; padding-top: 20px;">
+            <p style="margin: 0; color: #718096; font-size: 14px;">
+                Já tem uma conta? 
+                <a href="/auth/login" style="color: #0ece08; text-decoration: none; font-weight: 700; margin-left: 5px; transition: color 0.3s;"
+                   onmouseover="this.style.color='#764ba2'" onmouseout="this.style.color='#667eea'">
+                    Faça login aqui
+                </a>
             </p>
         </div>
     </div>
+</div>
 {% endblock %}
