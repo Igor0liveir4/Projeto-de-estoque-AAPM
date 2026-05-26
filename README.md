@@ -18,3 +18,24 @@ Nome: Gleidson Brian Muniz Lira
 Função: Desenvolvedor Front-End
 
 Contribuição: Estilizar o Front-End do site
+
+# instalar o requirements.txt
+
+```bash
+pip install -r requirements.txt
+```
+
+# Inicializar o alembic
+```bash 
+python -m alembic init migrations
+```
+
+# Aplicar a migration
+```bash
+python -m alembic upgrade head
+```
+
+# rodar o código 
+```bash
+python -m uvicorn app.main:app --reload
+```
