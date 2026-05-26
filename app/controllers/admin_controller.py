@@ -92,7 +92,7 @@ def criar_usuario(
 
     # Valida se o role enviado é um dos valores permitidos
     # Evita que alguém manipule o formulário e envie um role inválido
-    if role not in ("admin", "operador"):
+    if role not in ("admin", "user"):
         return templates.TemplateResponse(
             request,
             "usuarios/form.html",
@@ -181,7 +181,7 @@ def editar_usuario(
             status_code=400
         )
 
-    if role not in ("admin", "operador"):
+    if role not in ("admin", "user"):
         return templates.TemplateResponse(
             request,
             "usuarios/form.html",

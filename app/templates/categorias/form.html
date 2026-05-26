@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if editando else 'Nova' }} Categoria - Estoque AAPM{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+  .back-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: #667eea; text-decoration: none; font-weight: 600; font-size: 14px;
+    margin-bottom: 24px; transition: gap 0.2s;
+  }
+  .back-link:hover { gap: 12px; }
+
+  .form-card {
+    max-width: 480px; margin: 0 auto;
+    background: white; border-radius: 24px; padding: 40px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.07); border: 1px solid #f0f0f0;
+  }
+
+  .form-header { text-align: center; margin-bottom: 32px; }
+  .form-icon {
+    width: 64px; height: 64px; border-radius: 18px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white; font-size: 26px;
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-bottom: 14px; box-shadow: 0 8px 20px rgba(102,126,234,0.3);
+  }
+  .form-title { font-size: 24px; font-weight: 800; color: #1a202c; margin: 0; }
+  .form-subtitle { color: #718096; font-size: 14px; margin-top: 6px; }
+
+  .alert-error {
+    background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;
+    padding: 13px 16px; border-radius: 10px; margin-bottom: 20px;
+    font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 9px;
+  }
+
+  .field { margin-bottom: 24px; }
+  .field label {
+    display: block; font-weight: 700; font-size: 13px;
+    color: #4a5568; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .input-wrap { position: relative; }
+  .input-wrap i {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: #a0aec0; font-size: 14px; pointer-events: none;
+  }
+  .input-wrap input {
+    width: 100%; padding: 13px 14px 13px 40px;
+    border-radius: 12px; border: 2px solid #edf2f7;
+    font-size: 15px; font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none; box-sizing: border-box; color: #1a202c;
+  }
+  .input-wrap input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102,126,234,0.12);
+  }
+
+  .btn-submit {
+    width: 100%; padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white; border: none; border-radius: 14px;
+    font-size: 16px; font-weight: 700; cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 14px rgba(102,126,234,0.35);
+  }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(102,126,234,0.45); }
+
+  .divider { border: none; border-top: 1px solid #f0f0f0; margin: 24px 0; }
+  .cancel-link {
+    display: block; text-align: center; color: #a0aec0; font-size: 14px;
+    text-decoration: none; font-weight: 600; transition: color 0.2s;
+  }
+  .cancel-link:hover { color: #667eea; }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="/categorias" class="back-link"><i class="fas fa-arrow-left"></i> Voltar para categorias</a>
+
+<div class="form-card">
+  <div class="form-header">
+    <div class="form-icon">
+      <i class="fas fa-{{ 'folder-pen' if editando else 'folder-plus' }}"></i>
+    </div>
+    <h2 class="form-title">{{ 'Editar Categoria' if editando else 'Nova Categoria' }}</h2>
+    <p class="form-subtitle">
+      {% if editando %}Atualize o nome da categoria <strong>{{ editando.nome }}</strong>
+      {% else %}Crie uma nova categoria para organizar os produtos{% endif %}
+    </p>
+  </div>
+
+  {% if erro %}
+  <div class="alert-error"><i class="fas fa-circle-exclamation"></i> {{ erro }}</div>
+  {% endif %}
+
+  <form action="/categorias/{{ editando.id ~ '/editar' if editando else 'nova' }}" method="post">
+    <div class="field">
+      <label>Nome da Categoria</label>
+      <div class="input-wrap">
+        <i class="fas fa-tag"></i>
+        <input type="text" name="nome" placeholder="Ex: Papelaria, Esportes..." required
+          value="{{ editando.nome if editando else (valores.nome if valores else '') }}"
+          autofocus>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-submit">
+      <i class="fas fa-{{ 'floppy-disk' if editando else 'folder-plus' }}"></i>
+      {{ 'Salvar Alterações' if editando else 'Criar Categoria' }}
+    </button>
+  </form>
+
+  <hr class="divider">
+  <a href="/categorias" class="cancel-link">Cancelar e voltar</a>
+</div>
+{% endblock %}

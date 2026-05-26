@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% block title %}Usuários - Estoque AAPM{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+  }
+  .page-title { font-size: 26px; font-weight: 800; color: #1a202c; letter-spacing: -0.5px; }
+  .page-title span { color: #667eea; }
+
+  .btn-novo {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 11px 22px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 14px rgba(102,126,234,0.35);
+  }
+  .btn-novo:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102,126,234,0.45); }
+
+  .alert-banner {
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .alert-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+  .alert-error   { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+  .card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    overflow: hidden;
+    border: 1px solid #f0f0f0;
+  }
+
+  table { width: 100%; border-collapse: collapse; margin: 0; }
+  thead th {
+    background: #f8f9ff;
+    padding: 14px 18px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #667eea;
+    border-bottom: 2px solid #eef0ff;
+  }
+  tbody td { padding: 15px 18px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; font-size: 14px; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: #fafbff; }
+
+  .user-cell { display: flex; align-items: center; gap: 12px; }
+  .avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white; font-weight: 700; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .user-name { font-weight: 600; color: #1a202c; }
+  .user-email { font-size: 12px; color: #718096; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 20px;
+    font-size: 12px; font-weight: 700;
+  }
+  .badge-admin    { background: #eef0ff; color: #667eea; }
+  .badge-operador { background: #f0fdf4; color: #16a34a; }
+  .badge-ativo    { background: #f0fdf4; color: #16a34a; }
+  .badge-inativo  { background: #fff7ed; color: #c2410c; }
+
+  .actions { display: flex; gap: 8px; }
+  .btn-action {
+    padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    text-decoration: none; border: none; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: 0.2s;
+  }
+  .btn-edit    { background: #eef0ff; color: #667eea; }
+  .btn-edit:hover { background: #e0e4ff; }
+  .btn-toggle  { background: #fff7ed; color: #c2410c; }
+  .btn-toggle:hover { background: #fee2e2; }
+  .btn-toggle.ativar { background: #f0fdf4; color: #16a34a; }
+  .btn-toggle.ativar:hover { background: #dcfce7; }
+
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: #a0aec0;
+  }
+  .empty-state i { font-size: 40px; margin-bottom: 12px; display: block; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Gerenciar <span>Usuários</span></h1>
+    <p style="color:#718096; font-size:14px; margin-top:4px;">Total: {{ usuarios|length }} usuário(s) no sistema</p>
+  </div>
+  <a href="/usuarios/novo" class="btn-novo"><i class="fas fa-user-plus"></i> Novo Usuário</a>
+</div>
+
+{% if request.query_params.get('criado') == 'ok' %}
+<div class="alert-banner alert-success"><i class="fas fa-check-circle"></i> Usuário criado com sucesso!</div>
+{% endif %}
+{% if request.query_params.get('editado') == 'ok' %}
+<div class="alert-banner alert-success"><i class="fas fa-check-circle"></i> Usuário atualizado com sucesso!</div>
+{% endif %}
+{% if request.query_params.get('erro') == 'autoproprio' %}
+<div class="alert-banner alert-error"><i class="fas fa-triangle-exclamation"></i> Você não pode desativar sua própria conta.</div>
+{% endif %}
+
+<div class="card">
+  {% if usuarios %}
+  <table>
+    <thead>
+      <tr>
+        <th>Usuário</th>
+        <th>Perfil</th>
+        <th>Status</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in usuarios %}
+      <tr>
+        <td>
+          <div class="user-cell">
+            <div class="avatar">{{ u.nome[0].upper() }}</div>
+            <div>
+              <div class="user-name">{{ u.nome }}</div>
+              <div class="user-email">{{ u.email }}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <span class="badge badge-{{ u.role }}">
+            <i class="fas fa-{{ 'shield-halved' if u.role == 'admin' else 'user' }}"></i>
+            {{ u.role | capitalize }}
+          </span>
+        </td>
+        <td>
+          <span class="badge badge-{{ 'ativo' if u.ativo else 'inativo' }}">
+            <i class="fas fa-circle" style="font-size:8px;"></i>
+            {{ 'Ativo' if u.ativo else 'Inativo' }}
+          </span>
+        </td>
+        <td>
+          <div class="actions">
+            <a href="/usuarios/{{ u.id }}/editar" class="btn-action btn-edit">
+              <i class="fas fa-pen"></i> Editar
+            </a>
+            <form action="/usuarios/{{ u.id }}/toggle-ativo" method="post" style="margin:0;">
+              <button type="submit" class="btn-action btn-toggle {{ 'ativar' if not u.ativo else '' }}">
+                <i class="fas fa-{{ 'toggle-on' if u.ativo else 'toggle-off' }}"></i>
+                {{ 'Desativar' if u.ativo else 'Ativar' }}
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <i class="fas fa-users-slash"></i>
+    <p style="font-weight:600; color:#4a5568;">Nenhum usuário cadastrado ainda.</p>
+    <a href="/usuarios/novo" class="btn-novo" style="margin-top:16px; display:inline-flex;">
+      <i class="fas fa-user-plus"></i> Cadastrar primeiro usuário
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
