@@ -30,6 +30,11 @@ pip install -r requirements.txt
 python -m alembic init migrations
 ```
 
+# Gerar a migrations
+```bash
+python -m alembic revision --autogenerate -m "adicionado campo nome e senah no bando de dados"
+```
+
 # Aplicar a migration
 ```bash
 python -m alembic upgrade head
