@@ -1,12 +1,25 @@
-<h1>Login de Usuarios</h1>
+{% extends "base.html" %}
 
-<form action="/auth/login" method="POST">
-    E-mail: <input type="email" name="email" required>
-    <br>
-    Senha: <input type="password" name="senha" required>
-    <br>
-    
-    <button type="submit">Entrar</button>
-</form>
+{% block title %}Login - Projeto de Estoque AAPM{% endblock %}
 
-<p>Não tem uma conta? <a href="/auth/cadastro">Cadastre-se</a></p>
+{% block content %}
+    <div style="max-width: 500px; margin: 0 auto;">
+        <div style="background-color: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            <h2 style="color: #667eea; margin-bottom: 30px; text-align: center; font-size: 28px;">🔐 Login</h2>
+            
+            <form action="/auth/login" method="POST" style="display: flex; flex-direction: column;">
+                <label style="font-weight: 600; color: #333; margin-bottom: 5px;">E-mail</label>
+                <input type="email" name="email" required style="margin-bottom: 20px;">
+                
+                <label style="font-weight: 600; color: #333; margin-bottom: 5px;">Senha</label>
+                <input type="password" name="senha" required style="margin-bottom: 25px;">
+                
+                <button type="submit" style="background-color: #667eea; color: white; padding: 12px; border: none; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#764ba2'" onmouseout="this.style.backgroundColor='#667eea'">Entrar</button>
+            </form>
+            
+            <p style="text-align: center; margin-top: 20px; color: #666;">
+                Não tem uma conta? <a href="/auth/cadastro" style="color: #667eea; text-decoration: none; font-weight: 600;" onmouseover="this.style.color='#764ba2'" onmouseout="this.style.color='#667eea'">Cadastre-se</a>
+            </p>
+        </div>
+    </div>
+{% endblock %}
