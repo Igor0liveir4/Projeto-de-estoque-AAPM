@@ -11,6 +11,15 @@
                 📝 {% if editando %}Editar{% else %}Novo{% endif %} <span style="color: #667eea;">Produto</span>
             </h2>
             <p style="color: #718096; margin-top: 8px;">Insira as informações técnicas do item.</p>
+            
+            <!-- Exibição da imagem atual ao editar -->
+            {% if editando and editando.imagem_path %}
+            <div style="margin-top: 20px; text-align: center;">
+                <img src="{{ editando.imagem_url }}" alt="{{ editando.nome }}" 
+                     style="max-width: 200px; max-height: 200px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                <p style="color: #718096; font-size: 12px; margin-top: 8px;">Imagem atual do produto</p>
+            </div>
+            {% endif %}
         </div>
 
         {% if erro %}
@@ -78,6 +87,20 @@
                     {% endif %}
                 </div>
             </div>
+
+            <!-- Status Ativo/Inativo -->
+            {% if editando %}
+            <div style="margin-bottom: 20px;">
+                <label style="display: flex; align-items: center; color: #4a5568; font-weight: 700; cursor: pointer; gap: 10px;">
+                    <input type="checkbox" name="ativo" {% if editando.ativo %}checked{% endif %}
+                           style="width: 18px; height: 18px; cursor: pointer;">
+                    <span>Produto Ativo</span>
+                </label>
+                <small style="color: #718096; display: block; margin-top: 5px;">
+                    {% if editando.ativo %}✅ Produto ativo e visível{% else %}❌ Produto inativo e oculto{% endif %}
+                </small>
+            </div>
+            {% endif %}
 
             <!-- Botões -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
