@@ -45,7 +45,6 @@ python -m alembic revision --autogenerate -m "adicionado campo nome e senah no b
 ```bash
 python -m alembic upgrade head
 ```
-
 # rodar o código 
 ```bash
 python -m uvicorn app.main:app --reload
