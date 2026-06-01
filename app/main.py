@@ -10,7 +10,7 @@ from app.controllers import produto_controller
 
 from app.auth import get_usuario_opcional
 
-app = FastAPI(title="Sistema de Estoque - AAPM")
+app = FastAPI(title="Gestão de Estoque - AAPM")
 
 # Configurar o fastapi para servir os arquivos CSS, JS, IMG
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
@@ -29,7 +29,7 @@ def tela_home(
     request: Request,
     usuario = Depends(get_usuario_opcional)
 ):
-    # Não logado - exibe a tela index
+    # Não logado - exibe a tela de login/cadastro
     if usuario is None:
         return templates.TemplateResponse(
             request,
@@ -37,9 +37,9 @@ def tela_home(
             {"request": request, "usuario": None}
         )
     
-    # Logado - exibe a tela home
+    # Logado - exibe o dashboard
     return templates.TemplateResponse(
-            request,
-            "home.html",
-            {"request": request, "usuario": usuario}
-        )
+        request,
+        "home.html",
+        {"request": request, "usuario": usuario}
+    )
