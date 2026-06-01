@@ -7,9 +7,9 @@ class Produto(Base):
     __tablename__ = "produtos"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
-    nome = Column(String(150), nullable=False, index=True)
+    nome = Column(String(150), nullable=False, index=True, unique=True)
     preco = Column(Float, nullable=False, default=0.0)
-    estoque_atual = Column(Float, nullable=False, default=0)
+    estoque_atual = Column(Integer, nullable=False, default=0)
     ativo = Column(Boolean, default=True)
 
     imagem_path = Column(String(255), nullable=True)

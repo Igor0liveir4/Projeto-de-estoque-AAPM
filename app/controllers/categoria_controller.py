@@ -195,7 +195,7 @@ def toggle_ativo(
         return RedirectResponse(url="/categorias", status_code=302)
 
     # Bloqueia desativação se houver produtos ativos vinculados
-    if categoria.ativo:
+    if categoria.ativa:
         produtos_ativos = [p for p in categoria.produtos if p.ativo]
 
         if produtos_ativos:
@@ -204,7 +204,7 @@ def toggle_ativo(
                 status_code=302
             )
 
-    categoria.ativo = not categoria.ativo
+    categoria.ativa = not categoria.ativa
     db.commit()
 
     return RedirectResponse(url="/categorias", status_code=302)
