@@ -3,23 +3,162 @@
 {% block title %}Login - Projeto de Estoque AAPM{% endblock %}
 
 {% block content %}
-    <div style="max-width: 500px; margin: 0 auto;">
-        <div style="background-color: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-            <h2 style="color: #667eea; margin-bottom: 30px; text-align: center; font-size: 28px;">Login</h2>
-            
-            <form action="/auth/login" method="POST" style="display: flex; flex-direction: column;">
-                <label style="font-weight: 600; color: #333; margin-bottom: 5px;">E-mail</label>
-                <input type="email" name="email" required style="margin-bottom: 20px;">
-                
-                <label style="font-weight: 600; color: #333; margin-bottom: 5px;">Senha</label>
-                <input type="password" name="senha" required style="margin-bottom: 25px;">
-                
-                <button type="submit" style="background-color: #667eea; color: white; padding: 12px; border: none; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#764ba2'" onmouseout="this.style.backgroundColor='#667eea'">Entrar</button>
-            </form>
-            
-            <p style="text-align: center; margin-top: 20px; color: #666;">
-                Não tem uma conta? <a href="/auth/cadastro" style="color: #667eea; text-decoration: none; font-weight: 600;" onmouseover="this.style.color='#764ba2'" onmouseout="this.style.color='#667eea'">Cadastre-se</a>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    .page-wrapper {
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #090d16; /* Mesmo fundo escuro premium */
+        padding: 20px;
+    }
+    
+    .login-card {
+        width: 100%;
+        max-width: 400px;
+        background: #111726; /* Mesma superfície interna */
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 40px 32px;
+        border-radius: 24px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+        position: relative;
+    }
+
+    /* Brilho de fundo sutil (Aura) igual ao da index */
+    .login-card::before {
+        content: '';
+        position: absolute;
+        top: -10%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 180px;
+        height: 180px;
+        background: #3b82f6;
+        filter: blur(90px);
+        opacity: 0.12;
+        pointer-events: none;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .form-group label {
+        font-size: 12px;
+        font-weight: 500;
+        color: #94a3b8; /* Texto secundário claro */
+        letter-spacing: 0.02em;
+    }
+
+    /* Inputs Modernos e Transparentes */
+    .form-control {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #f8fafc;
+        font-family: inherit;
+        transition: all 0.2s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: rgba(255, 255, 255, 0.04);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    /* Botão de Envio Pequeno e Minimalista */
+    .btn-submit {
+        background: #f8fafc;
+        color: #090d16;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        margin-top: 10px;
+    }
+
+    .btn-submit:hover {
+        background: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+    }
+
+    /* Link de cadastro sutil */
+    .register-link {
+        color: #64748b;
+        font-size: 13px;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .register-link a {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .register-link a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="login-card">
+        
+        <div style="text-align: center; margin-bottom: 32px;">
+            <h2 style="color: #f8fafc; margin: 0 0 6px 0; font-size: 24px; font-weight: 600; letter-spacing: -0.5px;">
+                Acessar Conta
+            </h2>
+            <p style="color: #64748b; font-size: 13px; margin: 0;">
+                Insira suas credenciais para continuar
             </p>
         </div>
+
+        <form action="/auth/login" method="POST" style="display: flex; flex-direction: column;">
+            
+            <div class="form-group">
+                <label for="email">E-mail institucional</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="nome@exemplo.com" required>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 28px;">
+                <label for="senha">Senha de acesso</label>
+                <input type="password" id="senha" name="senha" class="form-control" placeholder="••••••••" required>
+            </div>
+            
+            <div style="display: flex; justify-content: center;">
+                <button type="submit" class="btn-submit" style="width: 100%; max-width: 240px;">
+                    <span>Entrar no painel</span>
+                    <i class="fas fa-sign-in-alt" style="font-size: 11px;"></i>
+                </button>
+            </div>
+        </form>
+        
+        <div style="margin-top: 32px; text-align: center;">
+            <p class="register-link">
+                Não tem uma conta? <a href="/auth/cadastro">Cadastre-se</a>
+            </p>
+        </div>
+
     </div>
+</div>
 {% endblock %}

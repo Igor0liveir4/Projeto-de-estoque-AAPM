@@ -4,117 +4,135 @@
 
 {% block content %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<div style="
-    min-height: 80vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Inter', sans-serif;
-">
-    <div style="
-        width: 100%;
-        max-width: 450px;
-        position: relative;
+<style>
+    .page-wrapper {
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #090d16; /* Fundo escuro premium */
         padding: 20px;
-    ">
-        <div
-            style="position: absolute; width: 150px; height: 150px; background: #667eea; filter: blur(80px); border-radius: 50%; top: -20px; left: -20px; z-index: 0; opacity: 0.4;">
+    }
+    
+    .auth-card {
+        width: 100%;
+        max-width: 400px;
+        background: #111726; /* Superfície interna contrastante */
+        border: 1px solid rgba(255, 255, 255, 0.05); /* Borda cirúrgica e sutil */
+        padding: 40px 32px;
+        border-radius: 24px;
+        text-align: center;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+        position: relative;
+    }
+
+    /* Brilho de fundo sutil (Aura) */
+    .auth-card::before {
+        content: '';
+        position: absolute;
+        top: -10%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 180px;
+        height: 180px;
+        background: #3b82f6;
+        filter: blur(90px);
+        opacity: 0.15;
+        pointer-events: none;
+    }
+
+    .brand-icon {
+        color: #f8fafc;
+        font-size: 20px;
+        background: rgba(255, 255, 255, 0.03);
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        margin-bottom: 24px;
+    }
+
+    /* Botões Pequenos e Minimalistas */
+    .btn-prime {
+        background: #f8fafc;
+        color: #090d16;
+        padding: 10px 16px;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+    }
+    .btn-prime:hover {
+        background: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-sub {
+        background: transparent;
+        color: #94a3b8;
+        padding: 10px 16px;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.2s ease;
+    }
+    .btn-sub:hover {
+        background: rgba(255, 255, 255, 0.03);
+        color: #f8fafc;
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="auth-card">
+        
+        <div class="brand-icon">
+            <i class="fas fa-layer-group"></i>
         </div>
-        <div
-            style="position: absolute; width: 150px; height: 150px; background: #764ba2; filter: blur(80px); border-radius: 50%; bottom: -20px; right: -20px; z-index: 0; opacity: 0.4;">
+
+        <h2 style="color: #f8fafc; margin: 0 0 8px 0; font-size: 24px; font-weight: 600; letter-spacing: -0.5px;">
+            Estoque AAPM
+        </h2>
+
+        <p style="color: #64748b; font-size: 13px; line-height: 1.5; margin: 0 0 32px 0; padding: 0 10px;">
+            Controle de ativos e materiais de forma simples e automatizada.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; max-width: 240px; margin: 0 auto;">
+            <a href="/auth/login" class="btn-prime">
+                <i class="fas fa-shield" style="font-size: 11px;"></i>
+                <span>Entrar no sistema</span>
+            </a>
+
+            <a href="/auth/cadastro" class="btn-sub">
+                <span>Criar conta</span>
+            </a>
         </div>
 
-        <div style="
-            background: rgba(222, 229, 255, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 50px 40px;
-            border-radius: 32px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            position: relative;
-            z-index: 1;
-        ">
-            <div style="
-                margin: 0 auto 20px;
-                width: 70px;
-                height: 70px;
-                border-radius: 20px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-            ">
-                <i class="fas fa-boxes-stacked" style="color: rgb(255, 255, 255); font-size: 32px;"></i>
-            </div>
-
-            <h2 style="
-                color: #111827; 
-                margin-bottom: 12px; 
-                font-size: 32px; 
-                font-weight: 800;
-                letter-spacing: -1.5px;
-                line-height: 1;
-            ">
-                Estoque <span
-                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AAPM</span>
-            </h2>
-
-            <p style="color: #6b7280; font-size: 15px; margin-bottom: 40px; font-weight: 400;">
-                A plataforma inteligente para controle de ativos e materiais.
+        <div style="margin-top: 40px; border-top: 1px solid rgba(255, 255, 255, 0.03); padding-top: 16px;">
+            <p style="font-size: 10px; color: #475569; text-transform: uppercase; letter-spacing: 0.1em; margin: 0; font-weight: 500;">
+                v2.0 • AAPM Engine
             </p>
-
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <a href="/auth/login" style="
-                    background: #111827;
-                    color: rgb(255, 255, 255);
-                    padding: 16px;
-                    text-decoration: none;
-                    border-radius: 16px;
-                    font-size: 16px;
-                    font-weight: 600;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 12px;
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                    border: 1px solid transparent;
-                " onmouseover="this.style.background='#374151'; this.style.transform='scale(1.02)'"
-                    onmouseout="this.style.background='#111827'; this.style.transform='scale(1)'">
-                    <i class="fas fa-fingerprint"></i> Entrar na Conta
-                </a>
-
-                <a href="/auth/cadastro" style="
-                    background: rgb(255, 255, 255);
-                    color: #111827;
-                    padding: 16px;
-                    text-decoration: none;
-                    border-radius: 16px;
-                    font-size: 16px;
-                    font-weight: 600;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 12px;
-                    border: 1px solid #9bb7f0;
-                    transition: all 0.3s ease;
-                " onmouseover="this.style.borderColor='#667eea'; this.style.backgroundColor='#f9fafb'"
-                    onmouseout="this.style.borderColor='#e5e7eb'; this.style.backgroundColor='white'">
-                    <i class="fas fa-plus-circle"></i> Começar Agora
-                </a>
-            </div>
-
-            <div style="margin-top: 35px;">
-                <p
-                    style="font-size: 11px; color: #111111; text-transform: uppercase; letter-spacing: 2px; font-weight: 600;">
-                    Projeto - AAPM v2.0
-                </p>
-            </div>
         </div>
+
     </div>
 </div>
 {% endblock %}
