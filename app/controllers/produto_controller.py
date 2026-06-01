@@ -95,6 +95,58 @@ async def criar_produto(
 ):
     categorias = db.query(Categoria).filter(Categoria.ativa == True).all()
 
+    # Validações básicas
+    if not nome or len(nome.strip()) == 0:
+        return templates.TemplateResponse(
+            request,
+            "produtos/form.html",
+            {
+                "request":    request,
+                "usuario":    admin,
+                "editando":   None,
+                "categorias": categorias,
+                "erro":       "Nome do produto é obrigatório.",
+                "valores":    {"nome": nome, "preco": preco,
+                               "estoque_atual": estoque_atual,
+                               "categoria_id": categoria_id}
+            },
+            status_code=400
+        )
+
+    if preco < 0:
+        return templates.TemplateResponse(
+            request,
+            "produtos/form.html",
+            {
+                "request":    request,
+                "usuario":    admin,
+                "editando":   None,
+                "categorias": categorias,
+                "erro":       "Preço não pode ser negativo.",
+                "valores":    {"nome": nome, "preco": preco,
+                               "estoque_atual": estoque_atual,
+                               "categoria_id": categoria_id}
+            },
+            status_code=400
+        )
+
+    if estoque_atual < 0:
+        return templates.TemplateResponse(
+            request,
+            "produtos/form.html",
+            {
+                "request":    request,
+                "usuario":    admin,
+                "editando":   None,
+                "categorias": categorias,
+                "erro":       "Estoque não pode ser negativo.",
+                "valores":    {"nome": nome, "preco": preco,
+                               "estoque_atual": estoque_atual,
+                               "categoria_id": categoria_id}
+            },
+            status_code=400
+        )
+
     # Verifica duplicidade de nome
     # ilike() para comparação case-insensitive, evitando produtos "Camiseta" e "camiseta".
     if db.query(Produto).filter(Produto.nome.ilike(nome)).first():
@@ -114,21 +166,42 @@ async def criar_produto(
             status_code=400
         )
 
-    # Processa o upload da imagem
-    imagem_path = await _salvar_imagem(imagem)
+    try:
+        # Processa o upload da imagem
+        imagem_path = await _salvar_imagem(imagem)
 
-    produto = Produto(
-        nome          = nome,
-        preco         = preco,
-        estoque_atual = estoque_atual,
-        categoria_id  = categoria_id or None,  # 0 vira NULL no banco
-        imagem_path   = imagem_path,
-    )
+        produto = Produto(
+            nome          = nome,
+            preco         = preco,
+            estoque_atual = estoque_atual,
+            categoria_id  = categoria_id or None,  # 0 vira NULL no banco
+            imagem_path   = imagem_path,
+        )
 
-    db.add(produto)
-    db.commit()
+        db.add(produto)
+        db.commit()
+        db.refresh(produto)
 
-    return RedirectResponse(url="/produtos?criado=ok", status_code=302)
+        return RedirectResponse(url="/produtos?criado=ok", status_code=302)
+    
+    except Exception as e:
+        db.rollback()
+        print(f"Erro ao criar produto: {str(e)}")
+        return templates.TemplateResponse(
+            request,
+            "produtos/form.html",
+            {
+                "request":    request,
+                "usuario":    admin,
+                "editando":   None,
+                "categorias": categorias,
+                "erro":       f"Erro ao salvar produto: {str(e)}",
+                "valores":    {"nome": nome, "preco": preco,
+                               "estoque_atual": estoque_atual,
+                               "categoria_id": categoria_id}
+            },
+            status_code=500
+        )
 
 
 # DETALHE
@@ -219,21 +292,39 @@ async def editar_produto(
             status_code=400
         )
 
-    # Processa nova imagem — só substitui se um arquivo foi enviado
-    nova_imagem_path = await _salvar_imagem(imagem)
-    if nova_imagem_path:
-        # Remove a imagem antiga do disco para não acumular arquivos
-        _remover_imagem(editando.imagem_path)
-        editando.imagem_path = nova_imagem_path
+    try:
+        # Processa nova imagem — só substitui se um arquivo foi enviado
+        nova_imagem_path = await _salvar_imagem(imagem)
+        if nova_imagem_path:
+            # Remove a imagem antiga do disco para não acumular arquivos
+            _remover_imagem(editando.imagem_path)
+            editando.imagem_path = nova_imagem_path
 
-    editando.nome          = nome
-    editando.preco         = preco
-    editando.estoque_atual = estoque_atual
-    editando.categoria_id  = categoria_id or None
+        editando.nome          = nome
+        editando.preco         = preco
+        editando.estoque_atual = estoque_atual
+        editando.categoria_id  = categoria_id or None
 
-    db.commit()
+        db.commit()
+        db.refresh(editando)
 
-    return RedirectResponse(url=f"/produtos/{produto_id}?editado=ok", status_code=302)
+        return RedirectResponse(url=f"/produtos/{produto_id}?editado=ok", status_code=302)
+    
+    except Exception as e:
+        db.rollback()
+        print(f"Erro ao editar produto: {str(e)}")
+        return templates.TemplateResponse(
+            request,
+            "produtos/form.html",
+            {
+                "request":    request,
+                "usuario":    admin,
+                "editando":   editando,
+                "categorias": categorias,
+                "erro":       f"Erro ao atualizar produto: {str(e)}",
+            },
+            status_code=500
+        )
 
 
 # ============================================================

@@ -12,3 +12,6 @@ class Categoria(Base):
     ativa = Column(Boolean, default=True)
 
     produtos = relationship("Produto", back_populates="categoria")
+
+    def __str__(self):
+        return self.nome
