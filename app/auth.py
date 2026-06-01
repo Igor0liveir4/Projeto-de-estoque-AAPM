@@ -40,16 +40,19 @@ def criar_token(data: dict):
     return token
 
 def decodificar_token(token: str):
-    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    return payload
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except JWTError as e:
+        raise JWTError(f"Token inválido ou expirado: {str(e)}")
 
 # Dependências do FastAPI
 def get_usuario_logado(request: Request):
     token = request.cookies.get("access_token")
     if not token:
         raise HTTPException(
-            status_code=status.HTTP_307_TEMPORARY_REDIRECT,
-            headers={"Location": "/"}
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token não encontrado"
         )
 
     try:
@@ -58,14 +61,14 @@ def get_usuario_logado(request: Request):
 
         if email is None:
             raise HTTPException(
-                status_code=status.HTTP_307_TEMPORARY_REDIRECT,
-                headers={"Location": "/"}
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Email não encontrado no token"
             )
         return payload
-    except JWTError:
+    except JWTError as e:
         raise HTTPException(
-            status_code=status.HTTP_307_TEMPORARY_REDIRECT,
-            headers={"Location": "/"}
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Token inválido: {str(e)}"
         )
     
 def get_usuario_opcional(request: Request):
