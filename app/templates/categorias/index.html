@@ -101,14 +101,14 @@
 {% if categorias %}
 <div class="grid">
   {% for cat in categorias %}
-  <div class="cat-card {{ '' if cat.ativo else 'inativa' }}">
+  <div class="cat-card {{ '' if cat.ativa else 'inativa' }}">
     <div class="cat-left">
       <div class="cat-icon"><i class="fas fa-tag"></i></div>
       <div>
         <div class="cat-name">{{ cat.nome }}</div>
-        <div class="cat-status {{ 'ativa' if cat.ativo else 'inativa' }}">
+        <div class="cat-status {{ 'ativa' if cat.ativa else 'inativa' }}">
           <i class="fas fa-circle" style="font-size:7px;"></i>
-          {{ 'Ativa' if cat.ativo else 'Inativa' }}
+          {{ 'Ativa' if cat.ativa else 'Inativa' }}
         </div>
       </div>
     </div>

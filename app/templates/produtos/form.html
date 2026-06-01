@@ -1,45 +1,94 @@
 {% extends "base.html" %}
 
-{% block title %}Manutenção de Produto - AAPM{% endblock %}
+{% block title %}Cadastro de Produto - AAPM{% endblock %}
 
 {% block content %}
 <div style="max-width: 600px; margin: 40px auto; padding: 20px;">
     <div style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); padding: 40px; border-radius: 28px; box-shadow: 0 25px 50px rgba(0,0,0,0.25);">
         
         <div style="text-align: center; margin-bottom: 35px;">
-            <h2 style="color: #2d3748; font-size: 26px; font-weight: 800;">📝 Detalhes do <span style="color: #667eea;">Produto</span></h2>
+            <h2 style="color: #2d3748; font-size: 26px; font-weight: 800;">
+                📝 {% if editando %}Editar{% else %}Novo{% endif %} <span style="color: #667eea;">Produto</span>
+            </h2>
             <p style="color: #718096; margin-top: 8px;">Insira as informações técnicas do item.</p>
         </div>
 
-        <form method="POST">
+        {% if erro %}
+        <div style="background: #fed7d7; color: #c53030; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #c53030;">
+            <strong>❌ Erro:</strong> {{ erro }}
+        </div>
+        {% endif %}
+
+        <!-- IMPORTANTE: enctype="multipart/form-data" é necessário para upload de imagem -->
+        <form method="POST" enctype="multipart/form-data">
+            
+            <!-- Nome do Produto -->
             <div style="margin-bottom: 20px;">
-                <label style="display: block; color: #4a5568; font-weight: 700; margin-bottom: 8px;">Nome do Item</label>
+                <label style="display: block; color: #4a5568; font-weight: 700; margin-bottom: 8px;">
+                    Nome do Item <span style="color: #e53e3e;">*</span>
+                </label>
                 <input type="text" name="nome" placeholder="Ex: Cadeira Ergonômica" required
-                       style="width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #edf2f7; outline: none; transition: 0.3s;"
+                       value="{{ editando.nome if editando else (valores.nome if valores else '') }}"
+                       style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #edf2f7; font-size: 14px; box-sizing: border-box;"
                        onfocus="this.style.borderColor='#667eea'">
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+            <!-- Categoria e Preço -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
                 <div>
                     <label style="display: block; color: #4a5568; font-weight: 700; margin-bottom: 8px;">Categoria</label>
-                    <select name="categoria" style="width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #edf2f7; background: white;">
-                        <option value="Móveis">Móveis</option>
-                        <option value="Eletrónicos">Eletrónicos</option>
-                        <option value="Papelaria">Papelaria</option>
+                    <select name="categoria_id" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #edf2f7; background: white; font-size: 14px; box-sizing: border-box;">
+                        <option value="0">— Sem categoria —</option>
+                        {% for categoria in categorias %}
+                            <option value="{{ categoria.id }}"
+                                {% if (editando and editando.categoria_id == categoria.id) or (valores and valores.get('categoria_id') == categoria.id) %}selected{% endif %}>
+                                {{ categoria.nome }}
+                            </option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div>
-                    <label style="display: block; color: #4a5568; font-weight: 700; margin-bottom: 8px;">Preço Base</label>
-                    <input type="number" step="0.01" name="preco" placeholder="0.00"
-                           style="width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #edf2f7;">
+                    <label style="display: block; color: #4a5568; font-weight: 700; margin-bottom: 8px;">
+                        Preço Base <span style="color: #e53e3e;">*</span>
+                    </label>
+                    <input type="number" step="0.01" name="preco" placeholder="0.00" required
+                           value="{{ editando.preco if editando else (valores.preco if valores else '') }}"
+                           style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #edf2f7; font-size: 14px; box-sizing: border-box;">
                 </div>
             </div>
 
-            <button type="submit" style="width: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px; border: none; border-radius: 14px; font-weight: 800; cursor: pointer; box-shadow: 0 10px 20px rgba(102,126,234,0.3); transition: 0.3s;">
-                Salvar Alterações
-            </button>
-            
-            <a href="/produtos" style="display: block; text-align: center; margin-top: 20px; color: #718096; text-decoration: none; font-weight: 600;">Voltar à lista</a>
+            <!-- Estoque e Imagem -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div>
+                    <label style="display: block; color: #4a5568; font-weight: 700; margin-bottom: 8px;">
+                        Estoque Atual <span style="color: #e53e3e;">*</span>
+                    </label>
+                    <input type="number" name="estoque_atual" min="0" step="1" required
+                           value="{{ editando.estoque_atual if editando else (valores.estoque_atual if valores else '0') }}"
+                           style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #edf2f7; font-size: 14px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="display: block; color: #4a5568; font-weight: 700; margin-bottom: 8px;">Imagem (opcional)</label>
+                    <input type="file" name="imagem" accept=".jpg,.jpeg,.png,.webp"
+                           style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #edf2f7; font-size: 13px; box-sizing: border-box;">
+                    {% if editando and editando.imagem_path %}
+                    <small style="color: #718096; display: block; margin-top: 5px;">
+                        Imagem atual: <a href="{{ editando.imagem_url }}" target="_blank" style="color: #667eea;">visualizar</a>
+                    </small>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Botões -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button type="submit" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px; transition: 0.3s; box-shadow: 0 4px 15px rgba(102,126,234,0.3);">
+                    💾 Salvar Produto
+                </button>
+                <a href="/produtos" style="background: #edf2f7; color: #4a5568; padding: 14px; border-radius: 8px; text-align: center; text-decoration: none; font-weight: 700; font-size: 14px; transition: 0.3s;">
+                    ← Voltar
+                </a>
+            </div>
+
         </form>
     </div>
 </div>
