@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Gestão de Estoque AAPM{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {% block head %}{% endblock %}
     <style>
         * {
@@ -39,33 +40,53 @@
             font-weight: 600;
         }
 
-
-        nav {
-            background-color: #fff;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-
-        nav:empty {
-            display: none;
-        }
-
-        nav ul {
-            list-style: none;
+        /* Header Navigation */
+        .header-top {
             display: flex;
-            gap: 30px;
-            padding: 15px 0;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        nav a {
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: rgb(255, 255, 255);
+            padding: 10px 18px;
             text-decoration: none;
-            color: #667eea;
+            border-radius: 6px;
             font-weight: 500;
-            transition: color 0.3s;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        nav a:hover {
-            color: #764ba2;
+        .nav-btn:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .nav-btn.logout {
+            background-color: rgba(220, 38, 38, 0.15);
+            border-color: rgba(220, 38, 38, 0.3);
+        }
+
+        .nav-btn.logout:hover {
+            background-color: rgba(220, 38, 38, 0.25);
+            border-color: rgba(220, 38, 38, 0.5);
         }
 
         main {
@@ -142,28 +163,75 @@
             padding: 12px 15px;
             border-bottom: 1px solid #ddd;
         }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .header-top {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .nav-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .nav-btn {
+                padding: 8px 14px;
+                font-size: 13px;
+            }
+
+            nav ul {
+                gap: 15px;
+                padding: 10px 0;
+            }
+
+            nav a {
+                font-size: 14px;
+            }
+
+            header {
+                padding: 15px 0;
+            }
+        }
     </style>
 </head>
 
 <body>
     <header>
         <div class="container">
-            <h1>Gestão de Estoque AAPM</h1>
+            <div class="header-top">
+                <h1>Gestão de Estoque AAPM</h1>
+                {% if usuario %}
+                <div class="nav-buttons">
+                    <a href="/" class="nav-btn">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                    <a href="/estoque" class="nav-btn">
+                        <i class="fas fa-boxes"></i> Estoque
+                    </a>
+                    <a href="/produtos" class="nav-btn">
+                        <i class="fas fa-package"></i> Produtos
+                    </a>
+                    <a href="/categorias" class="nav-btn">
+                        <i class="fas fa-list"></i> Categorias
+                    </a>
+                    <a href="/usuarios" class="nav-btn">
+                        <i class="fas fa-users"></i> Usuários
+                    </a>
+                    <a href="/auth/logout" class="nav-btn logout">
+                        <i class="fas fa-sign-out-alt"></i> Sair
+                    </a>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </header>
-
-    {% if usuario %}
-    <nav>
-        <div class="container">
-            <ul>
-                <li><a href="/">Início</a></li>
-                <li><a href="/estoque">Estoque</a></li>
-                <li><a href="/produtos">Produtos</a></li>
-                <li><a href="/categorias">Categorias</a></li>
-            </ul>
-        </div>
-    </nav>
-    {% endif %}
 
     <main>
         {% block content %}{% endblock %}
