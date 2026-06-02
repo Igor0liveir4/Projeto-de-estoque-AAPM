@@ -41,7 +41,7 @@ def listar_produtos(
         query = query.filter(Produto.categoria_id == categoria_id)
 
     produtos    = query.order_by(Produto.nome).all()
-    categorias  = db.query(Categoria).filter(Categoria.ativo == True).all()
+    categorias  = db.query(Categoria).filter(Categoria.ativa == True).all()
 
     return templates.TemplateResponse(
         request,
@@ -67,7 +67,7 @@ def form_novo_produto(
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
-    categorias = db.query(Categoria).filter(Categoria.ativo == True).all()
+    categorias = db.query(Categoria).filter(Categoria.ativa == True).all()
 
     return templates.TemplateResponse(
         request,
@@ -92,7 +92,7 @@ async def criar_produto(
     db: Session        = Depends(get_db),
     admin              = Depends(get_admin)
 ):
-    categorias = db.query(Categoria).filter(Categoria.ativo == True).all()
+    categorias = db.query(Categoria).filter(Categoria.ativa == True).all()
 
     # Verifica duplicidade de nome
     # ilike() para comparação case-insensitive, evitando produtos "Camiseta" e "camiseta".
@@ -163,7 +163,7 @@ def form_editar_produto(
     admin = Depends(get_admin)
 ):
     editando   = db.query(Produto).filter(Produto.id == produto_id).first()
-    categorias = db.query(Categoria).filter(Categoria.ativo == True).all()
+    categorias = db.query(Categoria).filter(Categoria.ativa == True).all()
 
     if not editando:
         return RedirectResponse(url="/produtos", status_code=302)
@@ -193,7 +193,7 @@ async def editar_produto(
     admin              = Depends(get_admin)
 ):
     editando   = db.query(Produto).filter(Produto.id == produto_id).first()
-    categorias = db.query(Categoria).filter(Categoria.ativo == True).all()
+    categorias = db.query(Categoria).filter(Categoria.ativa == True).all()
 
     if not editando:
         return RedirectResponse(url="/produtos", status_code=302)
