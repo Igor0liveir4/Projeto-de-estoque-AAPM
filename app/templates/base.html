@@ -24,7 +24,7 @@
         header {
             background: linear-gradient(135deg, #0f2279 0%, #764ba2 100%);
             color: rgb(255, 255, 255);
-            padding: 20px 0;
+            padding: 15px 0;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
@@ -34,17 +34,28 @@
             padding: 0 20px;
         }
 
+        /* Alinha a logo e o texto horizontalmente */
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-header {
+            height: 50px; /* Ajuste a altura máxima conforme necessário */
+            width: auto;
+            object-fit: contain;
+        }
+
         h1 {
             font-size: 28px;
             font-weight: 600;
         }
 
-
         nav {
             background-color: #fff;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
-
 
         nav:empty {
             display: none;
@@ -80,10 +91,6 @@
             padding: 20px;
             margin-top: 40px;
         }
-
-        /* ALGUMS SINAIS DE ALERTA */
-
-
 
         .alert {
             padding: 15px;
@@ -148,7 +155,10 @@
 <body>
     <header>
         <div class="container">
-            <h1>Gestão de Estoque AAPM</h1>
+            <div class="header-content">
+                <img src="/logo/logoAAPM.png" alt="Logo AAPM" class="logo-header">
+                <h1>Gestão de Estoque AAPM</h1>
+            </div>
         </div>
     </header>
 
