@@ -11,12 +11,17 @@ from app.controllers import admin_controller
 from app.controllers import categoria_controller
 from app.controllers import produto_controller
 from app.controllers import movimentacao_controller
+from app.controllers import pdv_controller
+from app.controllers import cliente_controller
 
 from app.auth import get_usuario_opcional
 from app.database import get_db
 from app.models.produto import Produto
 from app.models.categoria import Categoria
 from app.models.usuario import Usuario
+from app.models.cliente import Cliente
+from app.models.venda import Venda, ItemVenda
+from app.models.movimentacao import Movimentacao, Tipo_de_movimentacao
 
 app = FastAPI(title="Gestão de Estoque - AAPM")
 
@@ -28,10 +33,12 @@ templates = Jinja2Templates(directory="app/templates")
 
 # Inclui os routeres do controller
 app.include_router(auth_controller.router) 
-app.include_router(admin_controller.router)
+app.include_router(admin_controller.router) 
 app.include_router(categoria_controller.router)
 app.include_router(produto_controller.router)
 app.include_router(movimentacao_controller.router)
+app.include_router(pdv_controller.router)
+app.include_router(cliente_controller.router)
 
 @app.get("/")
 def tela_home(
@@ -52,6 +59,9 @@ def tela_home(
     total_produtos = db.query(Produto).count()
     total_categorias = db.query(Categoria).count()
     total_usuarios = db.query(Usuario).count()
+    total_clientes = db.query(Cliente).count()
+    total_vendas = db.query(Venda).count()
+    total_movimentacoes = db.query(Movimentacao).count()
     
     # Total estoque
     total_estoque_result = db.query(Produto).with_entities(
@@ -101,6 +111,9 @@ def tela_home(
             "total_produtos": total_produtos,
             "total_categorias": total_categorias,
             "total_usuarios": total_usuarios,
+            "total_clientes": total_clientes,
+            "total_vendas": total_vendas,
+            "total_movimentacoes": total_movimentacoes,
             "total_estoque": total_estoque,
             "categorias_chart": json.dumps(categorias_chart),
             "produtos_chart": json.dumps(produtos_chart),
