@@ -38,7 +38,7 @@ python -m alembic init migrations
 
 # Gerar a migrations
 ```bash
-python -m alembic revision --autogenerate -m "adicionado campo nome e senah no bando de dados"
+python -m alembic revision --autogenerate -m "Removendo e adicionando os campos email e Turma"
 ```
 
 # Aplicar a migration

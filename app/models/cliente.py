@@ -10,9 +10,8 @@ class Cliente(Base):
     id         = Column(Integer, primary_key=True, index=True)
     nome       = Column(String(150), nullable=False, index=True)
 
-    # Matrícula do aluno SENAI — único, usado para identificar o associado
-    matricula  = Column(String(50), nullable=True, unique=True)
-
+    email      = Column(String(150), nullable=True)
+    turmas     = Column(String(255), nullable=True)
     telefone   = Column(String(20), nullable=True)
 
     # is_associado define se o cliente tem 10% de desconto
