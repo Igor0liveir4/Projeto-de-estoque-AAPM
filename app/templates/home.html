@@ -8,13 +8,53 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-    /* Estilos globais e transições para manter o HTML limpo */
     .dashboard-container {
         font-family: 'Plus Jakarta Sans', sans-serif;
         max-width: 1200px;
         margin: 40px auto;
         padding: 0 24px;
         color: #0f172a;
+    }
+    
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 40px;
+    }
+    
+    .dashboard-title h1 {
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        margin: 0;
+        color: #0f172a;
+    }
+    
+    .dashboard-title p {
+        color: #64748b;
+        font-size: 14px;
+        margin: 8px 0 0 0;
+    }
+    
+    .user-badge {
+        background: #f1f5f9;
+        color: #334155;
+        padding: 8px 14px;
+        border-radius: 20px;
+        font-weight: 500;
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .user-badge span {
+        width: 6px;
+        height: 6px;
+        background: #10b981;
+        border-radius: 50%;
     }
     
     .stat-card {
@@ -80,6 +120,13 @@
         margin: 0;
     }
     
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
     .chart-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
@@ -105,30 +152,70 @@
         height: 300px;
         margin-bottom: 10px;
     }
+    
+    .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .full-width {
+        grid-column: 1 / -1;
+    }
+    
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 0 16px;
+            margin: 20px auto;
+        }
+        
+        .dashboard-header {
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .dashboard-title h1 {
+            font-size: 24px;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .charts-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .full-width {
+            grid-column: 1;
+        }
+        
+        .chart-container {
+            height: 250px;
+        }
+    }
 </style>
 
 <div class="dashboard-container">
-
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px;">
-        <div>
-            <h1 style="font-size: 32px; font-weight: 700; letter-spacing: -0.5px; margin: 0; color: #0f172a;">
-                Dashboard
-            </h1>
-            <p style="color: #64748b; font-size: 14px; margin: 8px 0 0 0;">
+    <!-- Cabeçalho do Dashboard -->
+    <div class="dashboard-header">
+        <div class="dashboard-title">
+            <h1>Dashboard</h1>
+            <p>
                 Olá, <span style="color: #0f172a; font-weight: 500;">{{ usuario.nome }}</span> • Painel de controle do estoque
             </p>
         </div>
         <div>
-            <span style="background: #f1f5f9; color: #334155; padding: 8px 14px; border-radius: 20px; font-weight: 500; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #e2e8f0;">
-                <span style="width: 6px; height: 6px; background: #10b981; border-radius: 50%;"></span>
+            <span class="user-badge">
+                <span></span>
                 {{ usuario.role }}
             </span>
         </div>
     </div>
 
-    <!-- Estatísticas Principais -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
-        
+    <!-- Cartões de Estatísticas -->
+    <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon blue">
                 <i class="fas fa-box"></i>
@@ -164,187 +251,165 @@
                 <i class="fas fa-users"></i>
             </div>
             <div class="stat-content">
-                <h3>Usuários</h3>
+                <h3>Usuários do Sistema</h3>
                 <p class="value">{{ total_usuarios }}</p>
             </div>
         </div>
     </div>
 
     <!-- Gráficos -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 20px; margin-bottom: 30px;">
-        
+    <div class="charts-grid">
         <!-- Gráfico de Distribuição por Categoria -->
         <div class="chart-card">
-            <h2>📊 Distribuição por Categoria</h2>
+            <h2><i class="fas fa-pie-chart"></i> Distribuição de Produtos por Categoria</h2>
             <div class="chart-container">
-                <canvas id="categoriaChart"></canvas>
+                <canvas id="categoriasChart"></canvas>
             </div>
         </div>
-        
-        <!-- Gráfico de Top 5 Produtos em Estoque -->
+
+        <!-- Gráfico de Top 5 Produtos -->
         <div class="chart-card">
-            <h2>📈 Top 5 Produtos em Estoque</h2>
+            <h2><i class="fas fa-chart-bar"></i> Top 5 Produtos em Estoque</h2>
             <div class="chart-container">
                 <canvas id="produtosChart"></canvas>
             </div>
         </div>
-    </div>
 
-    <!-- Gráfico de Valores em Estoque -->
-    <div class="chart-card" style="margin-bottom: 30px;">
-        <h2>💰 Valor Total em Estoque por Categoria</h2>
-        <div class="chart-container" style="height: 350px;">
-            <canvas id="valorChart"></canvas>
+        <!-- Gráfico de Valor em Estoque por Categoria -->
+        <div class="chart-card full-width">
+            <h2><i class="fas fa-chart-column"></i> Valor Total em Estoque por Categoria (R$)</h2>
+            <div class="chart-container" style="height: 350px;">
+                <canvas id="valorChart"></canvas>
+            </div>
         </div>
     </div>
-
 </div>
 
 <script>
-    // Dados do servidor
-    const categoriasData = ("{{ categorias_chart|safe }}");
-    const produtosData = ("{{ produtos_chart|safe }}");
-    const valorData = ("{{ valor_chart|safe }}");
+    // Dados dos gráficos
+    const categoriasData = ("{{ categorias_chart | safe }}");
+    const produtosData = ("{{ produtos_chart | safe }}");
+    const valorData = ("{{ valor_chart | safe }}");
+
+    // Cores para os gráficos
+    const colors = ['#0284c7', '#9333ea', '#16a34a', '#ea580c', '#f59e0b', '#06b6d4', '#ec4899'];
 
     // Gráfico de Pizza - Distribuição por Categoria
-    const ctx1 = document.getElementById('categoriaChart').getContext('2d');
-    new Chart(ctx1, {
-        type: 'doughnut',
-        data: {
-            labels: categoriasData.labels,
-            datasets: [{
-                data: categoriasData.data,
-                backgroundColor: [
-                    '#3b82f6',
-                    '#8b5cf6',
-                    '#ec4899',
-                    '#f59e0b',
-                    '#10b981',
-                    '#06b6d4',
-                    '#6366f1'
-                ],
-                borderColor: '#ffffff',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        font: { size: 12, family: "'Plus Jakarta Sans', sans-serif" },
-                        padding: 15,
-                        color: '#64748b'
+    if (categoriasData.labels.length > 0) {
+        new Chart(document.getElementById('categoriasChart'), {
+            type: 'doughnut',
+            data: {
+                labels: categoriasData.labels,
+                datasets: [{
+                    data: categoriasData.data,
+                    backgroundColor: colors,
+                    borderColor: '#ffffff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { size: 13 },
+                            padding: 15,
+                            usePointStyle: true
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+    }
 
     // Gráfico de Barras - Top 5 Produtos
-    const ctx2 = document.getElementById('produtosChart').getContext('2d');
-    new Chart(ctx2, {
-        type: 'bar',
-        data: {
-            labels: produtosData.labels,
-            datasets: [{
-                label: 'Quantidade em Estoque',
-                data: produtosData.data,
-                backgroundColor: '#3b82f6',
-                borderColor: '#1e40af',
-                borderWidth: 1,
-                borderRadius: 6
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    labels: {
-                        font: { size: 12, family: "'Plus Jakarta Sans', sans-serif" },
-                        color: '#64748b'
-                    }
-                }
+    if (produtosData.labels.length > 0) {
+        new Chart(document.getElementById('produtosChart'), {
+            type: 'bar',
+            data: {
+                labels: produtosData.labels,
+                datasets: [{
+                    label: 'Quantidade em Estoque',
+                    data: produtosData.data,
+                    backgroundColor: '#0284c7',
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
             },
-            scales: {
-                x: {
-                    beginAtZero: true,
-                    ticks: {
-                        color: '#64748b',
-                        font: { size: 11 }
-                    },
-                    grid: { color: '#f1f5f9' }
-                },
-                y: {
-                    ticks: {
-                        color: '#64748b',
-                        font: { size: 11 }
-                    },
-                    grid: { display: false }
-                }
-            }
-        }
-    });
-
-    // Gráfico de Linha - Valor em Estoque
-    const ctx3 = document.getElementById('valorChart').getContext('2d');
-    new Chart(ctx3, {
-        type: 'bar',
-        data: {
-            labels: valorData.labels,
-            datasets: [{
-                label: 'Valor Total (R$)',
-                data: valorData.data,
-                backgroundColor: [
-                    'rgba(16, 185, 129, 0.8)',
-                    'rgba(59, 130, 246, 0.8)',
-                    'rgba(139, 92, 246, 0.8)',
-                    'rgba(236, 72, 153, 0.8)',
-                    'rgba(245, 158, 11, 0.8)',
-                    'rgba(6, 182, 212, 0.8)',
-                    'rgba(99, 102, 241, 0.8)'
-                ],
-                borderColor: 'rgba(0, 0, 0, 0.1)',
-                borderWidth: 1,
-                borderRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    labels: {
-                        font: { size: 12, family: "'Plus Jakarta Sans', sans-serif" },
-                        color: '#64748b'
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
                     }
-                }
-            },
-            scales: {
-                x: {
-                    ticks: {
-                        color: '#64748b',
-                        font: { size: 11 }
-                    },
-                    grid: { color: '#f1f5f9' }
                 },
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        color: '#64748b',
-                        font: { size: 11 },
-                        callback: function(value) {
-                            return 'R$ ' + value.toLocaleString('pt-BR');
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#e2e8f0'
                         }
                     },
-                    grid: { color: '#f1f5f9' }
+                    y: {
+                        grid: {
+                            display: false
+                        }
+                    }
                 }
             }
-        }
-    });
+        });
+    }
+
+    // Gráfico de Colunas - Valor em Estoque por Categoria
+    if (valorData.labels.length > 0) {
+        new Chart(document.getElementById('valorChart'), {
+            type: 'bar',
+            data: {
+                labels: valorData.labels,
+                datasets: [{
+                    label: 'Valor Total (R$)',
+                    data: valorData.data,
+                    backgroundColor: '#9333ea',
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            font: { size: 13 },
+                            padding: 15
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#e2e8f0'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return 'R$ ' + value.toLocaleString('pt-BR');
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
 </script>
 {% endblock %}
