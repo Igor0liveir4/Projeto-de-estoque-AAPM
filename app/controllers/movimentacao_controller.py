@@ -1,6 +1,3 @@
-# ============================================================
-# controllers/movimentacao_controller.py
-# ============================================================
 # Entradas e saídas de estoque.
 # Qualquer usuário logado pode registrar movimentações.
 # Somente admins podem ver o histórico completo de todos

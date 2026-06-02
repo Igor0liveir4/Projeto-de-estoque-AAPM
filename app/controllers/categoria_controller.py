@@ -1,4 +1,3 @@
-# controllers/categoria_controller.py
 # Categorias são gerenciadas apenas por admins.
 # Operadores apenas visualizam (via select no form de produto).
 # ============================================================

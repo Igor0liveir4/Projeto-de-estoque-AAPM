@@ -1,4 +1,3 @@
-# controllers/produto_controller.py
 import os
 import shutil
 import uuid
