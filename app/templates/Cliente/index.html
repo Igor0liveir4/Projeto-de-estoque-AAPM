@@ -325,7 +325,7 @@
           type="text"
           name="busca"
           value="{{ busca }}"
-          placeholder="Buscar por nome ou matrícula…"
+          placeholder="Buscar por nome ou e-mail…"
           autocomplete="off"
         >
       </div>
@@ -351,7 +351,8 @@
       <thead>
         <tr>
           <th>Nome</th>
-          <th>Matrícula</th>
+          <th>E-mail</th>
+          <th>Turmas</th>
           <th>Telefone</th>
           <th>Tipo</th>
           <th>Status</th>
@@ -362,7 +363,8 @@
         {% for c in clientes %}
         <tr>
           <td>{{ c.nome }}</td>
-          <td class="td-mono">{{ c.matricula or '—' }}</td>
+          <td class="td-mono">{{ c.email or '—' }}</td>
+          <td>{{ c.turmas or '—' }}</td>
           <td>{{ c.telefone or '—' }}</td>
           <td>
             {% if c.is_associado %}
