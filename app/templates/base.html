@@ -51,19 +51,10 @@
         h1 {
             font-size: 28px;
             font-weight: 600;
+            margin: 0;
         }
 
-        nav {
-            background-color: #fff;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        nav:empty {
-            display: none;
-        }
-
-        nav ul {
-            list-style: none;
+        .header-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -224,7 +215,10 @@
     <header>
         <div class="container">
             <div class="header-top">
-                <h1>Gestão de Estoque AAPM</h1>
+                <div class="header-content">
+                    <img src="/static/logo/logoaapm.jpg" alt="Logo AAPM" class="logo-header">
+                    <h1>Gestão de Estoque AAPM</h1>
+                </div>
                 {% if usuario %}
                 <div class="nav-buttons">
                     <a href="/" class="nav-btn">
@@ -247,9 +241,6 @@
                     </a>
                 </div>
                 {% endif %}
-            <div class="header-content">
-                <img src="/logo/logoAAPM.png" alt="Logo AAPM" class="logo-header">
-                <h1>Gestão de Estoque AAPM</h1>
             </div>
         </div>
     </header>
