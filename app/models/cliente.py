@@ -1,7 +1,3 @@
-# ============================================================
-# models/cliente.py — Tabela de clientes da AAPM
-# ============================================================
-
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -11,9 +7,11 @@ from app.database import Base
 class Cliente(Base):
     __tablename__ = "clientes"
 
-    id = Column(Integer, primary_key=True, index=True)
-    nome = Column(String(150), nullable=False, index=True)
-    curso = Column(String(100), nullable=True)
+    id         = Column(Integer, primary_key=True, index=True)
+    nome       = Column(String(150), nullable=False, index=True)
+
+    # Matrícula do aluno SENAI — único, usado para identificar o associado
+    matricula  = Column(String(50), nullable=True, unique=True)
 
     telefone   = Column(String(20), nullable=True)
 

@@ -1,17 +1,18 @@
-# Tabela de movimentação de estoque
+#Tabela movimentacao
 
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, Float,DateTime, ForeignKey, Enum
 from sqlalchemy.orm import relationship
-from sqlalchemy import func
+from sqlalchemy.sql import func
 from app.database import Base
 import enum
 
+
 class Tipo_de_movimentacao(str, enum.Enum):
-    ENTRADA = "Entrada"
-    SAIDA = "Saída"
+    ENTRADA = "entrada"
+    SAIDA = "saida"
 
 class Movimentacao(Base):
-    __tablename__ = 'movimentacoes'
+    __tablename__ = "movimentacoes"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     tipo = Column(Enum(Tipo_de_movimentacao), nullable=False)
@@ -20,9 +21,13 @@ class Movimentacao(Base):
     observacao = Column(String(255), nullable=True)
     criado_em = Column(DateTime, server_default=func.now())
 
-    produto_id = Column(Integer, ForeignKey('produtos.id', ondelete="CASCADE"), nullable=False)
-    usuario_id = Column(Integer, ForeignKey('usuarios.id', ondelete="SET NULL"), nullable=True)
+    produto_id = Column(Integer, ForeignKey("produtos.id", ondelete="CASCADE"), nullable=False)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id", ondelete="SET NULL"), nullable=False)
 
-    # Relacionamentos
+    #relacionamento
     produto = relationship("Produto", backref="movimentacoes")
     usuario = relationship("Usuario", backref="movimentacoes")
+
+    @property
+    def valor_total(self):
+        return self.quantidade * self.preco_unitario

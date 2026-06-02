@@ -41,7 +41,7 @@ def listar_produtos(
         query = query.filter(Produto.categoria_id == categoria_id)
 
     produtos    = query.order_by(Produto.nome).all()
-    categorias  = db.query(Categoria).filter(Categoria.ativa == True).all()
+    categorias  = db.query(Categoria).filter(Categoria.ativo == True).all()
 
     return templates.TemplateResponse(
         request,
@@ -67,7 +67,7 @@ def form_novo_produto(
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
-    categorias = db.query(Categoria).filter(Categoria.ativa == True).all()
+    categorias = db.query(Categoria).filter(Categoria.ativo == True).all()
 
     return templates.TemplateResponse(
         request,
@@ -92,59 +92,7 @@ async def criar_produto(
     db: Session        = Depends(get_db),
     admin              = Depends(get_admin)
 ):
-    categorias = db.query(Categoria).filter(Categoria.ativa == True).all()
-
-    # Validações básicas
-    if not nome or len(nome.strip()) == 0:
-        return templates.TemplateResponse(
-            request,
-            "produtos/form.html",
-            {
-                "request":    request,
-                "usuario":    admin,
-                "editando":   None,
-                "categorias": categorias,
-                "erro":       "Nome do produto é obrigatório.",
-                "valores":    {"nome": nome, "preco": preco,
-                               "estoque_atual": estoque_atual,
-                               "categoria_id": categoria_id}
-            },
-            status_code=400
-        )
-
-    if preco < 0:
-        return templates.TemplateResponse(
-            request,
-            "produtos/form.html",
-            {
-                "request":    request,
-                "usuario":    admin,
-                "editando":   None,
-                "categorias": categorias,
-                "erro":       "Preço não pode ser negativo.",
-                "valores":    {"nome": nome, "preco": preco,
-                               "estoque_atual": estoque_atual,
-                               "categoria_id": categoria_id}
-            },
-            status_code=400
-        )
-
-    if estoque_atual < 0:
-        return templates.TemplateResponse(
-            request,
-            "produtos/form.html",
-            {
-                "request":    request,
-                "usuario":    admin,
-                "editando":   None,
-                "categorias": categorias,
-                "erro":       "Estoque não pode ser negativo.",
-                "valores":    {"nome": nome, "preco": preco,
-                               "estoque_atual": estoque_atual,
-                               "categoria_id": categoria_id}
-            },
-            status_code=400
-        )
+    categorias = db.query(Categoria).filter(Categoria.ativo == True).all()
 
     # Verifica duplicidade de nome
     # ilike() para comparação case-insensitive, evitando produtos "Camiseta" e "camiseta".
@@ -165,42 +113,21 @@ async def criar_produto(
             status_code=400
         )
 
-    try:
-        # Processa o upload da imagem
-        imagem_path = await _salvar_imagem(imagem)
+    # Processa o upload da imagem
+    imagem_path = await _salvar_imagem(imagem)
 
-        produto = Produto(
-            nome          = nome,
-            preco         = preco,
-            estoque_atual = estoque_atual,
-            categoria_id  = categoria_id or None,  # 0 vira NULL no banco
-            imagem_path   = imagem_path,
-        )
+    produto = Produto(
+        nome          = nome,
+        preco         = preco,
+        estoque_atual = estoque_atual,
+        categoria_id  = categoria_id or None,  # 0 vira NULL no banco
+        imagem_path   = imagem_path,
+    )
 
-        db.add(produto)
-        db.commit()
-        db.refresh(produto)
+    db.add(produto)
+    db.commit()
 
-        return RedirectResponse(url="/produtos?criado=ok", status_code=302)
-    
-    except Exception as e:
-        db.rollback()
-        print(f"Erro ao criar produto: {str(e)}")
-        return templates.TemplateResponse(
-            request,
-            "produtos/form.html",
-            {
-                "request":    request,
-                "usuario":    admin,
-                "editando":   None,
-                "categorias": categorias,
-                "erro":       f"Erro ao salvar produto: {str(e)}",
-                "valores":    {"nome": nome, "preco": preco,
-                               "estoque_atual": estoque_atual,
-                               "categoria_id": categoria_id}
-            },
-            status_code=500
-        )
+    return RedirectResponse(url="/produtos?criado=ok", status_code=302)
 
 
 # DETALHE
@@ -221,7 +148,7 @@ def detalhe_produto(
 
     return templates.TemplateResponse(
         request,
-        "produtos/index.html",
+        "produtos/detalhe.html",
         {"request": request, "usuario": usuario, "produto": produto}
     )
 
@@ -236,7 +163,7 @@ def form_editar_produto(
     admin = Depends(get_admin)
 ):
     editando   = db.query(Produto).filter(Produto.id == produto_id).first()
-    categorias = db.query(Categoria).filter(Categoria.ativa == True).all()
+    categorias = db.query(Categoria).filter(Categoria.ativo == True).all()
 
     if not editando:
         return RedirectResponse(url="/produtos", status_code=302)
@@ -262,12 +189,11 @@ async def editar_produto(
     estoque_atual: int = Form(...),
     categoria_id: int  = Form(0),
     imagem: UploadFile = File(None),
-    ativo: bool        = Form(False),
     db: Session        = Depends(get_db),
     admin              = Depends(get_admin)
 ):
     editando   = db.query(Produto).filter(Produto.id == produto_id).first()
-    categorias = db.query(Categoria).filter(Categoria.ativa == True).all()
+    categorias = db.query(Categoria).filter(Categoria.ativo == True).all()
 
     if not editando:
         return RedirectResponse(url="/produtos", status_code=302)
@@ -292,40 +218,21 @@ async def editar_produto(
             status_code=400
         )
 
-    try:
-        # Processa nova imagem — só substitui se um arquivo foi enviado
-        nova_imagem_path = await _salvar_imagem(imagem)
-        if nova_imagem_path:
-            # Remove a imagem antiga do disco para não acumular arquivos
-            _remover_imagem(editando.imagem_path)
-            editando.imagem_path = nova_imagem_path
+    # Processa nova imagem — só substitui se um arquivo foi enviado
+    nova_imagem_path = await _salvar_imagem(imagem)
+    if nova_imagem_path:
+        # Remove a imagem antiga do disco para não acumular arquivos
+        _remover_imagem(editando.imagem_path)
+        editando.imagem_path = nova_imagem_path
 
-        editando.nome          = nome
-        editando.preco         = preco
-        editando.estoque_atual = estoque_atual
-        editando.categoria_id  = categoria_id or None
-        editando.ativo         = ativo
+    editando.nome          = nome
+    editando.preco         = preco
+    editando.estoque_atual = estoque_atual
+    editando.categoria_id  = categoria_id or None
 
-        db.commit()
-        db.refresh(editando)
+    db.commit()
 
-        return RedirectResponse(url=f"/produtos/{produto_id}?editado=ok", status_code=302)
-    
-    except Exception as e:
-        db.rollback()
-        print(f"Erro ao editar produto: {str(e)}")
-        return templates.TemplateResponse(
-            request,
-            "produtos/form.html",
-            {
-                "request":    request,
-                "usuario":    admin,
-                "editando":   editando,
-                "categorias": categorias,
-                "erro":       f"Erro ao atualizar produto: {str(e)}",
-            },
-            status_code=500
-        )
+    return RedirectResponse(url=f"/produtos/{produto_id}?editado=ok", status_code=302)
 
 
 # ============================================================
