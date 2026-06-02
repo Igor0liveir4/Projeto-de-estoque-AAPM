@@ -180,17 +180,20 @@ def form_editar_produto(
     )
 
 
+from typing import Optional # Certifique-se de ter esse import no topo
+
 @router.post("/{produto_id}/editar")
 async def editar_produto(
     produto_id: int,
     request: Request,
-    nome: str          = Form(...),
-    preco: float       = Form(...),
-    estoque_atual: int = Form(...),
-    categoria_id: int  = Form(0),
-    imagem: UploadFile = File(None),
-    db: Session        = Depends(get_db),
-    admin              = Depends(get_admin)
+    nome: str              = Form(...),
+    preco: float           = Form(...),
+    # 1. Permitimos que o campo venha vazio (None)
+    estoque_atual: Optional[int] = Form(None), 
+    categoria_id: int      = Form(0),
+    imagem: UploadFile     = File(None),
+    db: Session            = Depends(get_db),
+    admin                  = Depends(get_admin)
 ):
     editando   = db.query(Produto).filter(Produto.id == produto_id).first()
     categorias = db.query(Categoria).filter(Categoria.ativa == True).all()
@@ -221,19 +224,21 @@ async def editar_produto(
     # Processa nova imagem — só substitui se um arquivo foi enviado
     nova_imagem_path = await _salvar_imagem(imagem)
     if nova_imagem_path:
-        # Remove a imagem antiga do disco para não acumular arquivos
         _remover_imagem(editando.imagem_path)
         editando.imagem_path = nova_imagem_path
 
+    # 2. A MÁGICA AQUI: Se o estoque_atual veio preenchido, usamos o novo valor.
+    # Se veio em branco (None), mantemos o valor que já estava salvo antes (editando.estoque_atual).
+    if estoque_atual is not None:
+        editando.estoque_atual = estoque_atual
+
     editando.nome          = nome
     editando.preco         = preco
-    editando.estoque_atual = estoque_atual
     editando.categoria_id  = categoria_id or None
 
     db.commit()
 
     return RedirectResponse(url=f"/produtos/{produto_id}?editado=ok", status_code=302)
-
 
 # ============================================================
 # DESATIVAR

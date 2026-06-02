@@ -155,13 +155,13 @@
                 <div class="info-block">
                     <div class="info-label">Estoque Atual</div>
                     <p class="info-value">
-                        {{ produto.quantidade }} <span style="font-size: 12px; color: #64748b; font-weight: 400;">unidades</span>
+                        {{ produto.estoque_atual }} <span style="font-size: 12px; color: #64748b; font-weight: 400;">unidades</span>
                     </p>
                 </div>
 
                 <div class="info-block">
                     <div class="info-label">Status da Operação</div>
-                    {% if produto.quantidade < 10 %}
+                    {% if produto.estoque_atual < 10 %}
                         <p class="info-value" style="color: #f59e0b; font-size: 14px; display: flex; align-items: center; gap: 6px;">
                             <i class="fas fa-triangle-exclamation" style="font-size: 12px;"></i> Reposição necessária
                         </p>
