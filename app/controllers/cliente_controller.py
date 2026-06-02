@@ -7,7 +7,7 @@ from app.database import get_db
 from app.models.cliente import Cliente
 from app.auth import get_admin
 
-router = APIRouter(prefix="/clientes", tags=["Clientes"])
+router = APIRouter(prefix="/cliente", tags=["Cliente"])
 templates = Jinja2Templates(directory="app/templates")
 
 
@@ -39,7 +39,7 @@ def listar_clientes(
 
     return templates.TemplateResponse(
         request,
-        "clientes/index.html",
+        "cliente/index.html",
         {
             "request":           request,
             "usuario":           admin,
@@ -55,7 +55,7 @@ def listar_clientes(
 def form_novo(request: Request, admin = Depends(get_admin)):
     return templates.TemplateResponse(
         request,
-        "clientes/form.html",
+        "cliente/form.html",
         {"request": request, "usuario": admin, "editando": None}
     )
 
@@ -79,7 +79,7 @@ def criar(
         if existente:
             return templates.TemplateResponse(
                 request,
-                "clientes/form.html",
+                "cliente/form.html",
                 {
                     "request":  request,
                     "usuario":  admin,
@@ -101,7 +101,7 @@ def criar(
     ))
     db.commit()
 
-    return RedirectResponse(url="/clientes?criado=ok", status_code=302)
+    return RedirectResponse(url="/cliente?criado=ok", status_code=302)
 
 
 @router.get("/{cliente_id}/editar")
@@ -113,11 +113,11 @@ def form_editar(
 ):
     editando = db.query(Cliente).filter(Cliente.id == cliente_id).first()
     if not editando:
-        return RedirectResponse(url="/clientes", status_code=302)
+        return RedirectResponse(url="/cliente", status_code=302)
 
     return templates.TemplateResponse(
         request,
-        "clientes/form.html",
+        "cliente/form.html",
         {"request": request, "usuario": admin, "editando": editando}
     )
 
@@ -134,7 +134,7 @@ def editar(
 ):
     editando = db.query(Cliente).filter(Cliente.id == cliente_id).first()
     if not editando:
-        return RedirectResponse(url="/clientes", status_code=302)
+        return RedirectResponse(url="/cliente", status_code=302)
 
     if matricula:
         conflito = db.query(Cliente).filter(
@@ -143,7 +143,7 @@ def editar(
         ).first()
         if conflito:
             return RedirectResponse(
-                url=f"/clientes/{cliente_id}/editar?erro=matricula",
+                url=f"/cliente/{cliente_id}/editar?erro=matricula",
                 status_code=302
             )
 
@@ -153,7 +153,7 @@ def editar(
     editando.is_associado = is_associado
     db.commit()
 
-    return RedirectResponse(url="/clientes?editado=ok", status_code=302)
+    return RedirectResponse(url="/cliente?editado=ok", status_code=302)
 
 
 @router.post("/{cliente_id}/toggle-ativo")
