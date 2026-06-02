@@ -1,298 +1,410 @@
 {% extends "base.html" %}
-
-{% block title %}Inventário - AAPM{% endblock %}
+{% block title %}Clientes{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
 <style>
-    .page-wrapper {
-        min-height: 90vh;
-        background-color: #090d16; /* Fundo escuro padrão do ecossistema */
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        padding: 40px 20px;
-        display: flex;
-        justify-content: center;
-    }
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
 
-    .inventory-container {
-        width: 100%;
-        max-width: 1050px;
-    }
+  :root {
+    --bg:        #0f1117;
+    --surface:   #181c27;
+    --border:    #252a38;
+    --accent:    #4f8ef7;
+    --accent2:   #6ee7b7;
+    --danger:    #f87171;
+    --text:      #e2e8f0;
+    --muted:     #64748b;
+    --radius:    10px;
+  }
 
-    /* METRICS CARDS GRID */
-    .metrics-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 16px;
-        margin-bottom: 32px;
-    }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    .metric-card {
-        background: #111726; /* Superfície interna dos cards */
-        border: 1px solid rgba(255, 255, 255, 0.04);
-        border-radius: 16px;
-        padding: 20px;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-    }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
 
-    .metric-icon {
-        width: 46px;
-        height: 46px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 16px;
-    }
+  .page-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 24px;
+  }
 
-    /* FILTERS & SEARCH */
-    .search-bar-container {
-        background: #111726;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 16px 16px 0 0;
-        padding: 16px 20px;
-        display: flex;
-        gap: 16px;
-        align-items: center;
-        border-bottom: none;
-    }
+  /* ── Header ── */
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+  }
 
-    .search-wrapper {
-        position: relative;
-        flex: 1;
-    }
+  .page-title {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
 
-    .search-wrapper i {
-        position: absolute;
-        left: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #475569;
-        font-size: 14px;
-    }
+  .page-title span {
+    color: var(--accent);
+  }
 
-    .search-input {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 10px 14px 10px 40px;
-        border-radius: 8px;
-        font-size: 13px;
-        color: #f8fafc;
-        width: 100%;
-        box-sizing: border-box;
-        transition: all 0.2s;
-    }
+  .stat-pill {
+    background: #1a2235;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 6px;
+    display: inline-block;
+  }
 
-    .search-input:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-    }
+  .stat-pill b {
+    color: var(--accent2);
+    font-family: 'DM Mono', monospace;
+  }
 
-    /* TABLE LAYOUT */
-    .table-card {
-        background: #111726;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 0 0 20px 20px;
-        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
-        overflow: hidden;
-    }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: opacity .15s, transform .1s;
+  }
 
-    .custom-table {
-        width: 100%;
-        border-collapse: collapse;
-        text-align: left;
-    }
+  .btn:active { transform: scale(.97); }
 
-    .custom-table th {
-        background: rgba(255, 255, 255, 0.01);
-        padding: 14px 20px;
-        color: #64748b;
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
 
-    .inventory-row {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.02);
-        transition: all 0.15s ease;
-    }
+  .btn-primary:hover { opacity: .88; }
 
-    .inventory-row:hover {
-        background: rgba(255, 255, 255, 0.015);
-    }
+  /* ── Toast ── */
+  .toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    margin-bottom: 24px;
+    border: 1px solid;
+    animation: slideIn .3s ease;
+  }
 
-    .custom-table td {
-        padding: 14px 20px;
-        color: #f8fafc;
-        font-size: 14px;
-        vertical-align: middle;
-    }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 
-    /* STATUS BADGES PREMIUM */
-    .badge {
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-weight: 700;
-        font-size: 11px;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        text-transform: uppercase;
-        letter-spacing: 0.02em;
-    }
+  .toast-success { background: #0d2b1f; border-color: #134e35; color: var(--accent2); }
+  .toast-info    { background: #0d1b35; border-color: #1a3a6e; color: var(--accent); }
 
-    .badge-stable {
-        background: rgba(16, 185, 129, 0.08);
-        color: #10b981;
-        border: 1px solid rgba(16, 185, 129, 0.15);
-    }
+  /* ── Filters ── */
+  .filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
 
-    .badge-critical {
-        background: rgba(239, 68, 68, 0.08);
-        color: #ef4444;
-        border: 1px solid rgba(239, 68, 68, 0.15);
-    }
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 220px;
+  }
 
-    /* TOP BUTTON */
-    .btn-action {
-        background: #f8fafc;
-        color: #090d16;
-        padding: 10px 16px;
-        text-decoration: none;
-        border-radius: 8px;
-        font-size: 13px;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.2s ease;
-    }
+  .search-wrap svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
 
-    .btn-action:hover {
-        background: #ffffff;
-        transform: translateY(-1px);
-    }
+  .input-search {
+    width: 100%;
+    padding: 10px 12px 10px 38px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .2s;
+  }
+
+  .input-search:focus { border-color: var(--accent); }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--muted);
+    cursor: pointer;
+    white-space: nowrap;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    transition: border-color .2s, color .2s;
+  }
+
+  .checkbox-label:has(input:checked) {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .checkbox-label input { display: none; }
+
+  /* ── Table ── */
+  .table-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead tr {
+    border-bottom: 1px solid var(--border);
+  }
+
+  thead th {
+    padding: 14px 18px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #1c2130;
+    transition: background .15s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover      { background: #1c2233; }
+
+  td {
+    padding: 14px 18px;
+    font-size: 14px;
+    vertical-align: middle;
+  }
+
+  .td-mono {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .badge-assoc  { background: #0d2b1f; color: var(--accent2); border: 1px solid #134e35; }
+  .badge-comum  { background: #1a1f2e; color: var(--muted);   border: 1px solid var(--border); }
+  .badge-ativo  { background: #0d2b1f; color: var(--accent2); border: 1px solid #134e35; }
+  .badge-inativo{ background: #2b0d0d; color: var(--danger);  border: 1px solid #4e1313; }
+
+  .actions { display: flex; align-items: center; gap: 8px; }
+
+  .btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+
+  .btn-icon:hover { background: #252a38; color: var(--text); border-color: #3a4155; }
+  .btn-icon.danger:hover { background: #2b0d0d; color: var(--danger); border-color: #4e1313; }
+
+  /* Toggle form inline */
+  .toggle-form { display: inline; }
+  .toggle-form button {
+    all: unset;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    transition: background .15s, color .15s, border-color .15s;
+  }
+
+  .toggle-form button:hover { background: #252a38; color: var(--text); border-color: #3a4155; }
+
+  /* Empty state */
+  .empty {
+    padding: 64px 24px;
+    text-align: center;
+    color: var(--muted);
+  }
+
+  .empty svg { margin-bottom: 16px; opacity: .3; }
+  .empty p   { font-size: 15px; }
 </style>
 
-<div class="page-wrapper">
-    <div class="inventory-container">
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
-            <div>
-                <h2 style="color: #f8fafc; font-size: 24px; font-weight: 600; margin: 0 0 4px 0; letter-spacing: -0.5px;">
-                    Status do Estoque
-                </h2>
-                <p style="color: #64748b; font-size: 13px; margin: 0;">
-                    Monitoramento quantitativo e controle de níveis críticos de segurança.
-                </p>
-            </div>
-            <a href="/estoque/movimentar" class="btn-action">
-                <i class="fas fa-right-left" style="font-size: 11px;"></i>
-                <span>Nova Movimentação</span>
-            </a>
-        </div>
+<div class="page-wrap">
 
-        {% set total_produtos = estoque|length %}
-        {% set criticos = namespace(qtd=0) %}
-        {% for item in estoque %}{% if item.quantidade < 5 %}{% set criticos.qtd = criticos.qtd + 1 %}{% endif %}{% endfor %}
-
-        <div class="metrics-grid">
-            <div class="metric-card">
-                <div class="metric-icon" style="background: rgba(59, 130, 246, 0.08); color: #3b82f6;"><i class="fas fa-cubes"></i></div>
-                <div>
-                    <span style="display: block; color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 500;">Itens Mapeados</span>
-                    <strong style="color: #f8fafc; font-size: 18px; font-weight: 600;">{{ total_produtos }} Produtos</strong>
-                </div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-icon" style="background: rgba(239, 68, 68, 0.08); color: #ef4444;"><i class="fas fa-triangle-exclamation"></i></div>
-                <div>
-                    <span style="display: block; color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 500;">Atenção Crítica</span>
-                    <strong style="color: #f8fafc; font-size: 18px; font-weight: 600;">{{ criticos.qtd }} Abaixo do Mínimo</strong>
-                </div>
-            </div>
-        </div>
-
-        <div class="search-bar-container">
-            <div class="search-wrapper">
-                <i class="fas fa-magnifying-glass"></i>
-                <input type="text" id="inventorySearch" class="search-input" placeholder="Filtrar por nome do produto ou status...">
-            </div>
-            <div style="color: #475569; font-size: 12px; font-weight: 500;">
-                <i class="fas fa-clock-rotate-left" style="margin-right: 4px;"></i> Atualizações em tempo real
-            </div>
-        </div>
-
-        <div class="table-card">
-            <div style="overflow-x: auto;">
-                <table class="custom-table" id="inventoryTable">
-                    <thead>
-                        <tr>
-                            <th>Produto / Ativo</th>
-                            <th style="width: 150px;">Quantidade</th>
-                            <th style="width: 180px; text-align: center;">Status Operacional</th>
-                            <th style="width: 220px; text-align: right;">Última Atualização</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in estoque %}
-                        <tr class="inventory-row">
-                            
-                            <td style="font-weight: 500; letter-spacing: -0.1px;">
-                                {{ item.nome }}
-                            </td>
-                            
-                            <td style="font-weight: 600; color: #94a3b8;">
-                                {{ item.quantidade }} <span style="font-size: 12px; font-weight: 400; color: #475569;">unidades</span>
-                            </td>
-                            
-                            <td style="text-align: center;">
-                                {% if item.quantidade < 5 %}
-                                    <span class="badge badge-critical">
-                                        <i class="fas fa-circle-exclamation"></i> Crítico
-                                    </span>
-                                {% else %}
-                                    <span class="badge badge-stable">
-                                        <i class="fas fa-circle-check"></i> Estável
-                                    </span>
-                                {% endif %}
-                            </td>
-                            
-                            <td style="text-align: right; color: #64748b; font-size: 13px;">
-                                {{ item.data }}
-                            </td>
-
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <div style="background: rgba(255,255,255,0.01); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.04); font-size: 12px; color: #475569;">
-                <div>Volume total do relatório: {{ total_produtos }} registros</div>
-                <div>Filtro ativo</div>
-            </div>
-        </div>
-
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Clientes <span>&amp;</span> Associados</h1>
+      <span class="stat-pill">
+        <b>{{ total_associados }}</b> associado{{ 's' if total_associados != 1 else '' }} ativo{{ 's' if total_associados != 1 else '' }}
+      </span>
     </div>
-</div>
+    <a href="/cliente/novo" class="btn btn-primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Novo cliente
+    </a>
+  </div>
 
-<script>
-    document.getElementById('inventorySearch').addEventListener('keyup', function() {
-        const query = this.value.toLowerCase();
-        const rows = document.querySelectorAll('#inventoryTable tbody .inventory-row');
-        
-        rows.forEach(row => {
-            const rowText = row.textContent.toLowerCase();
-            row.style.display = rowText.includes(query) ? '' : 'none';
-        });
-    });
-</script>
+  <!-- Toasts -->
+  {% if request.query_params.get('criado') == 'ok' %}
+  <div class="toast toast-success">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    Cliente cadastrado com sucesso!
+  </div>
+  {% endif %}
+
+  {% if request.query_params.get('editado') == 'ok' %}
+  <div class="toast toast-info">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    Cliente atualizado com sucesso!
+  </div>
+  {% endif %}
+
+  <!-- Filtros -->
+  <form method="get" action="/cliente">
+    <div class="filters">
+      <div class="search-wrap">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input
+          class="input-search"
+          type="text"
+          name="busca"
+          value="{{ busca }}"
+          placeholder="Buscar por nome ou matrícula…"
+          autocomplete="off"
+        >
+      </div>
+      <label class="checkbox-label">
+        <input
+          type="checkbox"
+          name="apenas_associados"
+          value="true"
+          {% if apenas_associados %}checked{% endif %}
+          onchange="this.form.submit()"
+        >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Apenas associados
+      </label>
+      <button class="btn btn-primary" type="submit">Buscar</button>
+    </div>
+  </form>
+
+  <!-- Tabela -->
+  <div class="table-card">
+    {% if clientes %}
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Matrícula</th>
+          <th>Telefone</th>
+          <th>Tipo</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in clientes %}
+        <tr>
+          <td>{{ c.nome }}</td>
+          <td class="td-mono">{{ c.matricula or '—' }}</td>
+          <td>{{ c.telefone or '—' }}</td>
+          <td>
+            {% if c.is_associado %}
+              <span class="badge badge-assoc">Associado</span>
+            {% else %}
+              <span class="badge badge-comum">Comum</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if c.ativo %}
+              <span class="badge badge-ativo">Ativo</span>
+            {% else %}
+              <span class="badge badge-inativo">Inativo</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="actions">
+              <a href="/cliente/{{ c.id }}/editar" class="btn-icon" title="Editar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </a>
+              <form class="toggle-form" method="post" action="/cliente/{{ c.id }}/toggle-ativo">
+                <button type="submit" title="{{ 'Desativar' if c.ativo else 'Ativar' }}">
+                  {% if c.ativo %}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                  {% else %}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  {% endif %}
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      <p>Nenhum cliente encontrado.</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
 {% endblock %}
