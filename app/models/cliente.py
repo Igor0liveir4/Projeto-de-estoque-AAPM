@@ -9,9 +9,10 @@ class Cliente(Base):
 
     id         = Column(Integer, primary_key=True, index=True)
     nome       = Column(String(150), nullable=False, index=True)
+    matricula  = Column(String(50), nullable=True, index=True)
 
     email      = Column(String(150), nullable=True)
-    turmas     = Column(String(255), nullable=True)
+    cursos     = Column(String(255), nullable=True)
     telefone   = Column(String(20), nullable=True)
 
     # is_associado define se o cliente tem 10% de desconto

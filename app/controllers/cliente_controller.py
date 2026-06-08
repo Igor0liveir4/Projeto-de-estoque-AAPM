@@ -24,7 +24,7 @@ def listar_clientes(
     if busca:
         query = query.filter(
             Cliente.nome.ilike(f"%{busca}%") |
-            Cliente.matricula.ilike(f"%{busca}%")
+            Cliente.email.ilike(f"%{busca}%")
         )
 
     if apenas_associados:
@@ -64,38 +64,17 @@ def form_novo(request: Request, admin = Depends(get_admin)):
 def criar(
     request: Request,
     nome: str          = Form(...),
-    matricula: str     = Form(""),
+    email: str         = Form(""),
+    cursos: str        = Form(""),
     telefone: str      = Form(""),
     is_associado: bool = Form(False),
     db: Session        = Depends(get_db),
     admin              = Depends(get_admin)
 ):
-    # Verifica duplicidade de matrícula (apenas se preenchida)
-    if matricula:
-        existente = db.query(Cliente).filter(
-            Cliente.matricula == matricula.strip()
-        ).first()
-
-        if existente:
-            return templates.TemplateResponse(
-                request,
-                "cliente/form.html",
-                {
-                    "request":  request,
-                    "usuario":  admin,
-                    "editando": None,
-                    "erro":     f"Matrícula {matricula} já cadastrada.",
-                    "valores":  {
-                        "nome": nome, "matricula": matricula,
-                        "telefone": telefone, "is_associado": is_associado
-                    }
-                },
-                status_code=400
-            )
-
     db.add(Cliente(
         nome         = nome.strip(),
-        matricula    = matricula.strip() or None,
+        email        = email.strip() or None,
+        cursos       = cursos.strip() or None,
         telefone     = telefone.strip() or None,
         is_associado = is_associado,
     ))
@@ -126,7 +105,8 @@ def form_editar(
 def editar(
     cliente_id: int,
     nome: str          = Form(...),
-    matricula: str     = Form(""),
+    email: str         = Form(""),
+    cursos: str        = Form(""),
     telefone: str      = Form(""),
     is_associado: bool = Form(False),
     db: Session        = Depends(get_db),
@@ -136,19 +116,9 @@ def editar(
     if not editando:
         return RedirectResponse(url="/cliente", status_code=302)
 
-    if matricula:
-        conflito = db.query(Cliente).filter(
-            Cliente.matricula == matricula.strip(),
-            Cliente.id != cliente_id
-        ).first()
-        if conflito:
-            return RedirectResponse(
-                url=f"/cliente/{cliente_id}/editar?erro=matricula",
-                status_code=302
-            )
-
     editando.nome         = nome.strip()
-    editando.matricula    = matricula.strip() or None
+    editando.email        = email.strip() or None
+    editando.cursos       = cursos.strip() or None
     editando.telefone     = telefone.strip() or None
     editando.is_associado = is_associado
     db.commit()
