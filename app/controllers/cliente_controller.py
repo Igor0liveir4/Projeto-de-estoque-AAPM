@@ -65,7 +65,6 @@ def criar(
     request: Request,
     nome: str          = Form(...),
     email: str         = Form(""),
-    cursos: str        = Form(""),
     telefone: str      = Form(""),
     is_associado: bool = Form(False),
     db: Session        = Depends(get_db),
@@ -74,7 +73,6 @@ def criar(
     db.add(Cliente(
         nome         = nome.strip(),
         email        = email.strip() or None,
-        cursos       = cursos.strip() or None,
         telefone     = telefone.strip() or None,
         is_associado = is_associado,
     ))
@@ -106,7 +104,6 @@ def editar(
     cliente_id: int,
     nome: str          = Form(...),
     email: str         = Form(""),
-    cursos: str        = Form(""),
     telefone: str      = Form(""),
     is_associado: bool = Form(False),
     db: Session        = Depends(get_db),
@@ -118,7 +115,6 @@ def editar(
 
     editando.nome         = nome.strip()
     editando.email        = email.strip() or None
-    editando.cursos       = cursos.strip() or None
     editando.telefone     = telefone.strip() or None
     editando.is_associado = is_associado
     db.commit()

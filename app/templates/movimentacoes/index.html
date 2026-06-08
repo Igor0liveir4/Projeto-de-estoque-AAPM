@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Movimentações de Estoque - AAPM{% endblock %}
+
+{% block head %}
+<style>
+    .movimentacao-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #f0f2f5;
+        padding-bottom: 15px;
+    }
+
+    .page-title {
+        color: #333;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-nova-mov {
+        background: linear-gradient(135deg, #558afd 0%, #667eea 100%);
+        color: white;
+        padding: 12px 20px;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-nova-mov:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(85, 138, 253, 0.3);
+    }
+
+    /* Badges de Tipo */
+    .badge {
+        padding: 6px 12px;
+        border-radius: 50px;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+        display: inline-block;
+    }
+
+    .badge-entrada {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .badge-saida {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .text-right {
+        text-align: right;
+    }
+
+    .obs-text {
+        font-style: italic;
+        color: #666;
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="movimentacao-container">
+        
+        <div class="page-header">
+            <div class="page-title">
+                <i class="fas fa-exchange-alt" style="color: #558afd;"></i>
+                Movimentações de Estoque
+            </div>
+            <a href="/movimentacoes/nova" class="btn-nova-mov">
+                <i class="fas fa-plus"></i> Registrar Movimentação
+            </a>
+        </div>
+
+        {% if msg_sucesso %}
+            <div class="alert alert-success">{{ msg_sucesso }}</div>
+        {% endif %}
+        {% if msg_erro %}
+            <div class="alert alert-error">{{ msg_erro }}</div>
+        {% endif %}
+
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Data/Hora</th>
+                        <th>Tipo</th>
+                        <th>Produto</th>
+                        <th class="text-right">Qtd.</th>
+                        <th class="text-right">Preço Unitário</th>
+                        <th class="text-right">Valor Total</th>
+                        <th>Usuário</th>
+                        <th>Observação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mov in movimentacoes %}
+                    <tr>
+                        <td>{{ mov.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>
+                            {% if mov.tipo.value == 'entrada' %}
+                                <span class="badge badge-entrada"><i class="fas fa-arrow-down"></i> Entrada</span>
+                            {% else %}
+                                <span class="badge badge-saida"><i class="fas fa-arrow-up"></i> Saída</span>
+                            {% endif %}
+                        </td>
+                        <td><strong>{{ mov.produto.nome }}</strong></td>
+                        <td class="text-right">{{ mov.quantidade }}</td>
+                        <td class="text-right">R$ {{ "%.2f"|format(mov.preco_unitario) }}</td>
+                        <td class="text-right" style="font-weight: 600;">R$ {{ "%.2f"|format(mov.valor_total) }}</td>
+                        <td><i class="fas fa-user-circle"></i> {{ mov.usuario.nome if mov.usuario else 'Sistema' }}</td>
+                        <td class="obs-text" title="{{ mov.observacao }}">{{ mov.observacao or '-' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: #777; padding: 30px;">
+                            <i class="fas fa-box-open" style="font-size: 24px; display:block; margin-bottom: 10px;"></i>
+                            Nenhuma movimentação registrada até o momento.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
