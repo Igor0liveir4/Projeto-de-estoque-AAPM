@@ -9,6 +9,7 @@ class Cliente(Base):
 
     id         = Column(Integer, primary_key=True, index=True)
     nome       = Column(String(150), nullable=False, index=True)
+    matricula  = Column(String(50), nullable=True, index=True)
 
     email      = Column(String(150), nullable=True)
     cursos     = Column(String(255), nullable=True)
