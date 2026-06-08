@@ -59,7 +59,6 @@
         transition: all 0.2s;
     }
 
-    /* Efeito visual para rádio buttons */
     input[type="radio"] {
         width: auto;
         margin: 0;
@@ -114,7 +113,7 @@
             </div>
         </div>
 
-        <form action="/movimentacoes/salvar" method="POST">
+        <form action="/movimentacoes/nova" method="POST">
             
             <div class="form-group">
                 <label>Tipo de Movimentação</label>
@@ -135,7 +134,10 @@
                 <select name="produto_id" id="produto_id" required>
                     <option value="" disabled selected>Selecione um produto...</option>
                     {% for produto in produtos %}
-                        <option value="{{ produto.id }}">{{ produto.nome }}</option>
+                        <!-- ✅ data-preco carrega o preço direto do banco -->
+                        <option value="{{ produto.id }}" data-preco="{{ produto.preco }}">
+                            {{ produto.nome }}
+                        </option>
                     {% endfor %}
                 </select>
             </div>
@@ -167,7 +169,7 @@
 </div>
 
 <script>
-    // Script simples para alternar o estilo visual dos botões de rádio customizados
+    // Alterna estilo visual dos radio buttons
     const radios = document.querySelectorAll('input[type="radio"]');
     radios.forEach(radio => {
         radio.addEventListener('change', function() {
@@ -181,6 +183,15 @@
                 this.nextElementSibling.style.color = '#667eea';
             }
         });
+    });
+
+    // ✅ Preenche o preço automaticamente ao selecionar o produto
+    const selectProduto = document.getElementById('produto_id');
+    const inputPreco    = document.getElementById('preco_unitario');
+
+    selectProduto.addEventListener('change', function() {
+        const preco = this.options[this.selectedIndex].dataset.preco;
+        inputPreco.value = preco ? parseFloat(preco).toFixed(2) : '';
     });
 </script>
 {% endblock %}
