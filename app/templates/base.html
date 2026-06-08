@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Gestão de Estoque AAPM{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {% block head %}{% endblock %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -43,7 +43,7 @@
         }
 
         .logo-header {
-            height: 50px; /* Ajuste a altura máxima conforme necessário */
+            height: 50px;
             width: auto;
             object-fit: contain;
         }
@@ -174,7 +174,7 @@
             border-bottom: 1px solid #ddd;
         }
 
-        /* Responsividade*/
+        /* Responsividade */
         @media (max-width: 768px) {
             .header-top {
                 flex-direction: column;
@@ -223,22 +223,22 @@
                 {% if usuario %}
                 <div class="nav-buttons">
                     <a href="/" class="nav-btn">
-                        <i class="fas fa-home"></i> Home
+                        <i class="fas fa-house"></i> Home
                     </a>
                     <a href="/cliente" class="nav-btn">
-                        <i class="fas fa-boxes"></i> Clientes
+                        <i class="fas fa-users"></i> Clientes
                     </a>
                     <a href="/produtos" class="nav-btn">
-                        <i class="fas fa-package"></i> Produtos
+                        <i class="fas fa-box-open"></i> Produtos
                     </a>
                     <a href="/categorias" class="nav-btn">
-                        <i class="fas fa-list"></i> Categorias
+                        <i class="fas fa-tags"></i> Categorias
                     </a>
                     <a href="/usuarios" class="nav-btn">
-                        <i class="fas fa-users"></i> Usuários
+                        <i class="fas fa-user-gear"></i> Usuários
                     </a>
                     <a href="/auth/logout" class="nav-btn logout">
-                        <i class="fas fa-sign-out-alt"></i> Sair
+                        <i class="fas fa-right-from-bracket"></i> Sair
                     </a>
                 </div>
                 {% endif %}
