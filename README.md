@@ -38,9 +38,8 @@ python -m alembic init migrations
 
 # Gerar a migrations
 ```bash
-python -m alembic revision --autogenerate -m "Removendo e adicionando os campos email e Turma"
+python -m alembic revision --autogenerate -m "reset inicial"
 ```
-
 # Aplicar a migration
 ```bash
 python -m alembic upgrade head
