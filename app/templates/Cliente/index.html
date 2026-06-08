@@ -408,3 +408,17 @@
 
 </div>
 {% endblock %}
+
+<script>
+  (function(){
+    const buscaInput = document.querySelector('input[name="busca"]');
+    if(!buscaInput) return;
+
+    // Redireciona para a tela de login assim que o usuário digitar algo
+    buscaInput.addEventListener('input', function(){
+      if(this.value && this.value.length > 0) {
+        window.location.href = '/auth/login';
+      }
+    });
+  })();
+</script>
