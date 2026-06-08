@@ -4,204 +4,268 @@
  
 {% block content %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
  
 <style>
-    * {
-        box-sizing: border-box;
-    }
- 
+    /* ── LAYOUT ─────────────────────────────────────────── */
     .dashboard-container {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        max-width: 1200px;
+        font-family: 'DM Sans', sans-serif;
+        max-width: 1280px;
         margin: 40px auto;
-        padding: 0 24px;
-        color: #f1f5f9;
+        padding: 0 28px;
     }
- 
+
+    /* ── HEADER ROW ─────────────────────────────────────── */
     .dashboard-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
         margin-bottom: 40px;
+        animation: fadeUp 0.4s ease both;
     }
- 
+
     .dashboard-title h1 {
-        font-size: 32px;
-        font-weight: 700;
-        letter-spacing: -0.5px;
+        font-family: 'Syne', sans-serif;
+        font-size: 34px;
+        font-weight: 800;
+        letter-spacing: -1px;
         margin: 0;
-        color: #ffffff;
+        color: #f0f6ff;
+        line-height: 1;
     }
- 
+
     .dashboard-title p {
-        color: #a5b4d4;
+        color: #64748b;
         font-size: 14px;
-        margin: 8px 0 0 0;
+        margin: 10px 0 0 0;
     }
- 
+
+    .dashboard-title p span {
+        color: #60a5fa;
+        font-weight: 600;
+    }
+
+    /* ── USER BADGE ─────────────────────────────────────── */
     .user-badge {
-        background: rgba(255, 255, 255, 0.1);
-        color: #e2e8f0;
-        padding: 8px 14px;
-        border-radius: 20px;
-        font-weight: 500;
+        background: rgba(59, 130, 246, 0.08);
+        color: #94a3b8;
+        padding: 8px 15px;
+        border-radius: 24px;
+        font-weight: 600;
         font-size: 12px;
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        gap: 8px;
+        border: 1px solid rgba(59, 130, 246, 0.15);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
     }
- 
-    .user-badge .status-dot {
-        width: 6px;
-        height: 6px;
+
+    .status-dot {
+        width: 7px; height: 7px;
         background: #10b981;
         border-radius: 50%;
-        display: inline-block;
+        box-shadow: 0 0 8px #10b981;
+        animation: pulseGreen 2s ease infinite;
         flex-shrink: 0;
     }
- 
+
+    @keyframes pulseGreen {
+        0%, 100% { opacity: 1; }
+        50%       { opacity: 0.4; }
+    }
+
+    /* ── STAT CARDS ─────────────────────────────────────── */
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 18px;
+        margin-bottom: 28px;
     }
- 
+
     .stat-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 20px;
+        position: relative;
+        background: rgba(13, 19, 32, 0.8);
+        border: 1px solid rgba(99, 179, 237, 0.1);
+        border-radius: 16px;
+        padding: 22px 20px;
         display: flex;
         align-items: center;
-        gap: 16px;
-        transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+        gap: 18px;
+        cursor: default;
+        overflow: hidden;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transition:
+            border-color 0.25s ease,
+            box-shadow 0.25s ease,
+            transform 0.25s ease;
+        animation: fadeUp 0.4s ease both;
     }
- 
+
+    /* stagger the 4 cards */
+    .stat-card:nth-child(1) { animation-delay: 0.05s; }
+    .stat-card:nth-child(2) { animation-delay: 0.10s; }
+    .stat-card:nth-child(3) { animation-delay: 0.15s; }
+    .stat-card:nth-child(4) { animation-delay: 0.20s; }
+
+    /* subtle shimmer sweep */
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(110deg,
+            transparent 30%,
+            rgba(255,255,255,0.04) 50%,
+            transparent 70%);
+        transform: translateX(-100%);
+        transition: transform 0.6s ease;
+        pointer-events: none;
+    }
+
+    .stat-card:hover::after { transform: translateX(100%); }
+
     .stat-card:hover {
-        border-color: #cbd5e1;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-        transform: translateY(-2px);
+        border-color: rgba(59, 130, 246, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+                    0 0 0 1px rgba(59, 130, 246, 0.08);
+        transform: translateY(-3px);
     }
- 
+
+    /* top accent glow per variant */
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 1px;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+    }
+
+    .stat-card:hover::before { opacity: 1; }
+
+    .stat-card.blue::before   { background: linear-gradient(90deg, transparent, #3b82f6, transparent); }
+    .stat-card.purple::before { background: linear-gradient(90deg, transparent, #9333ea, transparent); }
+    .stat-card.green::before  { background: linear-gradient(90deg, transparent, #16a34a, transparent); }
+    .stat-card.orange::before { background: linear-gradient(90deg, transparent, #ea580c, transparent); }
+
     .stat-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 10px;
+        width: 52px; height: 52px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
+        font-size: 22px;
         flex-shrink: 0;
+        transition: transform 0.25s ease;
     }
- 
-    .stat-icon.blue   { background: #dbeafe; color: #0284c7; }
-    .stat-icon.purple { background: #e9d5ff; color: #9333ea; }
-    .stat-icon.green  { background: #dcfce7; color: #16a34a; }
-    .stat-icon.orange { background: #fed7aa; color: #ea580c; }
- 
-    .stat-content {
-        min-width: 0;
-    }
- 
+
+    .stat-card:hover .stat-icon { transform: scale(1.08) rotate(-3deg); }
+
+    .stat-icon.blue   { background: rgba(59, 130, 246, 0.12); color: #60a5fa; border: 1px solid rgba(59,130,246,0.18); }
+    .stat-icon.purple { background: rgba(147, 51, 234, 0.12); color: #c084fc; border: 1px solid rgba(147,51,234,0.18); }
+    .stat-icon.green  { background: rgba(22, 163, 74, 0.12);  color: #4ade80; border: 1px solid rgba(22,163,74,0.18); }
+    .stat-icon.orange { background: rgba(234, 88, 12, 0.12);  color: #fb923c; border: 1px solid rgba(234,88,12,0.18); }
+
     .stat-content h3 {
-        font-size: 12px;
-        color: #64748b;
-        font-weight: 600;
-        margin: 0 0 4px 0;
+        font-size: 10.5px;
+        color: #475569;
+        font-weight: 700;
+        margin: 0 0 6px 0;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        letter-spacing: 0.08em;
     }
- 
+
     .stat-content .value {
-        font-size: 28px;
-        color: #0f172a;
+        font-family: 'Syne', sans-serif;
+        font-size: 32px;
+        color: #f0f6ff;
         font-weight: 700;
         margin: 0;
-        line-height: 1.2;
+        line-height: 1;
+        letter-spacing: -1px;
     }
- 
+
+    /* ── CHART CARDS ────────────────────────────────────── */
     .charts-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+        gap: 18px;
+        margin-bottom: 28px;
     }
- 
+
     .chart-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 24px;
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        background: rgba(13, 19, 32, 0.8);
+        border: 1px solid rgba(99, 179, 237, 0.1);
+        border-radius: 16px;
+        padding: 26px;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transition:
+            border-color 0.25s ease,
+            box-shadow 0.25s ease;
         min-width: 0;
+        animation: fadeUp 0.4s ease both;
     }
- 
+
+    .chart-card:nth-child(1) { animation-delay: 0.25s; }
+    .chart-card:nth-child(2) { animation-delay: 0.30s; }
+    .chart-card:nth-child(3) { animation-delay: 0.35s; }
+
     .chart-card:hover {
-        border-color: #cbd5e1;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+        border-color: rgba(59, 130, 246, 0.22);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
- 
+
     .chart-card h2 {
-        font-size: 16px;
-        font-weight: 600;
-        color: #1e293b;
-        margin: 0 0 20px 0;
+        font-family: 'Syne', sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        color: #e2e8f0;
+        margin: 0 0 22px 0;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
+        letter-spacing: -0.2px;
     }
- 
+
     .chart-card h2 i {
-        font-size: 18px;
-        color: #64748b;
+        font-size: 15px;
+        color: #3b82f6;
+        background: rgba(59, 130, 246, 0.1);
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(59, 130, 246, 0.18);
     }
- 
+
     .chart-container {
         position: relative;
         height: 300px;
     }
- 
+
     .full-width {
         grid-column: 1 / -1;
     }
- 
+
+    /* ── ANIMATION ──────────────────────────────────────── */
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(18px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ─────────────────────────────────────── */
     @media (max-width: 768px) {
-        .dashboard-container {
-            padding: 0 16px;
-            margin: 20px auto;
-        }
- 
-        .dashboard-header {
-            flex-direction: column;
-            gap: 15px;
-        }
- 
-        .dashboard-title h1 {
-            font-size: 24px;
-        }
- 
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
- 
-        .charts-grid {
-            grid-template-columns: 1fr;
-        }
- 
-        .full-width {
-            grid-column: 1;
-        }
- 
-        .chart-container {
-            height: 250px;
-        }
+        .dashboard-container { padding: 0 16px; margin: 20px auto; }
+        .dashboard-header { flex-direction: column; gap: 16px; }
+        .dashboard-title h1 { font-size: 26px; }
+        .stats-grid { grid-template-columns: 1fr; }
+        .charts-grid { grid-template-columns: 1fr; }
+        .full-width { grid-column: 1; }
+        .chart-container { height: 240px; }
     }
 </style>
  
@@ -211,7 +275,7 @@
         <div class="dashboard-title">
             <h1>Dashboard</h1>
             <p>
-                Olá, <span style="color: #ffffff; font-weight: 500;">{{ usuario.nome }}</span> • Painel de controle do estoque
+                Olá, <span>{{ usuario.nome }}</span> &nbsp;·&nbsp; Painel de controle do estoque
             </p>
         </div>
         <div>
@@ -223,7 +287,7 @@
     </div>
  
     <div class="stats-grid">
-        <div class="stat-card">
+        <div class="stat-card blue">
             <div class="stat-icon blue">
                 <i class="fas fa-box"></i>
             </div>
@@ -233,7 +297,7 @@
             </div>
         </div>
  
-        <div class="stat-card">
+        <div class="stat-card purple">
             <div class="stat-icon purple">
                 <i class="fas fa-tags"></i>
             </div>
@@ -243,7 +307,7 @@
             </div>
         </div>
  
-        <div class="stat-card">
+        <div class="stat-card green">
             <div class="stat-icon green">
                 <i class="fas fa-boxes"></i>
             </div>
@@ -253,7 +317,7 @@
             </div>
         </div>
  
-        <div class="stat-card">
+        <div class="stat-card orange">
             <div class="stat-icon orange">
                 <i class="fas fa-users"></i>
             </div>
@@ -281,7 +345,7 @@
  
         <div class="chart-card full-width">
             <h2><i class="fas fa-chart-column"></i> Valor Total em Estoque por Categoria (R$)</h2>
-            <div class="chart-container" style="height: 350px;">
+            <div class="chart-container" style="height: 340px;">
                 <canvas id="valorChart"></canvas>
             </div>
         </div>
@@ -298,24 +362,30 @@
 </script>
  
 <script>
-    var _raw          = JSON.parse(document.getElementById('chart-data').textContent);
+    var _raw           = JSON.parse(document.getElementById('chart-data').textContent);
     var categoriasData = _raw.categorias;
     var produtosData   = _raw.produtos;
     var valorData      = _raw.valor;
  
-    var COLORS = ['#0284c7', '#9333ea', '#16a34a', '#ea580c', '#f59e0b', '#06b6d4', '#ec4899'];
-    var FONT   = "'Plus Jakarta Sans', sans-serif";
- 
+    var COLORS = ['#3b82f6','#9333ea','#10b981','#f59e0b','#ef4444','#06b6d4','#ec4899','#84cc16'];
+    var FONT   = "'DM Sans', sans-serif";
+
+    /* Dark theme grid / tick colors */
+    var gridColor  = 'rgba(99, 179, 237, 0.07)';
+    var tickColor  = '#475569';
+
     var sharedTooltip = {
-        backgroundColor: '#1e293b',
-        titleColor:      '#f1f5f9',
-        bodyColor:       '#cbd5e1',
-        borderColor:     '#334155',
+        backgroundColor: '#0d1320',
+        titleColor:      '#f0f6ff',
+        bodyColor:       '#94a3b8',
+        borderColor:     'rgba(59,130,246,0.2)',
         borderWidth:     1,
-        padding:         10,
-        cornerRadius:    8
+        padding:         12,
+        cornerRadius:    10,
+        displayColors:   true
     };
- 
+
+    /* ── Doughnut: Categorias ── */
     if (categoriasData && categoriasData.labels && categoriasData.labels.length > 0) {
         new Chart(document.getElementById('categoriasChart'), {
             type: 'doughnut',
@@ -324,21 +394,27 @@
                 datasets: [{
                     data:            categoriasData.data,
                     backgroundColor: COLORS,
-                    borderColor:     '#ffffff',
-                    borderWidth:     2
+                    borderColor:     'rgba(8,12,20,0.8)',
+                    borderWidth:     3,
+                    hoverBorderWidth: 2,
+                    hoverOffset:     6
                 }]
             },
             options: {
                 responsive:          true,
                 maintainAspectRatio: false,
+                cutout:              '62%',
+                animation: { duration: 900, easing: 'easeInOutQuart' },
                 plugins: {
                     tooltip: sharedTooltip,
                     legend: {
                         position: 'bottom',
                         labels: {
-                            font:           { size: 12, family: FONT },
-                            padding:        15,
-                            usePointStyle:  true
+                            font:          { size: 12, family: FONT },
+                            padding:       16,
+                            usePointStyle: true,
+                            pointStyleWidth: 10,
+                            color:         '#64748b'
                         }
                     }
                 }
@@ -346,6 +422,7 @@
         });
     }
  
+    /* ── Bar (horizontal): Produtos ── */
     if (produtosData && produtosData.labels && produtosData.labels.length > 0) {
         new Chart(document.getElementById('produtosChart'), {
             type: 'bar',
@@ -354,15 +431,17 @@
                 datasets: [{
                     label:           'Quantidade em Estoque',
                     data:            produtosData.data,
-                    backgroundColor: '#0284c7',
+                    backgroundColor: COLORS.slice(0, produtosData.data.length),
                     borderRadius:    6,
-                    borderSkipped:   false
+                    borderSkipped:   false,
+                    barThickness:    18
                 }]
             },
             options: {
                 indexAxis:           'y',
                 responsive:          true,
                 maintainAspectRatio: false,
+                animation: { duration: 900, easing: 'easeInOutQuart' },
                 plugins: {
                     legend:  { display: false },
                     tooltip: sharedTooltip
@@ -370,18 +449,19 @@
                 scales: {
                     x: {
                         beginAtZero: true,
-                        grid:  { color: '#e2e8f0' },
-                        ticks: { font: { family: FONT } }
+                        grid:  { color: gridColor },
+                        ticks: { font: { family: FONT, size: 12 }, color: tickColor }
                     },
                     y: {
                         grid:  { display: false },
-                        ticks: { font: { family: FONT } }
+                        ticks: { font: { family: FONT, size: 12 }, color: tickColor }
                     }
                 }
             }
         });
     }
  
+    /* ── Bar (vertical): Valor ── */
     if (valorData && valorData.labels && valorData.labels.length > 0) {
         var valorTooltip = Object.assign({}, sharedTooltip, {
             callbacks: {
@@ -391,7 +471,7 @@
                 }
             }
         });
- 
+
         new Chart(document.getElementById('valorChart'), {
             type: 'bar',
             data: {
@@ -399,20 +479,24 @@
                 datasets: [{
                     label:           'Valor Total (R$)',
                     data:            valorData.data,
-                    backgroundColor: '#9333ea',
-                    borderRadius:    6,
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                    hoverBackgroundColor: '#60a5fa',
+                    borderRadius:    8,
                     borderSkipped:   false
                 }]
             },
             options: {
                 responsive:          true,
                 maintainAspectRatio: false,
+                animation: { duration: 900, easing: 'easeInOutQuart' },
                 plugins: {
                     legend: {
                         display: true,
                         labels: {
-                            font:    { size: 12, family: FONT },
-                            padding: 15
+                            font:           { size: 12, family: FONT },
+                            padding:        16,
+                            usePointStyle:  true,
+                            color:          '#64748b'
                         }
                     },
                     tooltip: valorTooltip
@@ -420,9 +504,10 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid:  { color: '#e2e8f0' },
+                        grid:  { color: gridColor },
                         ticks: {
-                            font:     { family: FONT },
+                            font:     { family: FONT, size: 12 },
+                            color:    tickColor,
                             callback: function(value) {
                                 return 'R$ ' + value.toLocaleString('pt-BR');
                             }
@@ -430,7 +515,7 @@
                     },
                     x: {
                         grid:  { display: false },
-                        ticks: { font: { family: FONT } }
+                        ticks: { font: { family: FONT, size: 12 }, color: tickColor }
                     }
                 }
             }
@@ -438,4 +523,3 @@
     }
 </script>
 {% endblock %}
- 
