@@ -46,4 +46,15 @@
                 {% for registro in estoque %}
                 <tr style="border-bottom: 1px solid #edf2f7;">
                     <td style="padding: 18px 20px; font-weight: 600;">{{ registro.produto_nome }}</td>
-                    <td style="padding: 18px 20px; color: #718096;">Setor {{ registro.set
+                    <td style="padding: 18px 20px; color: #718096;">Setor {{ registro.setor }}</td>
+                    <td style="padding: 18px 20px; color: #718096;">{{ registro.quantidade }}</td>
+                    <td style="padding: 18px 20px;">
+                        {% if registro.quantidade <= registro.nivel_minimo %}
+                            <span style="background: #f56565; color: white; padding: 4px 8px; border-radius: 4px;">Crítico</span>
+                        {% else %}
+                            <span style="background: #48bb78; color: white; padding: 4px 8px; border-radius: 4px;">Normal</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+{% endblock %}
