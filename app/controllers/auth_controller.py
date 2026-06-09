@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends, Form, status
+import fastapi
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -8,14 +8,14 @@ from app.models.usuario import Usuario
 from app.auth import hash_password, verificar_senha, criar_token
 
 # APIROUTER agrupa as rotas desse arquivo com prefixo /auth
-router = APIRouter(prefix="/auth", tags=["Autentificação"])
+router = fastapi.APIRouter(prefix="/auth", tags=["Autentificação"])
 
 # Configura para renderizar os templates HTML
 templates = Jinja2Templates(directory="app/templates")
 
 # Rota para tela de cadastro
 @router.get("/cadastro")
-def tela_cadastro(request: Request):
+def tela_cadastro(request: fastapi.Request):
     return templates.TemplateResponse(
         request,
         "auth/cadastro.html",
@@ -23,7 +23,7 @@ def tela_cadastro(request: Request):
         )
 
 @router.get("/login")
-def tela_login(request: Request):
+def tela_login(request: fastapi.Request):
     return templates.TemplateResponse(
         request,
         "auth/login.html",
@@ -33,11 +33,11 @@ def tela_login(request: Request):
 # Rota para criar um novo usuário no banco de dados
 @router.post("/cadastro")
 def fazer_cadastro(
-    request: Request,
-    nome: str = Form(...),
-    email: str = Form(...),
-    senha: str = Form(...),
-    db: Session = Depends(get_db)   
+    request: fastapi.Request,
+    nome: str = fastapi.Form(...),
+    email: str = fastapi.Form(...),
+    senha: str = fastapi.Form(...),
+    db: Session = fastapi.Depends(get_db)   
 ):
     # Verificar o email do usuario
     usuario_existente = db.query(Usuario).filter(Usuario.email == email).first()
@@ -65,10 +65,10 @@ def fazer_cadastro(
 
 @router.post("/login")
 def login(
-    request: Request,
-    email: str = Form(...),
-    senha: str = Form(...),
-    db: Session = Depends(get_db)
+    request: fastapi.Request,
+    email: str = fastapi.Form(...),
+    senha: str = fastapi.Form(...),
+    db: Session = fastapi.Depends(get_db)
 ):
     """
     Processa o login e define o cookie JWT.

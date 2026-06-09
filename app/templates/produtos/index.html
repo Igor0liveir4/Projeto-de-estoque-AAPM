@@ -9,7 +9,7 @@
 <style>
     .page-wrapper {
         min-height: 90vh;
-        background-color: #6081cc;
+        background-color: #000000;
         font-family: 'Plus Jakarta Sans', sans-serif;
         padding: 40px 20px;
         display: flex;
@@ -352,18 +352,37 @@
 
 <script>
     // Mecanismo de Busca Dinâmica em Tempo Real
-    document.getElementById('tableSearch').addEventListener('keyup', function() {
-        const searchValue = this.value.toLowerCase();
-        const rows = document.querySelectorAll('#productsTable tbody .prod-row');
-        
-        rows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            if(text.includes(searchValue)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
+    (function(){
+        const tableSearch = document.getElementById('tableSearch');
+        if(!tableSearch) return;
+
+        // Variável injetada pelo servidor: true se houver usuário autenticado
+        const isAuthenticated = {{ 'true' if usuario else 'false' }};
+
+        tableSearch.addEventListener('input', function() {
+            if(this.value && this.value.length > 0) {
+                if(!isAuthenticated) {
+                    const goLogin = confirm('Você precisa estar logado para usar a busca. Ir para Login? (OK = Login, Cancelar = Cadastro)');
+                    window.location.href = goLogin ? '/auth/login' : '/auth/cadastro';
+                    return;
+                }
+                // se autenticado, não redireciona — deixa o filtro local funcionar
             }
         });
-    });
+
+        // Filtro local em tempo real (uso permitido somente se autenticado)
+        tableSearch.addEventListener('keyup', function() {
+            const searchValue = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#productsTable tbody .prod-row');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if(text.includes(searchValue)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    })();
 </script>
 {% endblock %}

@@ -352,7 +352,6 @@
         <tr>
           <th>Nome</th>
           <th>E-mail</th>
-          <th>Turmas</th>
           <th>Telefone</th>
           <th>Tipo</th>
           <th>Status</th>
@@ -364,7 +363,6 @@
         <tr>
           <td>{{ c.nome }}</td>
           <td class="td-mono">{{ c.email or '—' }}</td>
-          <td>{{ c.turmas or '—' }}</td>
           <td>{{ c.telefone or '—' }}</td>
           <td>
             {% if c.is_associado %}
@@ -410,3 +408,17 @@
 
 </div>
 {% endblock %}
+
+<script>
+  (function(){
+    const buscaInput = document.querySelector('input[name="busca"]');
+    if(!buscaInput) return;
+
+    // Redireciona para a tela de login assim que o usuário digitar algo
+    buscaInput.addEventListener('input', function(){
+      if(this.value && this.value.length > 0) {
+        window.location.href = '/auth/login';
+      }
+    });
+  })();
+</script>
