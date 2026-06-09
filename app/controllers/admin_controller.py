@@ -21,10 +21,8 @@ templates = Jinja2Templates(directory="app/templates")
 def listar_usuarios(
     request: Request,
     db: Session = Depends(get_db),
-    admin = Depends(get_admin) # Bloqueia quem não é admin
+    admin = Depends(get_admin)
 ):
-   
-    # Buscar usuarios do banco
     usuarios = db.query(Usuario).order_by(Usuario.nome).all()
 
     return templates.TemplateResponse(
@@ -32,9 +30,8 @@ def listar_usuarios(
         "usuarios/index.html",
         {
             "request": request,
-            "admin": admin,
+            "usuario": admin,   # ← era "admin", corrigido para "usuario"
             "usuarios": usuarios
-
         }
     )
 
@@ -46,14 +43,13 @@ def form_novo_usuario(
     request: Request,
     admin = Depends(get_admin)
 ):
-    """Exibe o formulário de cadastro de novo usuário."""
     return templates.TemplateResponse(
         request,
         "usuarios/form.html",
         {
             "request": request,
             "usuario": admin,
-            "editando": None  # sinaliza para o template que é criação
+            "editando": None
         }
     )
 
@@ -68,9 +64,6 @@ def criar_usuario(
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
-    """Processa o formulário e cria o usuário no banco."""
-
-    # Verifica duplicidade de email
     existente = db.query(Usuario).filter(
         Usuario.email == email
     ).first()
@@ -84,14 +77,11 @@ def criar_usuario(
                 "usuario": admin,
                 "editando": None,
                 "erro": "Este e-mail já está cadastrado.",
-                # devolve os valores para não limpar o formulário
                 "valores": {"nome": nome, "email": email, "role": role}
             },
             status_code=400
         )
 
-    # Valida se o role enviado é um dos valores permitidos
-    # Evita que alguém manipule o formulário e envie um role inválido
     if role not in ("admin", "user"):
         return templates.TemplateResponse(
             request,
@@ -119,8 +109,8 @@ def criar_usuario(
     return RedirectResponse(url="/usuarios?criado=ok", status_code=302)
 
 
-
 # EDIÇÃO
+
 @router.get("/{usuario_id}/editar")
 def form_editar_usuario(
     usuario_id: int,
@@ -128,7 +118,6 @@ def form_editar_usuario(
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
-    """Exibe o formulário preenchido com os dados atuais do usuário."""
     editando = db.query(Usuario).filter(Usuario.id == usuario_id).first()
 
     if not editando:
@@ -140,7 +129,7 @@ def form_editar_usuario(
         {
             "request": request,
             "usuario": admin,
-            "editando": editando  # template detecta que é edição
+            "editando": editando
         }
     )
 
@@ -152,20 +141,18 @@ def editar_usuario(
     nome: str = Form(...),
     email: str = Form(...),
     role: str = Form(...),
-    senha: str = Form(""),   # opcional na edição — vazio = não altera
+    senha: str = Form(""),
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
-    """Atualiza os dados do usuário. Senha só é alterada se preenchida."""
     editando = db.query(Usuario).filter(Usuario.id == usuario_id).first()
 
     if not editando:
         return RedirectResponse(url="/usuarios", status_code=302)
 
-    # Verifica se o novo email já pertence a outro usuário
     conflito = db.query(Usuario).filter(
         Usuario.email == email,
-        Usuario.id != usuario_id  # ignora o próprio usuário
+        Usuario.id != usuario_id
     ).first()
 
     if conflito:
@@ -194,12 +181,10 @@ def editar_usuario(
             status_code=400
         )
 
-    # Atualiza os campos
     editando.nome = nome
     editando.email = email
     editando.role = role
 
-    # Só altera a senha se um novo valor foi enviado
     if senha.strip():
         editando.senha_hash = hash_password(senha)
 
@@ -208,9 +193,7 @@ def editar_usuario(
     return RedirectResponse(url="/usuarios?editado=ok", status_code=302)
 
 
-
 # ATIVAR / DESATIVAR
-
 
 @router.post("/{usuario_id}/toggle-ativo")
 def toggle_ativo(
@@ -218,19 +201,11 @@ def toggle_ativo(
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
-    """
-    Alterna o status ativo/inativo do usuário.
-   
-    Preferimos desativar a deletar — mantemos o histórico
-    de quem criou registros no sistema.
-    Um admin não pode se desativar para não perder o acesso.
-    """
     usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
 
     if not usuario:
         return RedirectResponse(url="/usuarios", status_code=302)
 
-    # Proteção: admin não pode desativar a si mesmo
     if usuario.email == admin.get("sub"):
         return RedirectResponse(
             url="/usuarios?erro=autoproprio",

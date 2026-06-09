@@ -1,6 +1,6 @@
 # 1. Hash e verificação de senha com bcrypt
 # 2. Geração de token JWT
-# 3. Leitura e validação do token vindo do cokie
+# 3. Leitura e validação do token vindo do cookie
 
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt

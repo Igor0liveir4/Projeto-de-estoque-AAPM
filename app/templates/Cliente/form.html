@@ -335,20 +335,7 @@
         >
       </div>
 
-      <!-- Turmas + Telefone -->
-      <div class="field-row">
-        <div>
-          <label for="turmas">Turmas</label>
-          <input
-            type="text"
-            id="turmas"
-            name="turmas"
-            maxlength="255"
-            placeholder="Ex.: Turma A, Turma B"
-            value="{{ editando.turmas or '' if editando else (valores.turmas if valores else '') }}"
-          >
-          <p class="hint">Separe por vírgula se houver mais de uma.</p>
-        </div>
+
         <div>
           <label for="telefone">Telefone</label>
           <input

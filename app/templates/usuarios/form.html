@@ -2,7 +2,6 @@
 {% block title %}{{ 'Editar' if editando else 'Novo' }} Usuário - Estoque AAPM{% endblock %}
 
 {% block head %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   body { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -101,86 +100,95 @@
     text-decoration: none; font-weight: 600; transition: color 0.2s;
   }
   .cancel-link:hover { color: #667eea; }
+
+  /* Wrapper para padding no conteúdo */
+  .form-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 20px;
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<a href="/usuarios" class="back-link"><i class="fas fa-arrow-left"></i> Voltar para usuários</a>
+<div class="form-wrapper">
+  <a href="/usuarios" class="back-link"><i class="fas fa-arrow-left"></i> Voltar para usuários</a>
 
-<div class="form-card">
-  <div class="form-header">
-    <div class="form-icon">
-      <i class="fas fa-{{ 'user-pen' if editando else 'user-plus' }}"></i>
+  <div class="form-card">
+    <div class="form-header">
+      <div class="form-icon">
+        <i class="fas fa-{{ 'user-pen' if editando else 'user-plus' }}"></i>
+      </div>
+      <h2 class="form-title">{{ 'Editar Usuário' if editando else 'Novo Usuário' }}</h2>
+      <p class="form-subtitle">
+        {% if editando %}Atualize os dados de <strong>{{ editando.nome }}</strong>
+        {% else %}Preencha os dados para criar um acesso ao sistema{% endif %}
+      </p>
     </div>
-    <h2 class="form-title">{{ 'Editar Usuário' if editando else 'Novo Usuário' }}</h2>
-    <p class="form-subtitle">
-      {% if editando %}Atualize os dados de <strong>{{ editando.nome }}</strong>
-      {% else %}Preencha os dados para criar um acesso ao sistema{% endif %}
-    </p>
+
+    {% if erro %}
+    <div class="alert-error"><i class="fas fa-circle-exclamation"></i> {{ erro }}</div>
+    {% endif %}
+
+    <form action="/usuarios/{{ editando.id ~ '/editar' if editando else 'novo' }}" method="post">
+
+      <div class="field">
+        <label>Nome Completo</label>
+        <div class="input-wrap">
+          <i class="fas fa-user"></i>
+          <input type="text" name="nome" placeholder="Nome do usuário" required
+            value="{{ editando.nome if editando else (valores.nome if valores else '') }}">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>E-mail</label>
+        <div class="input-wrap">
+          <i class="fas fa-envelope"></i>
+          <input type="email" name="email" placeholder="usuario@aapm.com" required
+            value="{{ editando.email if editando else (valores.email if valores else '') }}">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>{{ 'Nova Senha' if editando else 'Senha' }}</label>
+        <div class="input-wrap">
+          <i class="fas fa-lock"></i>
+          <input type="password" name="senha" placeholder="••••••••" {{ '' if editando else 'required' }}>
+        </div>
+        {% if editando %}
+        <p class="hint"><i class="fas fa-circle-info"></i> Deixe em branco para manter a senha atual.</p>
+        {% endif %}
+      </div>
+
+      <div class="field">
+        <label>Perfil de Acesso</label>
+        <div class="role-grid">
+          <div class="role-option">
+            <input type="radio" name="role" id="role_admin" value="admin"
+              {{ 'checked' if (editando and editando.role == 'admin') or (valores and valores.role == 'admin') }}>
+            <label for="role_admin" class="role-label">
+              <i class="fas fa-shield-halved"></i> Administrador
+            </label>
+          </div>
+          <div class="role-option">
+            <input type="radio" name="role" id="role_user" value="user"
+              {{ 'checked' if (editando and editando.role == 'user') or (valores and valores.role == 'user') or not editando }}>
+            <label for="role_user" class="role-label">
+              <i class="fas fa-user"></i> User
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit">
+        <i class="fas fa-{{ 'floppy-disk' if editando else 'user-plus' }}"></i>
+        {{ 'Salvar Alterações' if editando else 'Criar Usuário' }}
+      </button>
+    </form>
+
+    <hr class="divider">
+    <a href="/usuarios" class="cancel-link">Cancelar e voltar</a>
   </div>
-
-  {% if erro %}
-  <div class="alert-error"><i class="fas fa-circle-exclamation"></i> {{ erro }}</div>
-  {% endif %}
-
-  <form action="/usuarios/{{ editando.id ~ '/editar' if editando else 'novo' }}" method="post">
-
-    <div class="field">
-      <label>Nome Completo</label>
-      <div class="input-wrap">
-        <i class="fas fa-user"></i>
-        <input type="text" name="nome" placeholder="Nome do usuário" required
-          value="{{ editando.nome if editando else (valores.nome if valores else '') }}">
-      </div>
-    </div>
-
-    <div class="field">
-      <label>E-mail</label>
-      <div class="input-wrap">
-        <i class="fas fa-envelope"></i>
-        <input type="email" name="email" placeholder="usuario@aapm.com" required
-          value="{{ editando.email if editando else (valores.email if valores else '') }}">
-      </div>
-    </div>
-
-    <div class="field">
-      <label>{{ 'Nova Senha' if editando else 'Senha' }}</label>
-      <div class="input-wrap">
-        <i class="fas fa-lock"></i>
-        <input type="password" name="senha" placeholder="••••••••" {{ '' if editando else 'required' }}>
-      </div>
-      {% if editando %}
-      <p class="hint"><i class="fas fa-info-circle"></i> Deixe em branco para manter a senha atual.</p>
-      {% endif %}
-    </div>
-
-    <div class="field">
-      <label>Perfil de Acesso</label>
-      <div class="role-grid">
-        <div class="role-option">
-          <input type="radio" name="role" id="role_admin" value="admin"
-            {{ 'checked' if (editando and editando.role == 'admin') or (valores and valores.role == 'admin') }}>
-          <label for="role_admin" class="role-label">
-            <i class="fas fa-shield-halved"></i> Administrador
-          </label>
-        </div>
-        <div class="role-option">
-          <input type="radio" name="role" id="role_user" value="user"
-            {{ 'checked' if (editando and editando.role == 'user') or (valores and valores.role == 'user') or not editando }}>
-          <label for="role_user" class="role-label">
-            <i class="fas fa-user"></i> User
-          </label>
-        </div>
-      </div>
-    </div>
-
-    <button type="submit" class="btn-submit">
-      <i class="fas fa-{{ 'floppy-disk' if editando else 'user-plus' }}"></i>
-      {{ 'Salvar Alterações' if editando else 'Criar Usuário' }}
-    </button>
-  </form>
-
-  <hr class="divider">
-  <a href="/usuarios" class="cancel-link">Cancelar e voltar</a>
 </div>
 {% endblock %}
