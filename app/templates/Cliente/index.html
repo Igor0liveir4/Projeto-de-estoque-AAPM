@@ -1,125 +1,120 @@
 {% extends "base.html" %}
-{% block title %}Clientes{% endblock %}
+{% block title %}Clientes - Estoque AAPM{% endblock %}
 
-{% block content %}
+{% block head %}
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
-
-  :root {
-    --bg:        #0f1117;
-    --surface:   #181c27;
-    --border:    #252a38;
-    --accent:    #4f8ef7;
-    --accent2:   #6ee7b7;
-    --danger:    #f87171;
-    --text:      #e2e8f0;
-    --muted:     #64748b;
-    --radius:    10px;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-  }
-
+  /* ── PAGE HEADER — mesmo padrão da home ── */
   .page-wrap {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 48px 24px;
+    max-width: 1280px;
+    margin: 40px auto;
+    padding: 0 28px;
   }
 
-  /* ── Header ── */
   .page-header {
     display: flex;
-    align-items: flex-start;
     justify-content: space-between;
-    gap: 16px;
+    align-items: flex-start;
     margin-bottom: 36px;
+    animation: fadeUp 0.4s ease both;
     flex-wrap: wrap;
+    gap: 16px;
   }
 
   .page-title {
-    font-size: 28px;
-    font-weight: 600;
-    letter-spacing: -0.5px;
+    font-family: 'Syne', sans-serif;
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin: 0;
+    color: #f0f6ff;
+    line-height: 1;
   }
 
-  .page-title span {
-    color: var(--accent);
+  .page-title span { color: #60a5fa; }
+
+  .page-subtitle {
+    color: #64748b;
+    font-size: 14px;
+    margin: 10px 0 0 0;
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
   }
+
+  .page-subtitle span { color: #60a5fa; font-weight: 600; }
 
   .stat-pill {
-    background: #1a2235;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 6px 14px;
-    font-size: 13px;
-    color: var(--muted);
-    margin-top: 6px;
-    display: inline-block;
+    background: rgba(59,130,246,0.08);
+    border: 1px solid rgba(59,130,246,0.15);
+    border-radius: 24px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: #94a3b8;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.03em;
   }
 
-  .stat-pill b {
-    color: var(--accent2);
-    font-family: 'DM Mono', monospace;
-  }
+  .stat-pill b { color: #4ade80; }
 
-  .btn {
+  /* ── Botão primário ── */
+  .btn-novo {
+    background: var(--accent);
+    color: white;
+    padding: 11px 20px;
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 20px;
-    border-radius: var(--radius);
+    transition: all var(--transition);
+    box-shadow: 0 4px 14px var(--accent-glow);
     font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
     border: none;
-    text-decoration: none;
-    transition: opacity .15s, transform .1s;
+    cursor: pointer;
+    white-space: nowrap;
+    align-self: flex-start;
   }
 
-  .btn:active { transform: scale(.97); }
-
-  .btn-primary {
-    background: var(--accent);
-    color: #fff;
+  .btn-novo:hover {
+    background: var(--accent-light);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px var(--accent-glow);
   }
 
-  .btn-primary:hover { opacity: .88; }
-
-  /* ── Toast ── */
+  /* ── Toasts ── */
   .toast {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 12px 18px;
+    padding: 13px 18px;
     border-radius: var(--radius);
     font-size: 14px;
-    margin-bottom: 24px;
+    font-weight: 500;
+    margin-bottom: 20px;
     border: 1px solid;
-    animation: slideIn .3s ease;
+    font-family: 'DM Sans', sans-serif;
+    animation: fadeUp 0.3s ease both;
   }
 
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-8px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+  .toast-success { background: rgba(16,185,129,0.1);  color: #6ee7b7; border-color: rgba(16,185,129,0.2); }
+  .toast-info    { background: rgba(59,130,246,0.1);   color: #93c5fd; border-color: rgba(59,130,246,0.2); }
 
-  .toast-success { background: #0d2b1f; border-color: #134e35; color: var(--accent2); }
-  .toast-info    { background: #0d1b35; border-color: #1a3a6e; color: var(--accent); }
-
-  /* ── Filters ── */
-  .filters {
+  /* ── Filtros ── */
+  .filters-row {
     display: flex;
-    gap: 12px;
-    margin-bottom: 24px;
+    gap: 10px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
     align-items: center;
+    animation: fadeUp 0.4s ease both;
+    animation-delay: 0.05s;
   }
 
   .search-wrap {
@@ -128,112 +123,159 @@
     min-width: 220px;
   }
 
-  .search-wrap svg {
+  .search-wrap i {
     position: absolute;
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: var(--muted);
+    color: var(--text-muted);
+    font-size: 13px;
     pointer-events: none;
   }
 
   .input-search {
     width: 100%;
-    padding: 10px 12px 10px 38px;
-    background: var(--surface);
+    padding: 10px 12px 10px 36px;
+    margin: 0;
+    background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    color: var(--text);
+    color: var(--text-primary);
     font-family: 'DM Sans', sans-serif;
     font-size: 14px;
-    outline: none;
-    transition: border-color .2s;
+    transition: border-color var(--transition), box-shadow var(--transition);
   }
 
-  .input-search:focus { border-color: var(--accent); }
+  .input-search:focus {
+    border-color: rgba(59,130,246,0.5);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+  }
 
   .checkbox-label {
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 14px;
-    color: var(--muted);
+    color: var(--text-muted);
     cursor: pointer;
     white-space: nowrap;
     padding: 10px 14px;
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    background: var(--surface);
-    transition: border-color .2s, color .2s;
+    background: var(--bg-card);
+    transition: all var(--transition);
+    font-family: 'DM Sans', sans-serif;
   }
 
   .checkbox-label:has(input:checked) {
-    border-color: var(--accent);
-    color: var(--accent);
+    border-color: rgba(59,130,246,0.4);
+    color: var(--accent-light);
+    background: rgba(59,130,246,0.06);
   }
 
   .checkbox-label input { display: none; }
 
-  /* ── Table ── */
-  .table-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
+  .btn-buscar {
+    padding: 10px 18px;
     border-radius: var(--radius);
-    overflow: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
   }
 
-  table {
+  .btn-buscar:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+    background: var(--bg-card-hover);
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* ── Tabela ── */
+  .table-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+    animation-delay: 0.1s;
+  }
+
+  .clientes-table {
     width: 100%;
     border-collapse: collapse;
+    margin: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
   }
 
-  thead tr {
-    border-bottom: 1px solid var(--border);
-  }
-
-  thead th {
+  .clientes-table thead th {
+    background: rgba(59,130,246,0.07);
+    color: var(--accent-light);
     padding: 14px 18px;
-    text-align: left;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: .08em;
+    font-size: 10.5px;
+    font-weight: 700;
     text-transform: uppercase;
-    color: var(--muted);
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--border);
+    font-family: 'DM Sans', sans-serif;
   }
 
-  tbody tr {
-    border-bottom: 1px solid #1c2130;
-    transition: background .15s;
+  .clientes-table tbody tr {
+    border-bottom: 1px solid rgba(99,179,237,0.05);
+    transition: background var(--transition);
   }
 
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover      { background: #1c2233; }
+  .clientes-table tbody tr:last-child { border-bottom: none; }
 
-  td {
+  .clientes-table tbody tr:hover td {
+    background: rgba(59,130,246,0.04);
+    color: var(--text-primary);
+  }
+
+  .clientes-table td {
     padding: 14px 18px;
     font-size: 14px;
+    color: var(--text-secondary);
     vertical-align: middle;
+    border-bottom: none;
+    font-family: 'DM Sans', sans-serif;
   }
 
   .td-mono {
-    font-family: 'DM Mono', monospace;
+    font-family: 'DM Mono', monospace, 'DM Sans', sans-serif;
     font-size: 13px;
-    color: var(--muted);
+    color: var(--text-muted);
   }
 
+  /* ── Badges ── */
   .badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.03em;
   }
 
-  .badge-assoc  { background: #0d2b1f; color: var(--accent2); border: 1px solid #134e35; }
-  .badge-comum  { background: #1a1f2e; color: var(--muted);   border: 1px solid var(--border); }
-  .badge-ativo  { background: #0d2b1f; color: var(--accent2); border: 1px solid #134e35; }
-  .badge-inativo{ background: #2b0d0d; color: var(--danger);  border: 1px solid #4e1313; }
+  .badge-assoc   { background: rgba(74,222,128,0.1);   color: #4ade80; border: 1px solid rgba(74,222,128,0.2); }
+  .badge-comum   { background: rgba(99,179,237,0.06);  color: var(--text-muted); border: 1px solid var(--border); }
+  .badge-ativo   { background: rgba(74,222,128,0.1);   color: #4ade80; border: 1px solid rgba(74,222,128,0.2); }
+  .badge-inativo { background: rgba(239,68,68,0.1);    color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
 
+  /* ── Ações ── */
   .actions { display: flex; align-items: center; gap: 8px; }
 
   .btn-icon {
@@ -245,17 +287,22 @@
     border-radius: 8px;
     border: 1px solid var(--border);
     background: transparent;
-    color: var(--muted);
+    color: var(--text-muted);
     cursor: pointer;
     text-decoration: none;
-    transition: background .15s, color .15s, border-color .15s;
+    transition: all var(--transition);
   }
 
-  .btn-icon:hover { background: #252a38; color: var(--text); border-color: #3a4155; }
-  .btn-icon.danger:hover { background: #2b0d0d; color: var(--danger); border-color: #4e1313; }
+  .btn-icon:hover {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+    transform: none;
+    box-shadow: none;
+  }
 
-  /* Toggle form inline */
   .toggle-form { display: inline; }
+
   .toggle-form button {
     all: unset;
     cursor: pointer;
@@ -267,59 +314,65 @@
     border-radius: 8px;
     border: 1px solid var(--border);
     background: transparent;
-    color: var(--muted);
-    transition: background .15s, color .15s, border-color .15s;
+    color: var(--text-muted);
+    transition: all var(--transition);
   }
 
-  .toggle-form button:hover { background: #252a38; color: var(--text); border-color: #3a4155; }
+  .toggle-form button:hover {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+  }
 
-  /* Empty state */
+  /* ── Vazio ── */
   .empty {
-    padding: 64px 24px;
+    padding: 60px 24px;
     text-align: center;
-    color: var(--muted);
+    color: var(--text-muted);
   }
 
-  .empty svg { margin-bottom: 16px; opacity: .3; }
-  .empty p   { font-size: 15px; }
+  .empty i { font-size: 40px; display: block; margin-bottom: 14px; opacity: 0.35; }
+  .empty p  { font-size: 14px; }
 </style>
+{% endblock %}
 
+{% block content %}
 <div class="page-wrap">
 
   <!-- Header -->
   <div class="page-header">
     <div>
       <h1 class="page-title">Clientes <span>&amp;</span> Associados</h1>
-      <span class="stat-pill">
-        <b>{{ total_associados }}</b> associado{{ 's' if total_associados != 1 else '' }} ativo{{ 's' if total_associados != 1 else '' }}
-      </span>
+      <p class="page-subtitle">
+        <span>{{ total_associados }}</span> associado{{ 's' if total_associados != 1 }} ativo{{ 's' if total_associados != 1 }}
+        <span class="stat-pill">
+          <i class="fas fa-circle" style="font-size:7px; color:#10b981;"></i>
+          <b>{{ total_associados }}</b> com desconto
+        </span>
+      </p>
     </div>
-    <a href="/cliente/novo" class="btn btn-primary">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Novo cliente
+    <a href="/cliente/novo" class="btn-novo">
+      <i class="fas fa-user-plus"></i> Novo Cliente
     </a>
   </div>
 
   <!-- Toasts -->
   {% if request.query_params.get('criado') == 'ok' %}
   <div class="toast toast-success">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-    Cliente cadastrado com sucesso!
+    <i class="fas fa-check-circle"></i> Cliente cadastrado com sucesso!
   </div>
   {% endif %}
-
   {% if request.query_params.get('editado') == 'ok' %}
   <div class="toast toast-info">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-    Cliente atualizado com sucesso!
+    <i class="fas fa-check-circle"></i> Cliente atualizado com sucesso!
   </div>
   {% endif %}
 
   <!-- Filtros -->
   <form method="get" action="/cliente">
-    <div class="filters">
+    <div class="filters-row">
       <div class="search-wrap">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <i class="fas fa-search"></i>
         <input
           class="input-search"
           type="text"
@@ -337,17 +390,19 @@
           {% if apenas_associados %}checked{% endif %}
           onchange="this.form.submit()"
         >
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <i class="fas fa-users"></i>
         Apenas associados
       </label>
-      <button class="btn btn-primary" type="submit">Buscar</button>
+      <button class="btn-buscar" type="submit">
+        <i class="fas fa-search"></i> Buscar
+      </button>
     </div>
   </form>
 
   <!-- Tabela -->
-  <div class="table-card">
+  <div class="table-wrap">
     {% if clientes %}
-    <table>
+    <table class="clientes-table">
       <thead>
         <tr>
           <th>Nome</th>
@@ -361,35 +416,37 @@
       <tbody>
         {% for c in clientes %}
         <tr>
-          <td>{{ c.nome }}</td>
+          <td style="font-weight:600; color:var(--text-primary);">{{ c.nome }}</td>
           <td class="td-mono">{{ c.email or '—' }}</td>
           <td>{{ c.telefone or '—' }}</td>
           <td>
             {% if c.is_associado %}
-              <span class="badge badge-assoc">Associado</span>
+              <span class="badge badge-assoc">
+                <i class="fas fa-star" style="font-size:9px;"></i> Associado
+              </span>
             {% else %}
               <span class="badge badge-comum">Comum</span>
             {% endif %}
           </td>
           <td>
             {% if c.ativo %}
-              <span class="badge badge-ativo">Ativo</span>
+              <span class="badge badge-ativo">
+                <i class="fas fa-circle" style="font-size:7px;"></i> Ativo
+              </span>
             {% else %}
-              <span class="badge badge-inativo">Inativo</span>
+              <span class="badge badge-inativo">
+                <i class="fas fa-circle" style="font-size:7px;"></i> Inativo
+              </span>
             {% endif %}
           </td>
           <td>
             <div class="actions">
               <a href="/cliente/{{ c.id }}/editar" class="btn-icon" title="Editar">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <i class="fas fa-pen" style="font-size:13px;"></i>
               </a>
               <form class="toggle-form" method="post" action="/cliente/{{ c.id }}/toggle-ativo">
                 <button type="submit" title="{{ 'Desativar' if c.ativo else 'Ativar' }}">
-                  {% if c.ativo %}
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-                  {% else %}
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                  {% endif %}
+                  <i class="fas fa-{{ 'toggle-on' if c.ativo else 'toggle-off' }}" style="font-size:14px;"></i>
                 </button>
               </form>
             </div>
@@ -400,7 +457,7 @@
     </table>
     {% else %}
     <div class="empty">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      <i class="fas fa-users-slash"></i>
       <p>Nenhum cliente encontrado.</p>
     </div>
     {% endif %}
@@ -408,17 +465,3 @@
 
 </div>
 {% endblock %}
-
-<script>
-  (function(){
-    const buscaInput = document.querySelector('input[name="busca"]');
-    if(!buscaInput) return;
-
-    // Redireciona para a tela de login assim que o usuário digitar algo
-    buscaInput.addEventListener('input', function(){
-      if(this.value && this.value.length > 0) {
-        window.location.href = '/auth/login';
-      }
-    });
-  })();
-</script>
