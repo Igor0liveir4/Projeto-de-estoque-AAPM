@@ -301,6 +301,41 @@
         text-align: justify;
     }
 
+    .fixed-back-button {
+        position: fixed;
+        left: 24px;
+        top: calc(var(--header-h) + 18px);
+        z-index: 50;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 16px;
+        background: rgba(13, 19, 32, 0.9);
+        border: 1px solid rgba(99, 179, 237, 0.18);
+        border-radius: 12px;
+        color: #f0f6ff;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease;
+    }
+
+    .fixed-back-button:hover {
+        background: rgba(59, 130, 246, 0.16);
+        border-color: rgba(96, 165, 250, 0.4);
+        transform: translateY(-2px);
+    }
+
+    .fixed-back-button i {
+        color: #60a5fa;
+        font-size: 12px;
+    }
+
     /* ── RESPONSIVIDADE ────────────────────────────────── */
     @media (max-width: 992px) {
         .contact-grid {
@@ -324,10 +359,20 @@
         .notice-card {
             padding: 32px 24px;
         }
+
+        .fixed-back-button {
+            left: 16px;
+            top: 118px;
+            padding: 10px 13px;
+        }
     }
 </style>
 
 <div class="contact-wrapper">
+    <button type="button" class="fixed-back-button" onclick="voltarPaginaAnterior()" aria-label="Voltar para a pagina anterior">
+        <i class="fas fa-arrow-left"></i>
+        <span>Voltar</span>
+    </button>
 
     <div class="contact-hero">
         <div class="contact-eyebrow">
@@ -423,6 +468,15 @@
             </div>
         </div>
     </div>
-
 </div>
+<script>
+    function voltarPaginaAnterior() {
+        if (window.history.length > 1) {
+            window.history.back();
+            return;
+        }
+
+        window.location.href = '/';
+    }
+</script>
 {% endblock %}
