@@ -117,8 +117,17 @@
     }
 
     @keyframes pulse {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.4; transform: scale(0.7); }
+
+        0%,
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 0.4;
+            transform: scale(0.7);
+        }
     }
 
     .hero h1 {
@@ -205,7 +214,7 @@
         box-shadow: 0 0 10px rgba(59, 130, 246, 0.15);
     }
 
-    .form-control:focus + i {
+    .form-control:focus+i {
         color: #60a5fa;
     }
 
@@ -493,6 +502,7 @@
             gap: 36px;
             padding-top: 40px;
         }
+
         .socio-grid {
             grid-template-columns: 1fr;
             gap: 30px;
@@ -500,6 +510,7 @@
     }
 
     @media (max-width: 768px) {
+
         .hero,
         .produtos-section,
         .socio-section,
@@ -529,8 +540,9 @@
                 Explore o catálogo de materiais escolares, uniformes e produtos oficiais da nossa associação.
                 Facilidade e transparência para toda a comunidade acadêmica SENAI.
             </p>
-            
-            <a href="{{ url_for('tela_login') }}" class="btn-card solid" style="width: fit-content; padding: 14px 28px; gap: 10px; background: linear-gradient(135deg, #a78bfa, #7c3aed); border: 1px solid rgba(139, 92, 246, 0.4);">
+
+            <a href="{{ url_for('tela_login') }}" class="btn-card solid"
+                style="width: fit-content; padding: 14px 28px; gap: 10px; background: linear-gradient(135deg, #a78bfa, #7c3aed); border: 1px solid rgba(139, 92, 246, 0.4);">
                 <i class="fas fa-user-lock"></i> Ir para a Tela de Login
             </a>
         </div>
@@ -618,7 +630,8 @@
                         <i class="fas fa-graduation-cap"></i>
                         <div>
                             <h5>Cursos e Eventos</h5>
-                            <p>Prioridade na inscrição e isenção de taxas em workshops, palestras e feiras tecnológicas.</p>
+                            <p>Prioridade na inscrição e isenção de taxas em workshops, palestras e feiras tecnológicas.
+                            </p>
                         </div>
                     </div>
                     <div class="vantagem-item">
@@ -632,29 +645,13 @@
                         <i class="fas fa-handshake"></i>
                         <div>
                             <h5>Voz Ativa e Apoio</h5>
-                            <p>Participação direta em comitês para avaliar e propor melhorias para a comunidade acadêmica.</p>
+                            <p>Participação direta em comitês para avaliar e propor melhorias para a comunidade
+                                acadêmica.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="politica-section">
-        <div class="politica-box">
-            <h4><i class="fas fa-shield-alt"></i> Declaração de Termos e Políticas — SENAI</h4>
-            <div class="politica-text">
-                O uso deste sistema de gestão de estoque e vitrine virtual da Associação de Alunos, Pais e Mestres
-                (AAPM) rege-se em conformidade com as diretrizes institucionais do SENAI e com a Lei Geral de Proteção
-                de Dados (LGPD). Os dados cadastrais coletados destinam-se estritamente ao controle interno de
-                movimentação de produtos, validação de vínculos de associados e processamento de compras no ponto de
-                venda. É vedada a utilização deste ambiente para fins comerciais alheios à instituição ou
-                compartilhamento de informações com terceiros sem consentimento explícito. Os valores e a
-                disponibilidade dos produtos apresentados estão sujeitos a alterações sazonais sem aviso prévio,
-                conforme deliberação da diretoria executiva da AAPM local.
-            </div>
-        </div>
-    </div>
-
 </div>
 {% endblock %}
