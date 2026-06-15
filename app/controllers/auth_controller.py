@@ -144,6 +144,6 @@ def login(
 # Rota para sair
 @router.get("/logout")
 def logout():
-    response = RedirectResponse(url="/auth/login", status_code=302)
+    response = RedirectResponse(url="/", status_code=302)
     response.delete_cookie("access_token")
     return response
