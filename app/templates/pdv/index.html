@@ -537,6 +537,7 @@
             {% for p in produtos %}
             <div class="produto-card {% if p.estoque_atual == 0 %}sem-estoque{% endif %}" data-id="{{ p.id }}"
                 data-nome="{{ p.nome }}" data-preco="{{ p.preco }}" data-estoque="{{ p.estoque_atual }}"
+                data-imagem="{{ p.imagem_url }}"
                 onclick="adicionarAoCarrinho(this)">
                 {% if p.estoque_atual > 0 and p.estoque_atual <= 5 %} <span class="badge-critico">Baixo</span>
                     {% endif %}
@@ -648,7 +649,7 @@ window.adicionarAoCarrinho = function (el) {
     const nome = el.dataset.nome;
     const preco = parseFloat(el.dataset.preco);
     const estMax = parseInt(el.dataset.estoque);
-    const imagem = el.dataset.imagem; // <-- Captura a imagem do card
+    const imagem = el.dataset.imagem || '/static/img/produto-placeholder.png';
 
     let item = carrinho.find(i => i.produto_id === id);
     if (item) {
