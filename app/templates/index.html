@@ -305,7 +305,8 @@
     .produto-img-container img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
+        padding: 10px;
     }
 
     .produto-img-container i {
@@ -559,8 +560,8 @@
             {% for produto in produtos %}
             <div class="produto-card">
                 <div class="produto-img-container">
-                    {% if produto.imagem %}
-                    <img src="/static/img/{{ produto.imagem }}" alt="{{ produto.nome }}">
+                    {% if produto.imagem_url %}
+                    <img src="{{ produto.imagem_url }}" alt="{{ produto.nome }}" loading="lazy">
                     {% else %}
                     <i class="fas fa-box-open"></i>
                     {% endif %}

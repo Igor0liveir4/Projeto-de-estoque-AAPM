@@ -81,25 +81,30 @@
             justify-content: space-between;
             align-items: center;
             height: 100%;
+            gap: 18px;
         }
 
         .header-content {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             text-decoration: none;
+            flex: 0 1 auto;
+            min-width: 0;
         }
 
         .logo-header {
-            height: 36px;
-            width: auto;
+            width: 92px;
+            height: 32px;
             object-fit: contain;
+            object-position: left center;
             filter: drop-shadow(0 0 8px var(--accent-glow));
+            flex-shrink: 0;
         }
 
         h1 {
             font-family: 'Syne', sans-serif;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
             letter-spacing: -0.3px;
             color: var(--text-primary);
@@ -113,26 +118,29 @@
         /* ── NAV BUTTONS ────────────────────────────────── */
         .nav-buttons {
             display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
+            gap: 4px;
+            flex: 1 1 auto;
+            flex-wrap: nowrap;
+            justify-content: flex-end;
             align-items: center;
+            min-width: 0;
         }
 
         .nav-btn {
             position: relative;
             background: transparent;
             color: var(--text-secondary);
-            padding: 8px 14px;
+            padding: 7px 10px;
             text-decoration: none;
             border-radius: 8px;
             font-weight: 500;
-            font-size: 13px;
+            font-size: 12px;
             font-family: 'DM Sans', sans-serif;
             transition: color var(--transition), background var(--transition), transform var(--transition);
             border: 1px solid transparent;
             display: inline-flex;
             align-items: center;
-            gap: 7px;
+            gap: 6px;
             white-space: nowrap;
             overflow: hidden;
         }
@@ -170,9 +178,13 @@
             border-color: rgba(59, 130, 246, 0.25);
         }
 
+        .nav-btn.same-page {
+            cursor: default;
+        }
+
         .nav-btn.logout {
             color: #fca5a5;
-            margin-left: 6px;
+            margin-left: 2px;
         }
 
         .nav-btn.logout:hover {
@@ -422,11 +434,20 @@
 
             header { height: auto; }
 
-            h1 { font-size: 16px; }
+            .logo-header {
+                width: 110px;
+                height: 34px;
+            }
+
+            h1 {
+                display: block;
+                font-size: 16px;
+            }
 
             .nav-buttons {
                 width: 100%;
                 justify-content: center;
+                flex-wrap: wrap;
             }
 
             .nav-btn {
@@ -435,6 +456,12 @@
             }
 
             .nav-divider { display: none; }
+        }
+
+        @media (min-width: 769px) and (max-width: 1120px) {
+            h1 {
+                display: none;
+            }
         }
 
         /* ── PAGE ENTER ANIMATION ───────────────────────── */
@@ -458,26 +485,34 @@
                     <h1>Gestão de Estoque <span>AAPM</span></h1>
                 </div>
                 {% if usuario %}
+                {% set current_path = request.url.path if request is defined else '' %}
+                {% set is_home = current_path == '/' %}
+                {% set is_cliente = current_path == '/cliente' or current_path.startswith('/cliente/') %}
+                {% set is_produtos = current_path == '/produtos' or current_path.startswith('/produtos/') %}
+                {% set is_categorias = current_path == '/categorias' or current_path.startswith('/categorias/') %}
+                {% set is_usuarios = current_path == '/usuarios' or current_path.startswith('/usuarios/') %}
+                {% set is_movimentacoes = current_path == '/movimentacoes' or current_path.startswith('/movimentacoes/') %}
+                {% set is_pdv = current_path == '/pdv' or current_path.startswith('/pdv/') %}
                 <div class="nav-buttons">
-                    <a href="/" class="nav-btn">
+                    <a href="/" class="nav-btn {{ 'active' if is_home else '' }}" {% if is_home %}aria-current="page"{% endif %}>
                         <i class="fas fa-house"></i> Home
                     </a>
-                    <a href="/cliente" class="nav-btn">
+                    <a href="/cliente" class="nav-btn {{ 'active' if is_cliente else '' }}" {% if is_cliente %}aria-current="page"{% endif %}>
                         <i class="fas fa-users"></i> Clientes
                     </a>
-                    <a href="/produtos" class="nav-btn">
+                    <a href="/produtos" class="nav-btn {{ 'active' if is_produtos else '' }}" {% if is_produtos %}aria-current="page"{% endif %}>
                         <i class="fas fa-box-open"></i> Produtos
                     </a>
-                    <a href="/categorias" class="nav-btn">
+                    <a href="/categorias" class="nav-btn {{ 'active' if is_categorias else '' }}" {% if is_categorias %}aria-current="page"{% endif %}>
                         <i class="fas fa-tags"></i> Categorias
                     </a>
-                    <a href="/usuarios" class="nav-btn">
+                    <a href="/usuarios" class="nav-btn {{ 'active' if is_usuarios else '' }}" {% if is_usuarios %}aria-current="page"{% endif %}>
                         <i class="fas fa-user-gear"></i> Usuários
                     </a>
-                    <a href="/movimentacoes" class="nav-btn">
+                    <a href="/movimentacoes" class="nav-btn {{ 'active' if is_movimentacoes else '' }}" {% if is_movimentacoes %}aria-current="page"{% endif %}>
                         <i class="fas fa-exchange-alt"></i> Movimentações
                     </a>
-                    <a href="/pdv" class="nav-btn">
+                    <a href="/pdv" class="nav-btn {{ 'active' if is_pdv else '' }}" {% if is_pdv %}aria-current="page"{% endif %}>
                         <i class="fas fa-cash-register"></i> PDV
                     </a>
                     <div class="nav-divider"></div>
@@ -540,6 +575,27 @@
             </div>
         </div>
     </footer>
+    <script>
+        (function () {
+            function normalizePath(path) {
+                return path.length > 1 ? path.replace(/\/+$/, '') : path;
+            }
+
+            var currentPath = normalizePath(window.location.pathname);
+            var navLinks = document.querySelectorAll('.nav-buttons .nav-btn:not(.logout)');
+
+            navLinks.forEach(function (link) {
+                var linkPath = normalizePath(new URL(link.getAttribute('href'), window.location.origin).pathname);
+
+                if (linkPath === currentPath) {
+                    link.classList.add('same-page');
+                    link.addEventListener('click', function (event) {
+                        event.preventDefault();
+                    });
+                }
+            });
+        })();
+    </script>
 </body>
 
 </html>

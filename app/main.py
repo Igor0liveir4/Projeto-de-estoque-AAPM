@@ -62,19 +62,16 @@ def tela_home(
     # ── CASO 1: USUÁRIO NÃO LOGADO (CLIENTE/VISITANTE) ──
     if usuario is None:
         # Busca apenas 8 produtos do banco de dados para ilustração na vitrine
-        produtos_db = db.query(Produto).order_by(Produto.id.desc()).limit(8).all()
+        produtos_db = db.query(Produto).filter(Produto.ativo == True).order_by(Produto.id.desc()).limit(8).all()
         
         produtos = []
         for p in produtos_db:
-            # Tenta capturar o campo de imagem do seu modelo (ajuste se for 'foto', 'url', etc.)
-            imagem_produto = getattr(p, 'imagem', getattr(p, 'foto', None))
-            
             produtos.append({
                 "nome": p.nome,
-                "preco_venda": getattr(p, 'preco_venda', getattr(p, 'preco', 0.0)),
-                "quantidade": getattr(p, 'estoque_atual', 0),
-                "categoria": p.categoria if hasattr(p, 'categoria') else None,
-                "imagem": imagem_produto
+                "preco_venda": p.preco,
+                "quantidade": p.estoque_atual,
+                "categoria": p.categoria,
+                "imagem_url": p.imagem_url if p.imagem_path else None
             })
 
         return templates.TemplateResponse(
