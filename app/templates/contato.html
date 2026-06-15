@@ -1,0 +1,428 @@
+{% extends "base.html" %}
+
+{% block title %}Contato - Associação AAPM SENAI{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+    /* ── RESET / BASE ─────────────────────────────────── */
+    .contact-wrapper {
+        font-family: 'DM Sans', sans-serif;
+        padding: 0 0 80px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Ambient blobs idênticos ao da Home */
+    .contact-wrapper::before,
+    .contact-wrapper::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(120px);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .contact-wrapper::before {
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(59, 130, 246, 0.10), transparent 70%);
+        top: -150px;
+        left: -100px;
+    }
+
+    .contact-wrapper::after {
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(139, 92, 246, 0.07), transparent 70%);
+        bottom: 0;
+        right: -80px;
+    }
+
+    /* ── HERO / HEADER DE CONTATO ─────────────────────── */
+    .contact-hero {
+        position: relative;
+        z-index: 1;
+        padding: 72px 48px 40px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .contact-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(59, 130, 246, 0.08);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 20px;
+        padding: 5px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #60a5fa;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 24px;
+    }
+
+    .contact-hero h1 {
+        font-family: 'Syne', sans-serif;
+        font-size: clamp(32px, 5vw, 52px);
+        font-weight: 800;
+        color: #f0f6ff;
+        line-height: 1.1;
+        letter-spacing: -1.5px;
+        margin: 0 0 16px;
+    }
+
+    .contact-hero h1 span {
+        background: linear-gradient(135deg, #60a5fa, #a78bfa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .contact-hero p {
+        color: #64748b;
+        font-size: 16px;
+        line-height: 1.7;
+        max-width: 600px;
+        margin: 0;
+    }
+
+    /* ── GRID PRINCIPAL DE CONTEÚDO ───────────────────── */
+    .contact-section {
+        position: relative;
+        z-index: 1;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px 48px 60px;
+    }
+
+    .contact-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.3fr;
+        gap: 32px;
+    }
+
+    /* ── COLUNA DE INFORMAÇÕES (ESQUERDA) ───────────────── */
+    .info-column {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .info-card {
+        background: rgba(13, 19, 32, 0.85);
+        border: 1px solid rgba(99, 179, 237, 0.1);
+        border-radius: 16px;
+        padding: 24px;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+    }
+
+    .info-card h3 {
+        font-family: 'Syne', sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        color: #e2e8f0;
+        margin: 0 0 20px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .info-card h3 i {
+        color: #3b82f6;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .info-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .info-item .icon-box {
+        width: 40px;
+        height: 40px;
+        background: rgba(59, 130, 246, 0.08);
+        border: 1px solid rgba(59, 130, 246, 0.15);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #60a5fa;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .info-item text-content h5 {
+        color: #94a3b8;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin: 0 0 4px 0;
+    }
+
+    .info-item text-content p {
+        color: #f1f5f9;
+        font-size: 14px;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    /* Horários */
+    .horarios-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .horario-linha {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        color: #94a3b8;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .horario-linha:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .horario-linha span.dia {
+        color: #f1f5f9;
+        font-weight: 500;
+    }
+
+    .horario-linha span.hora {
+        color: #10b981;
+        font-weight: 600;
+    }
+
+    /* ── CARD DE ORIENTAÇÃO ATENDIMENTO DIRETO (DIREITA) ── */
+    .notice-card {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(88, 28, 135, 0.15));
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        border-radius: 24px;
+        padding: 40px;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .notice-content h3 {
+        font-family: 'Syne', sans-serif;
+        font-size: 26px;
+        font-weight: 800;
+        color: #fff;
+        margin: 0 0 16px;
+    }
+
+    .notice-content h3 span {
+        background: linear-gradient(135deg, #a78bfa, #60a5fa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .notice-content p {
+        color: #94a3b8;
+        font-size: 15px;
+        line-height: 1.7;
+        margin-bottom: 24px;
+    }
+
+    .notice-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        color: #34d399;
+        padding: 14px 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .notice-badge i {
+        font-size: 18px;
+    }
+
+    /* ── POLÍTICA / DIRETRIZES DA PÁGINA ──────────────── */
+    .politica-section {
+        position: relative;
+        z-index: 1;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 48px;
+    }
+
+    .politica-box {
+        background: rgba(13, 19, 32, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 24px 32px;
+    }
+
+    .politica-box h4 {
+        font-family: 'Syne', sans-serif;
+        font-size: 14px;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin: 0 0 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .politica-box h4 i {
+        color: #3b82f6;
+    }
+
+    .politica-text {
+        font-size: 12px;
+        color: #475569;
+        line-height: 1.6;
+        text-align: justify;
+    }
+
+    /* ── RESPONSIVIDADE ────────────────────────────────── */
+    @media (max-width: 992px) {
+        .contact-grid {
+            grid-template-columns: 1fr;
+            gap: 32px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .contact-hero,
+        .contact-section,
+        .politica-section {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .contact-hero {
+            padding-top: 48px;
+        }
+
+        .notice-card {
+            padding: 32px 24px;
+        }
+    }
+</style>
+
+<div class="contact-wrapper">
+
+    <div class="contact-hero">
+        <div class="contact-eyebrow">
+            <i class="fas fa-info-circle"></i> Central de Informações
+        </div>
+        <h1>Atendimento<br><span>AAPM SENAI</span></h1>
+        <p>
+            Precisa de suporte com produtos, uniformes ou quer se tornar um associado? 
+            Consulte nossos horários e locais de atendimento para falar diretamente conosco.
+        </p>
+    </div>
+
+    <div class="contact-section">
+        <div class="contact-grid">
+            
+            <div class="info-column">
+                
+                <div class="info-card">
+                    <h3><i class="fas fa-map-marked-alt"></i> Onde nos Encontrar</h3>
+                    
+                    <div class="info-item">
+                        <div class="icon-box"><i class="fas fa-map-marker-alt"></i></div>
+                        <text-content>
+                            <h5>Localização Física</h5>
+                            <p>Prédio Central — Bloco A, Sala 12<br>Campus SENAI Industrial</p>
+                        </text-content>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="icon-box"><i class="fas fa-phone"></i></div>
+                        <text-content>
+                            <h5>Telefone / Ramal</h5>
+                            <p>(11) 4002-8922 — Ramal 204</p>
+                        </text-content>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="icon-box"><i class="fas fa-envelope"></i></div>
+                        <text-content>
+                            <h5>E-mail de Suporte</h5>
+                            <p>aapm.senai@sp.senai.br</p>
+                        </text-content>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h3><i class="fas fa-clock"></i> Funcionamento</h3>
+                    <div class="horarios-list">
+                        <div class="horario-linha">
+                            <span class="dia">Seg a Sexta (Manhã)</span>
+                            <span class="hora">07:30 às 11:30</span>
+                        </div>
+                        <div class="horario-linha">
+                            <span class="dia">Seg a Sexta (Tarde)</span>
+                            <span class="hora">12:30 às 18:30</span>
+                        </div>
+                        <div class="horario-linha">
+                            <span class="dia">Sábado e Domingo</span>
+                            <span class="hora">Fechado</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="notice-card">
+                <div class="notice-content">
+                    <h3>Atendimento <span>Direto e Presencial</span></h3>
+                    <p>
+                        Para garantir maior agilidade, transparência e segurança nos processos da nossa comunidade acadêmica, 
+                        <strong>não realizamos atendimentos ou solicitações de serviços por formulários virtuais.</strong>
+                    </p>
+                    <p>
+                        Para esclarecer dúvidas sobre produtos, estoque, retiradas de materiais ou regularizar sua situação de sócio, 
+                        dirija-se diretamente à sala física da AAPM dentro do campus.
+                    </p>
+                    
+                    <div class="notice-badge">
+                        <i class="fas fa-handshake"></i>
+                        <span>Compareça ao nosso balcão nos horários informados ao lado. Nossa equipe aguarda você!</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="politica-section">
+        <div class="politica-box">
+            <h4><i class="fas fa-shield-alt"></i> Diretrizes de Atendimento — SENAI</h4>
+            <div class="politica-text">
+                O atendimento presencial da Associação de Alunos, Pais e Mestres (AAPM) rege-se em estrita conformidade com o regimento interno da instituição SENAI. O gerenciamento de dúvidas ocorridas no balcão físico assegura a correta validação de identidade dos estudantes e associados, agilizando a entrega de itens de consumo e uniformes oficiais. Valores e a disponibilidade dos produtos na vitrine estão sempre sujeitos a alterações sazonais sem aviso prévio.
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

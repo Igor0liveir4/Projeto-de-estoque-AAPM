@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 import json
@@ -31,6 +32,18 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 # Configura para renderizar os templates HTML
 templates = Jinja2Templates(directory="app/templates")
 
+@app.exception_handler(StarletteHTTPException)
+async def erro_404_customizado(request: Request, exc: StarletteHTTPException):
+    if exc.status_code == 404:
+        return templates.TemplateResponse(
+            request,
+            "404.html", 
+            {"request": request}, 
+            status_code=404
+        )
+    # Se for outro tipo de erro HTTP (ex: 403, 500), mantém o padrão do sistema
+    return HTMLResponse(str(exc.detail), status_code=exc.status_code)
+
 # Inclui os routeres do controller
 app.include_router(auth_controller.router) 
 app.include_router(admin_controller.router) 
@@ -46,15 +59,35 @@ def tela_home(
     usuario = Depends(get_usuario_opcional),
     db: Session = Depends(get_db)
 ):
-    # Não logado - exibe a tela de login/cadastro
+    # ── CASO 1: USUÁRIO NÃO LOGADO (CLIENTE/VISITANTE) ──
     if usuario is None:
+        # Busca apenas 8 produtos do banco de dados para ilustração na vitrine
+        produtos_db = db.query(Produto).order_by(Produto.id.desc()).limit(8).all()
+        
+        produtos = []
+        for p in produtos_db:
+            # Tenta capturar o campo de imagem do seu modelo (ajuste se for 'foto', 'url', etc.)
+            imagem_produto = getattr(p, 'imagem', getattr(p, 'foto', None))
+            
+            produtos.append({
+                "nome": p.nome,
+                "preco_venda": getattr(p, 'preco_venda', getattr(p, 'preco', 0.0)),
+                "quantidade": getattr(p, 'estoque_atual', 0),
+                "categoria": p.categoria if hasattr(p, 'categoria') else None,
+                "imagem": imagem_produto
+            })
+
         return templates.TemplateResponse(
             request,
             "index.html",
-            {"request": request, "usuario": None}
+            {
+                "request": request, 
+                "usuario": None,
+                "produtos": produtos
+            }
         )
     
-    # Logado - exibe o dashboard com estatísticas
+    # ── CASO 2: USUÁRIO LOGADO (MENSURAÇÃO DO DASHBOARD) ──
     # Contar totais
     total_produtos = db.query(Produto).count()
     total_categorias = db.query(Categoria).count()
@@ -119,4 +152,12 @@ def tela_home(
             "produtos_chart": json.dumps(produtos_chart),
             "valor_chart": json.dumps(valor_chart)
         }
+    )
+
+@app.get("/contato", response_class=HTMLResponse)
+def tela_contato(request: Request):
+    return templates.TemplateResponse(
+        request,
+        "contato.html",
+        {"request": request}
     )
