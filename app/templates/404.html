@@ -4,8 +4,6 @@
 
 {% block content %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-
 <style>
     .page-wrapper {
         min-height: calc(100vh - 68px - 70px);
@@ -18,75 +16,6 @@
         overflow: hidden;
     }
 
-    /* ── BLOBS AMBIENTE ─────────────────────────────── */
-    .page-wrapper::before,
-    .page-wrapper::after {
-        content: '';
-        position: absolute;
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 0;
-    }
-    .page-wrapper::before {
-        width: 500px; height: 500px;
-        background: radial-gradient(circle, rgba(239,68,68,0.09), transparent 70%);
-        filter: blur(100px);
-        top: -120px; left: -80px;
-        animation: blobA 9s ease-in-out infinite;
-    }
-    .page-wrapper::after {
-        width: 380px; height: 380px;
-        background: radial-gradient(circle, rgba(59,130,246,0.07), transparent 70%);
-        filter: blur(90px);
-        bottom: -80px; right: -60px;
-        animation: blobB 11s ease-in-out infinite;
-    }
-
-    .blob-extra {
-        position: absolute;
-        width: 300px; height: 300px;
-        background: radial-gradient(circle, rgba(139,92,246,0.05), transparent 70%);
-        filter: blur(80px);
-        border-radius: 50%;
-        top: 45%; left: 55%;
-        pointer-events: none;
-        z-index: 0;
-        animation: blobB 14s ease-in-out infinite reverse;
-    }
-
-    @keyframes blobA {
-        0%, 100% { transform: translate(0,0) scale(1); }
-        40%       { transform: translate(22px, -28px) scale(1.05); }
-        70%       { transform: translate(-14px, 18px) scale(0.97); }
-    }
-    @keyframes blobB {
-        0%, 100% { transform: translate(0,0) scale(1); }
-        35%       { transform: translate(-18px, 20px) scale(1.04); }
-        65%       { transform: translate(14px, -16px) scale(0.96); }
-    }
-
-    /* ── GRID DE FUNDO ──────────────────────────────── */
-    .grid-bg {
-        position: absolute;
-        inset: 0;
-        z-index: 0;
-        pointer-events: none;
-        opacity: 0.025;
-        background-image:
-            linear-gradient(rgba(255,255,255,1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px);
-        background-size: 40px 40px;
-    }
-
-    /* ── CANVAS DE ESTRELAS ─────────────────────────── */
-    #stars-canvas {
-        position: absolute;
-        inset: 0;
-        z-index: 0;
-        pointer-events: none;
-    }
-
-    /* ── CARD PRINCIPAL ─────────────────────────────── */
     .error-card {
         position: relative;
         z-index: 1;
@@ -97,340 +26,220 @@
         padding: 48px 40px 40px;
         border-radius: 24px;
         text-align: center;
-        box-shadow:
-            0 40px 80px rgba(0,0,0,0.65),
-            0 0 0 1px rgba(255,255,255,0.03) inset;
         backdrop-filter: blur(24px);
-        -webkit-backdrop-filter: blur(24px);
-        animation: cardSlideIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
-    @keyframes cardSlideIn {
-        from { opacity: 0; transform: translateY(32px) scale(0.96); }
-        to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    /* linha de acento no topo do card */
-    .error-card::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 14%; right: 14%;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(239,68,68,0.55), transparent);
-        border-radius: 0 0 2px 2px;
-    }
-
-    /* ── EYEBROW ────────────────────────────────────── */
-    .err-eyebrow {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        background: rgba(239, 68, 68, 0.08);
-        border: 1px solid rgba(239, 68, 68, 0.2);
-        border-radius: 20px;
-        padding: 4px 13px;
+    .badge-404 {
+        display: inline-block;
+        background: rgba(239, 68, 68, 0.12);
+        color: #f87171;
         font-size: 11px;
         font-weight: 600;
-        color: #f87171;
-        letter-spacing: 0.07em;
-        text-transform: uppercase;
+        padding: 4px 14px;
+        border-radius: 8px;
+        letter-spacing: 0.08em;
         margin-bottom: 18px;
+        border: 1px solid rgba(239, 68, 68, 0.25);
     }
 
-    .pulse-dot {
-        width: 6px; height: 6px;
-        background: #ef4444;
-        border-radius: 50%;
-        box-shadow: 0 0 6px #ef4444;
-        animation: pulse 2.2s ease infinite;
-    }
-
-    @keyframes pulse {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50%       { opacity: 0.4; transform: scale(0.7); }
-    }
-
-    /* ── 404 BADGE ──────────────────────────────────── */
-    .error-badge {
-        font-family: 'Syne', sans-serif;
-        font-size: 80px;
-        font-weight: 800;
-        line-height: 1;
-        margin-bottom: 8px;
-        letter-spacing: -3px;
-        background: linear-gradient(135deg, #ef4444, #dc2626, #b91c1c);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        animation: glitch 7s ease-in-out infinite;
-    }
-
-    @keyframes glitch {
-        0%, 88%, 100% { text-shadow: none; filter: none; }
-        90%  { text-shadow:  2px 0 #60a5fa; filter: blur(0.3px); }
-        92%  { text-shadow: -2px 0 #a78bfa; filter: none; }
-        94%  { text-shadow:  1px 0 #60a5fa; filter: blur(0.2px); }
-        96%  { text-shadow: none; filter: none; }
-    }
-
-    .error-card h2 {
-        font-family: 'Syne', sans-serif;
-        color: #f0f6ff;
-        margin: 0 0 10px 0;
-        font-size: 20px;
+    .error-title {
+        font-size: 56px;
         font-weight: 700;
-        letter-spacing: -0.3px;
+        color: #fff;
+        margin: 0 0 10px;
+        line-height: 1;
     }
 
-    .error-card .subtitle {
-        color: #4b5a73;
-        font-size: 13.5px;
-        line-height: 1.65;
-        margin: 0 0 22px 0;
+    .error-subtitle {
+        font-size: 15px;
+        color: #94a3b8;
+        margin: 0 0 6px;
+        line-height: 1.6;
     }
 
-    /* ── DOG CONTAINER ──────────────────────────────── */
-    .dog-container {
+    .error-joke {
+        font-size: 13px;
+        color: #64748b;
+        margin: 0 0 24px;
+        line-height: 1.6;
+        font-style: italic;
+    }
+
+    .car-container {
         width: 100%;
         height: 220px;
         border-radius: 16px;
         overflow: hidden;
-        background: rgba(255,255,255,0.02);
-        border: 1px solid rgba(255,255,255,0.05);
-        margin-bottom: 26px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        margin-bottom: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
         position: relative;
     }
 
-    .dog-container img {
-        width: 100%; height: 100%;
-        object-fit: cover;
-        transition: opacity 0.4s ease;
-    }
-
-    .dog-overlay {
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(180deg, transparent 55%, rgba(10,16,30,0.65) 100%);
-        pointer-events: none;
-    }
-
-    .dog-breed-badge {
-        position: absolute;
-        bottom: 10px; right: 10px;
-        background: rgba(10,16,30,0.80);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 8px;
-        padding: 4px 10px;
-        font-size: 11px;
-        color: #64748b;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-    }
-
-    .dog-loader {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .dog-loader-text {
-        font-size: 11px;
-        color: #4b5a73;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-    }
-
     .spinner {
-        width: 28px; height: 28px;
-        border: 2px solid rgba(59,130,246,0.12);
+        width: 28px;
+        height: 28px;
+        border: 2px solid rgba(59, 130, 246, 0.25);
         border-top-color: #3b82f6;
         border-radius: 50%;
-        animation: spin 0.85s linear infinite;
+        animation: spin 0.8s linear infinite;
     }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
 
-    /* ── BOTÕES ─────────────────────────────────────── */
+    .car-badge {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 11px;
+    }
+
     .btn-row {
         display: flex;
         gap: 10px;
         justify-content: center;
         flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .btn-new {
+        padding: 10px 22px;
+        border-radius: 12px;
+        border: 1px solid rgba(59, 130, 246, 0.4);
+        background: rgba(59, 130, 246, 0.12);
+        color: #93c5fd;
+        font-size: 14px;
+        font-family: 'DM Sans', sans-serif;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-new:hover {
+        background: rgba(59, 130, 246, 0.22);
+        border-color: rgba(59, 130, 246, 0.6);
+    }
+
+    .btn-new:active {
+        transform: scale(0.97);
     }
 
     .btn-back {
-        background: linear-gradient(135deg, #3b82f6, #2563eb);
-        color: #fff;
-        padding: 11px 22px;
-        text-decoration: none;
-        border-radius: 10px;
-        font-size: 13.5px;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.25s ease;
-        box-shadow: 0 4px 16px rgba(59,130,246,0.25),
-                    inset 0 1px 0 rgba(255,255,255,0.1);
-        position: relative; overflow: hidden;
-    }
-
-    .btn-back::after {
-        content: '';
-        position: absolute;
-        top: 0; left: -75%; width: 50%; height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
-        transform: skewX(-20deg);
-        transition: left 0.55s ease;
-    }
-    .btn-back:hover::after { left: 125%; }
-    .btn-back:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 24px rgba(59,130,246,0.4);
-        background: linear-gradient(135deg, #60a5fa, #3b82f6);
-    }
-
-    .btn-newdog {
-        background: transparent;
-        color: #f87171;
-        padding: 11px 18px;
-        border: 1px solid rgba(239,68,68,0.25);
-        border-radius: 10px;
-        font-size: 13.5px;
-        font-weight: 600;
+        padding: 10px 22px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.04);
+        color: #94a3b8;
+        font-size: 14px;
         font-family: 'DM Sans', sans-serif;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        transition: all 0.25s ease;
-        cursor: pointer;
-    }
-    .btn-newdog:hover {
-        background: rgba(239,68,68,0.07);
-        border-color: rgba(239,68,68,0.45);
-        transform: translateY(-2px);
+        gap: 6px;
     }
 
-    /* ── RESPONSIVE ─────────────────────────────────── */
-    @media (max-width: 520px) {
-        .error-card { padding: 36px 24px 28px; }
-        .error-badge { font-size: 64px; }
-        .btn-row { flex-direction: column; }
-        .btn-back, .btn-newdog { justify-content: center; }
+    .btn-back:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .btn-back:active {
+        transform: scale(0.97);
+    }
+
+    .divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.06);
+        margin: 0 0 16px;
+    }
+
+    .error-hint {
+        font-size: 12px;
+        color: #475569;
+        line-height: 1.5;
+    }
+
+    .error-hint i {
+        margin-right: 4px;
     }
 </style>
 
 <div class="page-wrapper">
-    <div class="grid-bg"></div>
-    <canvas id="stars-canvas"></canvas>
-    <div class="blob-extra"></div>
-
     <div class="error-card">
 
-        <div class="err-eyebrow">
-            <span class="pulse-dot"></span>
-            Rota não encontrada
-        </div>
+        <span class="badge-404">ERRO 404</span>
 
-        <div class="error-badge">404</div>
-        <h2>Página Não Encontrada</h2>
-        <p class="subtitle">
-            O caminho solicitado não existe no sistema.<br>
-            Mas aqui está um cachorro aleatório pra te animar:
-        </p>
+        <h1 class="error-title">Ops!</h1>
 
-        <div class="dog-container" id="dog-space">
-            <div class="dog-loader">
-                <div class="spinner"></div>
-                <span class="dog-loader-text">Buscando cão...</span>
-            </div>
+        <p class="error-subtitle">A página que você procurava foi passear e não voltou.</p>
+
+        <p class="error-joke">Enquanto isso, preparamos uma compensação à altura — um carro incrível pra te animar.</p>
+
+        <div class="car-container" id="car-space">
+            <div class="spinner"></div>
         </div>
 
         <div class="btn-row">
-            <a href="/" class="btn-back">
-                <i class="fas fa-arrow-left" style="font-size:11px;"></i>
-                Voltar ao Início
-            </a>
-            <button class="btn-newdog" onclick="carregarCachorro()">
-                <i class="fas fa-rotate-right" style="font-size:11px;"></i>
-                Outro Cachorro
+            <button class="btn-new" onclick="carregarCarro()">
+                <i class="fas fa-rotate-right"></i> Outro Carro
+            </button>
+            <button class="btn-back" onclick="window.history.back()">
+                <i class="fas fa-arrow-left"></i> Voltar
             </button>
         </div>
+
+        <div class="divider"></div>
+
+        <p class="error-hint">
+            <i class="fas fa-circle-info"></i>
+            Se você digitou um endereço, confira se não tem nenhum erro — URLs são sensíveis assim.
+        </p>
 
     </div>
 </div>
 
 <script>
-    /* ── ESTRELAS ANIMADAS ─────────────────────────── */
-    (function() {
-        const canvas = document.getElementById('stars-canvas');
-        const ctx = canvas.getContext('2d');
-
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resize();
-        window.addEventListener('resize', resize);
-
-        const stars = Array.from({ length: 90 }, () => ({
-            x: Math.random(),
-            y: Math.random(),
-            r: Math.random() * 1.2 + 0.3,
-            phase: Math.random() * Math.PI * 2,
-            speed: Math.random() * 0.008 + 0.003
-        }));
-
-        let t = 0;
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            t += 0.016;
-            stars.forEach(s => {
-                const alpha = (Math.sin(t * s.speed * 60 + s.phase) + 1) / 2 * 0.55 + 0.08;
-                ctx.beginPath();
-                ctx.arc(s.x * canvas.width, s.y * canvas.height, s.r, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(148,163,184,${alpha})`;
-                ctx.fill();
-            });
-            requestAnimationFrame(draw);
-        }
-        draw();
-    })();
-
-    /* ── CARREGAR CACHORRO ─────────────────────────── */
-    async function carregarCachorro() {
-        const container = document.getElementById('dog-space');
-        container.innerHTML = `
-            <div class="dog-loader">
-                <div class="spinner"></div>
-                <span class="dog-loader-text">Buscando cão...</span>
-            </div>`;
+    async function carregarCarro() {
+        const container = document.getElementById('car-space');
+        container.innerHTML = '<div class="spinner"></div>';
 
         try {
-            const resposta = await fetch('https://dog.ceo/api/breeds/image/random');
-            const dados = await resposta.json();
+            const res = await fetch('/api/get-carro');
+            const data = await res.json();
 
-            if (dados.status === 'success') {
-                const rawBreed = dados.message.split('/breeds/')[1]?.split('/')[0] || 'dog';
-                const breed = rawBreed.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+            const img = new Image();
+            img.src = data.url;
+            img.style.width = "100%";
+            img.style.height = "100%";
+            img.style.objectFit = "cover";
 
-                container.innerHTML = `
-                    <img src="${dados.message}" alt="Cachorro Aleatório"
-                         style="opacity:0" onload="this.style.opacity='1'">
-                    <div class="dog-overlay"></div>
-                    <div class="dog-breed-badge">${breed}</div>`;
-            } else {
-                container.innerHTML = '<i class="fas fa-paw" style="color:#3b82f6;font-size:28px;"></i>';
-            }
-        } catch (erro) {
-            container.innerHTML = '<i class="fas fa-wifi-slash" style="color:#4b5a73;font-size:28px;"></i>';
+            img.onload = () => {
+                container.innerHTML = "";
+                container.appendChild(img);
+                container.insertAdjacentHTML('beforeend', `<div class="car-badge">Foto por: ${data.fotografo}</div>`);
+            };
+
+            img.onerror = () => {
+                container.innerHTML = '<span style="color:#64748b; font-size:13px;">Não foi possível carregar o carro.</span>';
+            };
+
+        } catch (e) {
+            container.innerHTML = '<span style="color:#64748b; font-size:13px;">Erro ao carregar — verifique a API.</span>';
         }
     }
 
-    document.addEventListener('DOMContentLoaded', carregarCachorro);
+    document.addEventListener('DOMContentLoaded', carregarCarro);
 </script>
 {% endblock %}
