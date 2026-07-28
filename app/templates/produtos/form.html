@@ -173,12 +173,41 @@
         width: 16px;
         height: 16px;
     }
+
+    /* Layout mais amplo e responsivo para o cadastro. */
+    .page-wrapper { min-height: auto; align-items: flex-start; background: transparent; padding: 44px 24px; }
+    .form-card { max-width: 840px; padding: 34px; border-radius: 18px; }
+    .form-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; text-align: left; margin-bottom: 30px; padding-bottom: 24px; border-bottom: 1px solid rgba(255, 255, 255, .07); }
+    .form-header h2 { color: #f8fafc; margin: 0 0 7px; font-size: 25px; font-weight: 700; letter-spacing: -.7px; }
+    .form-header p { color: #94a3b8; font-size: 13px; margin: 0; }
+    .form-section-title { color: #cbd5e1; font-size: 12px; font-weight: 700; letter-spacing: .08em; margin: 0 0 16px; text-transform: uppercase; }
+    .form-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-control { min-height: 42px; }
+    input[type="file"].form-control { padding: 7px 10px; color: #94a3b8; }
+    .field-help { color: #64748b; font-size: 11px; margin: 2px 0 0; }
+    .form-actions { margin-top: 8px; display: flex; justify-content: flex-end; align-items: center; gap: 12px; border-top: 1px solid rgba(255, 255, 255, .07); padding-top: 22px; }
+    .btn-save { background: #3b82f6; color: #fff; padding: 11px 18px; }
+    .btn-save:hover { background: #2563eb; box-shadow: 0 8px 18px rgba(37, 99, 235, .24); }
+    .current-image { text-align: right; flex-shrink: 0; }
+
+    @media (max-width: 640px) {
+        .page-wrapper { padding: 24px 14px; }
+        .form-card { padding: 25px 20px; }
+        .form-header { display: block; }
+        .current-image { text-align: left; margin-top: 18px; }
+        .form-fields { grid-template-columns: 1fr; }
+        .form-group.full { grid-column: auto; }
+        .form-actions { justify-content: stretch; flex-direction: column-reverse; }
+        .form-actions > * { justify-content: center; width: 100%; box-sizing: border-box; }
+    }
 </style>
 
 <div class="page-wrapper">
     <div class="form-card">
         
-        <div style="text-align: center; margin-bottom: 32px;">
+        <div class="form-header">
+            <div>
             <h2 style="color: #f8fafc; margin: 0 0 6px 0; font-size: 24px; font-weight: 600; letter-spacing: -0.5px;">
                 {% if editando %}Editar{% else %}Novo{% endif %} Produto
             </h2>
@@ -186,8 +215,10 @@
                 Insira as especificações técnicas do item no estoque
             </p>
             
+            </div>
+
             {% if editando and editando.imagem_path %}
-            <div style="margin-top: 20px; display: inline-block; position: relative;">
+            <div class="current-image">
                 <img src="{{ editando.imagem_url }}" alt="{{ editando.nome }}" 
                      style="max-width: 120px; max-height: 120px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08); padding: 4px; background: rgba(0,0,0,0.2);">
                 <p style="color: #64748b; font-size: 11px; margin: 6px 0 0 0;">Imagem atual</p>
@@ -202,7 +233,8 @@
         </div>
         {% endif %}
 
-        <form method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column;">
+        <form method="POST" enctype="multipart/form-data">
+            <p class="form-section-title">Informações do produto</p>
             
             <div class="form-group">
                 <label for="nome">Nome do Item <span style="color: #ef4444;">*</span></label>
@@ -210,7 +242,7 @@
                        value="{{ editando.nome if editando else (valores.nome if valores else '') }}">
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-fields">
                 <div class="form-group">
                     <label for="categoria_id">Categoria</label>
                     <select id="categoria_id" name="categoria_id" class="form-control">
@@ -230,7 +262,7 @@
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px;">
+            <div class="form-fields">
                 <div class="form-group">
                     <label for="estoque_atual">Estoque Inicial <span style="color: #ef4444;">*</span></label>
                     <input type="number" id="estoque_atual" name="estoque_atual" min="0" step="1" class="form-control" required
@@ -239,6 +271,7 @@
                 <div class="form-group">
                     <label for="imagem">Foto do Produto</label>
                     <input type="file" id="imagem" name="imagem" class="form-control" accept=".jpg,.jpeg,.png,.webp">
+                    <span class="field-help">JPG, PNG ou WEBP.</span>
                 </div>
             </div>
 
@@ -254,7 +287,7 @@
             </div>
             {% endif %}
 
-            <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.03); padding-top: 24px;">
+            <div class="form-actions">
                 <a href="/produtos" class="btn-cancel">
                     <span>Cancelar</span>
                 </a>
