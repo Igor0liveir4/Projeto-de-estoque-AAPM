@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.produto import Produto
 from app.models.categoria import Categoria
+from app.models.variacoes import Variacao
 from app.auth import get_usuario_logado, get_admin
 
 router = APIRouter(prefix="/produtos", tags=["Produtos"])
@@ -86,7 +87,6 @@ async def criar_produto(
     request: Request,
     nome: str          = Form(...),
     preco: float       = Form(...),
-    estoque_atual: int = Form(...),
     categoria_id: int  = Form(0),   # 0 = sem categoria
     imagem: UploadFile = File(None), # None = campo opcional
     db: Session        = Depends(get_db),
@@ -107,7 +107,6 @@ async def criar_produto(
                 "categorias": categorias,
                 "erro":       "Já existe um produto com este nome.",
                 "valores":    {"nome": nome, "preco": preco,
-                               "estoque_atual": estoque_atual,
                                "categoria_id": categoria_id}
             },
             status_code=400
@@ -119,7 +118,6 @@ async def criar_produto(
     produto = Produto(
         nome          = nome,
         preco         = preco,
-        estoque_atual = estoque_atual,
         categoria_id  = categoria_id or None,  # 0 vira NULL no banco
         imagem_path   = imagem_path,
     )
@@ -189,7 +187,7 @@ async def editar_produto(
     nome: str              = Form(...),
     preco: float           = Form(...),
     # 1. Permitimos que o campo venha vazio (None)
-    estoque_atual: Optional[int] = Form(None), 
+    estoque_atual: Optional[int] = Form(None),
     categoria_id: int      = Form(0),
     imagem: UploadFile     = File(None),
     db: Session            = Depends(get_db),
@@ -228,9 +226,9 @@ async def editar_produto(
         editando.imagem_path = nova_imagem_path
 
     # 2. A MÁGICA AQUI: Se o estoque_atual veio preenchido, usamos o novo valor.
-    # Se veio em branco (None), mantemos o valor que já estava salvo antes (editando.estoque_atual).
+    # Se veio em branco (None), mantemos o valor que já estava salvo antes (editando).
     if estoque_atual is not None:
-        editando.estoque_atual = estoque_atual
+        editando = estoque_atual
 
     editando.nome          = nome
     editando.preco         = preco
@@ -305,3 +303,57 @@ def _remover_imagem(imagem_path: str | None) -> None:
 
     if os.path.exists(caminho):
         os.remove(caminho)
+
+# ============================================================
+# GERENCIAMENTO DE VARIAÇÕES (SKUs)
+# ============================================================
+
+@router.post("/{produto_id}/variacoes/nova")
+def adicionar_variacao(
+    produto_id: int,
+    request: Request,
+    tamanho: str = Form(...),
+    cor: str = Form(...),
+    estoque_atual: int = Form(0),
+    db: Session = Depends(get_db),
+    admin = Depends(get_admin)
+):
+    """Cria um novo tamanho/cor para um produto existente"""
+    produto = db.query(Produto).filter(Produto.id == produto_id).first()
+    
+    if not produto:
+        return RedirectResponse(url="/produtos", status_code=404)
+
+    nova_variacao = Variacao(
+        produto_id=produto.id,
+        tamanho=tamanho,
+        cor=cor,
+        estoque_atual=estoque_atual
+    )
+
+    db.add(nova_variacao)
+    db.commit()
+
+    # Redireciona de volta para a página do produto após adicionar
+    return RedirectResponse(url=f"/produtos/{produto_id}?variacao_adicionada=ok", status_code=302)
+
+
+@router.post("/variacoes/{variacao_id}/excluir")
+def excluir_variacao(
+    variacao_id: int,
+    db: Session = Depends(get_db),
+    admin = Depends(get_admin)
+):
+    """Remove uma variação específica"""
+    variacao = db.query(Variacao).filter(Variacao.id == variacao_id).first()
+    
+    if not variacao:
+        return RedirectResponse(url="/produtos", status_code=404)
+
+    # Guarda o ID do produto para poder redirecionar de volta à página certa
+    produto_id = variacao.produto_id
+    
+    db.delete(variacao)
+    db.commit()
+
+    return RedirectResponse(url=f"/produtos/{produto_id}?variacao_removida=ok", status_code=302)

@@ -153,7 +153,7 @@ def registrar_movimentacao(
         return RedirectResponse(url="/movimentacoes/nova", status_code=302)
 
     # Impede saída maior que o estoque disponível
-    if tipo == Tipo_de_movimentacao.SAIDA and quantidade > produto.estoque_atual:
+    if tipo == Tipo_de_movimentacao.SAIDA and quantidade > produto.estoque_total:
         return templates.TemplateResponse(
             request,
             "movimentacoes/form.html",
@@ -165,7 +165,7 @@ def registrar_movimentacao(
                 "tipos":      Tipo_de_movimentacao,
                 "erro": (
                     f"Estoque insuficiente. "
-                    f"Disponível: {produto.estoque_atual} unidade(s)."
+                    f"Disponível: {produto.estoque_total} unidade(s)."
                 ),
             },
             status_code=400
@@ -175,9 +175,9 @@ def registrar_movimentacao(
     # Atualiza o estoque do produto
     # ----------------------------------------------------------
     if tipo == Tipo_de_movimentacao.ENTRADA:
-        produto.estoque_atual += quantidade
+        produto.estoque_total += quantidade
     else:
-        produto.estoque_atual -= quantidade
+        produto.estoque_total -= quantidade
 
     # ----------------------------------------------------------
     # Registra a movimentação no histórico

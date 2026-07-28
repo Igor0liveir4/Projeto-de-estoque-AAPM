@@ -93,7 +93,7 @@ def tela_home(
             {
                 "nome":        p.nome,
                 "preco_venda": p.preco,
-                "quantidade":  p.estoque_atual,
+                "quantidade":  p.estoque_total,
                 "categoria":   p.categoria,
                 "imagem_url":  p.imagem_path if p.imagem_path else None,
             }
@@ -112,7 +112,7 @@ def tela_home(
     total_vendas        = db.query(Venda).count()
     total_movimentacoes = db.query(Movimentacao).count()
     total_estoque       = int(
-        db.query(func.coalesce(func.sum(Produto.estoque_atual), 0)).scalar()
+        db.query(func.coalesce(func.sum(Produto.estoque_total), 0)).scalar()
     )
 
     # ── Gráfico 1 — Doughnut: produtos por categoria ─────────────────────────
@@ -130,9 +130,9 @@ def tela_home(
 
     # ── Gráfico 2 — Barras horizontais: top 5 produtos em estoque ────────────
     top5 = (
-        db.query(Produto.nome, Produto.estoque_atual)
+        db.query(Produto.nome, Produto.estoque_total)
         .filter(Produto.ativo == True)
-        .order_by(Produto.estoque_atual.desc())
+        .order_by(Produto.estoque_total.desc())
         .limit(5)
         .all()
     )
@@ -145,7 +145,7 @@ def tela_home(
     valor = (
         db.query(
             Categoria.nome,
-            func.coalesce(func.sum(Produto.preco * Produto.estoque_atual), 0),
+            func.coalesce(func.sum(Produto.preco * Produto.estoque_total), 0),
         )
         .outerjoin(Produto, (Produto.categoria_id == Categoria.id) & (Produto.ativo == True))
         .group_by(Categoria.id, Categoria.nome)

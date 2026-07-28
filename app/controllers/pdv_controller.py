@@ -35,7 +35,7 @@ def tela_pdv(
     """
     produtos  = (
         db.query(Produto)
-        .filter(Produto.ativo == True, Produto.estoque_atual > 0)
+        .filter(Produto.ativo == True, Produto.estoque_total > 0)
         .order_by(Produto.nome)
         .all()
     )
@@ -119,7 +119,7 @@ def finalizar_venda(
         if qtd <= 0:
             return RedirectResponse(url="/pdv?erro=quantidade", status_code=302)
 
-        if produto.estoque_atual < qtd:
+        if produto.estoque_total < qtd:
             return RedirectResponse(
                 url=f"/pdv?erro=estoque&produto={produto.nome}",
                 status_code=302
@@ -160,7 +160,7 @@ def finalizar_venda(
             preco_unitario = item["preco"],
         ))
         # Baixa o estoque do produto
-        item["produto"].estoque_atual -= item["quantidade"]
+        item["produto"].estoque_total -= item["quantidade"]
 
     db.commit()
 
