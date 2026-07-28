@@ -316,12 +316,12 @@
                             <th>Preço Unitário</th>
                             <th style="text-align: center;">Quantidade</th>
                             <th style="text-align: center;">Status</th>
-                            <th style="text-align: center; width: 160px;" onclick="event.stopPropagation();">Ações</th>
+                            <th style="text-align: center; width: 80px;" onclick="event.stopPropagation();">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for produto in produtos %}
-                        <tr class="prod-row" onclick="window.location.href='/produtos/{{ produto.id }}'">
+                        <tr class="prod-row" onclick="window.location.href='/produtos/{{ produto.id }}/editar'">
 
                             <td>
                                 <img src="{{ produto.imagem_url }}" alt="{{ produto.nome }}"
@@ -367,15 +367,11 @@
 
                             <td style="text-align: center;" onclick="event.stopPropagation();">
                                 <div style="display: inline-flex; gap: 6px;">
-                                    <a href="/produtos/{{ produto.id }}/editar" class="btn-action-edit" title="Editar">
-                                        <i class="fas fa-pen"></i>
-                                    </a>
-
                                     <form method="POST" action="/produtos/{{ produto.id }}/desativar"
                                         style="display: inline;">
-                                        <button type="submit" class="btn-action-disable" title="Congelar item"
-                                            onclick="return confirm('Tem certeza que deseja desativar este produto?');">
-                                            <i class="fas fa-ban"></i>
+                                        <button type="submit" class="btn-action-disable" title="Remover item"
+                                            onclick="return confirm('Tem certeza que deseja remover este produto da lista? Ele será desativado, mas o registro será mantido.');">
+                                            <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
                                 </div>

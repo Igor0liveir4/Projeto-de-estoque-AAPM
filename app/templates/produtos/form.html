@@ -1,271 +1,357 @@
 {% extends "base.html" %}
 
-{% block title %}Cadastro de Produto - AAPM{% endblock %}
+{% block title %}{{ 'Editar' if editando else 'Cadastrar' }} Produto - AAPM{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
 
 <style>
-    .page-wrapper {
-        min-height: 85vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        background-color: #000000; /* Mesmo fundo escuro das anteriores */
-        padding: 40px 20px;
-    }
-    
-    .form-card {
-        width: 100%;
-        max-width: 580px;
-        background: #111726; /* Mesma superfície interna */
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        padding: 40px 32px;
-        border-radius: 24px;
-        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
-        position: relative;
+    .product-page {
+        font-family: 'DM Sans', sans-serif;
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 38px 24px 56px;
     }
 
-    /* Aura de fundo sutil */
-    .form-card::before {
-        content: '';
-        position: absolute;
-        top: -10%;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 220px;
-        height: 220px;
-        background: #3b82f6;
-        filter: blur(100px);
-        opacity: 0.1;
-        pointer-events: none;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        margin-bottom: 20px;
-        text-align: left;
-    }
-
-    .form-group label {
-        font-size: 12px;
-        font-weight: 500;
-        color: #94a3b8;
-        letter-spacing: 0.02em;
-    }
-
-    /* Inputs e Selects Transparentes Premium */
-    .form-control {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 10px 14px;
-        border-radius: 8px;
-        font-size: 14px;
-        color: #f8fafc;
-        font-family: inherit;
-        transition: all 0.2s ease;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .form-control:focus {
-        outline: none;
-        border-color: #3b82f6;
-        background: rgba(255, 255, 255, 0.04);
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-    }
-
-    select.form-control {
-        cursor: pointer;
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 14px center;
-        background-size: 16px;
-        padding-right: 40px;
-        color-scheme: dark;
-    }
-
-    select.form-control option {
-        background-color: #1e2a3a;
-        color: #f8fafc;
-    }
-
-    select.form-control option:hover,
-    select.form-control option:focus,
-    select.form-control option:checked {
-        background-color: #2d3f55;
-        color: #f8fafc;
-    }
-
-    /* Customização do input file nativo */
-    .form-control::-webkit-file-upload-button {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: #94a3b8;
-        padding: 4px 10px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 11px;
-        margin-right: 10px;
-        transition: all 0.2s;
-    }
-    .form-control::-webkit-file-upload-button:hover {
-        background: rgba(255, 255, 255, 0.1);
-        color: #f8fafc;
-    }
-
-    /* Botões Pequenos e Alinhados */
-    .btn-save {
-        background: #f8fafc;
-        color: #090d16;
-        padding: 10px 16px;
-        border: none;
-        border-radius: 8px;
-        font-size: 13px;
-        font-weight: 600;
-        font-family: inherit;
-        cursor: pointer;
+    .back-link {
         display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        transition: all 0.2s ease;
-    }
-    .btn-save:hover {
-        background: #ffffff;
-        transform: translateY(-1px);
-    }
-
-    .btn-cancel {
-        background: transparent;
-        color: #64748b;
-        padding: 10px 16px;
-        text-decoration: none;
-        border-radius: 8px;
-        font-size: 13px;
-        font-weight: 500;
-        display: inline-flex;
-        align-items: center;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        transition: all 0.2s ease;
-    }
-    .btn-cancel:hover {
-        background: rgba(255, 255, 255, 0.02);
-        color: #f8fafc;
-    }
-
-    /* Checkbox customizado rápido */
-    .checkbox-container {
-        display: flex;
         align-items: center;
         gap: 8px;
-        cursor: pointer;
         color: #94a3b8;
         font-size: 13px;
-        user-select: none;
+        font-weight: 600;
+        text-decoration: none;
+        margin-bottom: 26px;
+        transition: color .2s ease, transform .2s ease;
     }
-    .checkbox-container input {
-        accent-color: #3b82f6;
-        width: 16px;
-        height: 16px;
+
+    .back-link:hover { color: #60a5fa; transform: translateX(-3px); }
+
+    .product-heading {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 28px;
+    }
+
+    .product-heading h1 {
+        font-family: 'Syne', sans-serif;
+        color: #f1f5f9;
+        font-size: 29px;
+        letter-spacing: -.9px;
+        margin: 0 0 8px;
+    }
+
+    .product-heading p { color: #64748b; font-size: 14px; margin: 0; }
+
+    .mode-badge {
+        align-items: center;
+        background: rgba(59, 130, 246, .09);
+        border: 1px solid rgba(96, 165, 250, .18);
+        border-radius: 999px;
+        color: #93c5fd;
+        display: inline-flex;
+        font-size: 11px;
+        font-weight: 700;
+        gap: 7px;
+        letter-spacing: .07em;
+        padding: 8px 12px;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .mode-badge i { font-size: 10px; }
+
+    .form-alert {
+        align-items: center;
+        background: rgba(239, 68, 68, .1);
+        border: 1px solid rgba(248, 113, 113, .22);
+        border-radius: 12px;
+        color: #fca5a5;
+        display: flex;
+        font-size: 13px;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding: 13px 16px;
+    }
+
+    .product-form {
+        background: rgba(13, 19, 32, .88);
+        border: 1px solid rgba(99, 179, 237, .12);
+        border-radius: 18px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, .22);
+        overflow: hidden;
+    }
+
+    .form-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.45fr) minmax(285px, .8fr);
+    }
+
+    .form-primary { padding: 32px; }
+
+    .form-sidebar {
+        background: rgba(3, 7, 18, .23);
+        border-left: 1px solid rgba(99, 179, 237, .1);
+        padding: 32px 28px;
+    }
+
+    .section-title {
+        align-items: center;
+        color: #e2e8f0;
+        display: flex;
+        font-family: 'Syne', sans-serif;
+        font-size: 15px;
+        gap: 9px;
+        margin: 0 0 24px;
+    }
+
+    .section-title i {
+        align-items: center;
+        background: rgba(59, 130, 246, .1);
+        border: 1px solid rgba(96, 165, 250, .18);
+        border-radius: 8px;
+        color: #60a5fa;
+        display: inline-flex;
+        font-size: 13px;
+        height: 30px;
+        justify-content: center;
+        width: 30px;
+    }
+
+    .fields-grid { display: grid; gap: 18px; grid-template-columns: 1fr 1fr; }
+    .field { display: flex; flex-direction: column; gap: 8px; }
+    .field.wide { grid-column: 1 / -1; }
+
+    .field label {
+        color: #cbd5e1;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .required { color: #fb7185; }
+
+    .field-note {
+        color: #64748b;
+        font-size: 11px;
+        line-height: 1.45;
+        margin: -2px 0 0;
+    }
+
+    .field input,
+    .field select {
+        background: rgba(15, 23, 42, .72);
+        border: 1px solid rgba(148, 163, 184, .15);
+        border-radius: 10px;
+        box-sizing: border-box;
+        color: #f8fafc;
+        font: inherit;
+        font-size: 14px;
+        min-height: 45px;
+        outline: none;
+        padding: 0 13px;
+        transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+        width: 100%;
+    }
+
+    .field input::placeholder { color: #475569; }
+
+    .field input:focus,
+    .field select:focus {
+        background: rgba(15, 23, 42, .98);
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, .14);
+    }
+
+    .field select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-position: right 13px center;
+        background-repeat: no-repeat;
+        background-size: 16px;
+        padding-right: 40px;
+    }
+
+    .field select option { background: #172033; color: #f8fafc; }
+
+    .upload-box {
+        align-items: center;
+        border: 1px dashed rgba(96, 165, 250, .3);
+        border-radius: 13px;
+        color: #94a3b8;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        justify-content: center;
+        min-height: 168px;
+        padding: 16px;
+        text-align: center;
+        transition: background .2s ease, border-color .2s ease;
+    }
+
+    .upload-box:hover { background: rgba(59, 130, 246, .05); border-color: #60a5fa; }
+    .upload-box i { color: #60a5fa; font-size: 23px; }
+    .upload-box strong { color: #cbd5e1; font-size: 13px; }
+    .upload-box span { color: #64748b; font-size: 11px; }
+    .upload-box input { display: none; }
+
+    .current-photo { margin-top: 17px; text-align: center; }
+    .current-photo img { border: 1px solid rgba(148, 163, 184, .18); border-radius: 12px; height: 116px; object-fit: cover; width: 116px; }
+    .current-photo p { color: #64748b; font-size: 11px; margin: 7px 0 0; }
+
+    .availability {
+        background: rgba(16, 185, 129, .05);
+        border: 1px solid rgba(52, 211, 153, .14);
+        border-radius: 12px;
+        margin-top: 24px;
+        padding: 14px;
+    }
+
+    .availability label { align-items: center; color: #e2e8f0; cursor: pointer; display: flex; font-size: 12px; font-weight: 600; gap: 9px; }
+    .availability input { accent-color: #3b82f6; height: 16px; margin: 0; width: 16px; }
+    .availability p { color: #64748b; font-size: 11px; line-height: 1.45; margin: 8px 0 0 25px; }
+
+    .form-footer {
+        align-items: center;
+        border-top: 1px solid rgba(99, 179, 237, .1);
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        padding: 20px 28px;
+    }
+
+    .button {
+        align-items: center;
+        border-radius: 9px;
+        display: inline-flex;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        gap: 8px;
+        justify-content: center;
+        padding: 11px 16px;
+        text-decoration: none;
+        transition: transform .2s ease, background .2s ease, border-color .2s ease;
+    }
+
+    .button:hover { transform: translateY(-1px); }
+    .button-secondary { border: 1px solid rgba(148, 163, 184, .16); color: #94a3b8; }
+    .button-secondary:hover { background: rgba(148, 163, 184, .07); border-color: rgba(148, 163, 184, .3); color: #e2e8f0; }
+    .button-primary { background: #3b82f6; border: 0; color: #fff; cursor: pointer; padding-left: 19px; padding-right: 19px; }
+    .button-primary:hover { background: #2563eb; box-shadow: 0 8px 18px rgba(37, 99, 235, .23); }
+
+    @media (max-width: 720px) {
+        .product-page { padding: 26px 15px 40px; }
+        .product-heading { align-items: flex-start; flex-direction: column; gap: 14px; }
+        .product-heading h1 { font-size: 25px; }
+        .form-layout { grid-template-columns: 1fr; }
+        .form-primary, .form-sidebar { padding: 24px 20px; }
+        .form-sidebar { border-left: 0; border-top: 1px solid rgba(99, 179, 237, .1); }
+        .fields-grid { grid-template-columns: 1fr; }
+        .field.wide { grid-column: auto; }
+        .form-footer { align-items: stretch; flex-direction: column-reverse; padding: 17px 20px; }
+        .button { width: 100%; }
     }
 </style>
 
-<div class="page-wrapper">
-    <div class="form-card">
-        
-        <div style="text-align: center; margin-bottom: 32px;">
-            <h2 style="color: #f8fafc; margin: 0 0 6px 0; font-size: 24px; font-weight: 600; letter-spacing: -0.5px;">
-                {% if editando %}Editar{% else %}Novo{% endif %} Produto
-            </h2>
-            <p style="color: #64748b; font-size: 13px; margin: 0;">
-                Insira as especificações técnicas do item no estoque
-            </p>
-            
-            {% if editando and editando.imagem_path %}
-            <div style="margin-top: 20px; display: inline-block; position: relative;">
-                <img src="{{ editando.imagem_url }}" alt="{{ editando.nome }}" 
-                     style="max-width: 120px; max-height: 120px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08); padding: 4px; background: rgba(0,0,0,0.2);">
-                <p style="color: #64748b; font-size: 11px; margin: 6px 0 0 0;">Imagem atual</p>
-            </div>
-            {% endif %}
+<div class="product-page">
+    <a href="/produtos" class="back-link"><i class="fas fa-arrow-left"></i> Voltar para produtos</a>
+
+    <div class="product-heading">
+        <div>
+            <h1>{% if editando %}Editar produto{% else %}Cadastrar produto{% endif %}</h1>
+            <p>{% if editando %}Atualize as informações e a disponibilidade deste item.{% else %}Adicione um novo item ao controle de estoque.{% endif %}</p>
         </div>
-
-        {% if erro %}
-        <div style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 12px 16px; border-radius: 8px; margin-bottom: 24px; border: 1px solid rgba(239, 68, 68, 0.2); font-size: 13px; text-align: left; display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-circle-xmark"></i>
-            <span><strong>Erro:</strong> {{ erro }}</span>
-        </div>
-        {% endif %}
-
-        <form method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column;">
-            
-            <div class="form-group">
-                <label for="nome">Nome do Item <span style="color: #ef4444;">*</span></label>
-                <input type="text" id="nome" name="nome" class="form-control" placeholder="Ex: Cadeira Ergonômica" required
-                       value="{{ editando.nome if editando else (valores.nome if valores else '') }}">
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                <div class="form-group">
-                    <label for="categoria_id">Categoria</label>
-                    <select id="categoria_id" name="categoria_id" class="form-control">
-                        <option value="0">— Sem categoria —</option>
-                        {% for categoria in categorias %}
-                            <option value="{{ categoria.id }}"
-                                {% if (editando and editando.categoria_id == categoria.id) or (valores and valores.get('categoria_id') == categoria.id) %}selected{% endif %}>
-                                {{ categoria.nome }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="preco">Preço Base (R$) <span style="color: #ef4444;">*</span></label>
-                    <input type="number" id="preco" step="0.01" name="preco" class="form-control" placeholder="0,00" required
-                           value="{{ editando.preco if editando else (valores.preco if valores else '') }}">
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px;">
-                <div class="form-group">
-                    <label for="estoque_atual">Estoque Inicial <span style="color: #ef4444;">*</span></label>
-                    <input type="number" id="estoque_atual" name="estoque_atual" min="0" step="1" class="form-control" required
-                           value="{{ editando.estoque_atual if editando else (valores.estoque_atual if valores else '0') }}">
-                </div>
-                <div class="form-group">
-                    <label for="imagem">Foto do Produto</label>
-                    <input type="file" id="imagem" name="imagem" class="form-control" accept=".jpg,.jpeg,.png,.webp">
-                </div>
-            </div>
-
-            {% if editando %}
-            <div class="form-group" style="margin-bottom: 24px; background: rgba(255,255,255,0.01); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03);">
-                <label class="checkbox-container">
-                    <input type="checkbox" name="ativo" {% if editando.ativo %}checked{% endif %}>
-                    <span style="font-weight: 500; color: #f8fafc;">Disponibilizar item para movimentações</span>
-                </label>
-                <span style="font-size: 11px; color: #64748b; margin-top: 4px; display: block; padding-left: 24px;">
-                    {% if editando.ativo %}O produto constará como ativo nos relatórios atuais.{% else %}O produto ficará ocultado e congelado.{% endif %}
-                </span>
-            </div>
-            {% endif %}
-
-            <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.03); padding-top: 24px;">
-                <a href="/produtos" class="btn-cancel">
-                    <span>Cancelar</span>
-                </a>
-                
-                <button type="submit" class="btn-save">
-                    <i class="fas fa-bookmark" style="font-size: 11px;"></i>
-                    <span>Salvar alterações</span>
-                </button>
-            </div>
-
-        </form>
+        <span class="mode-badge"><i class="fas fa-box"></i> {% if editando %}Edição{% else %}Novo item{% endif %}</span>
     </div>
+
+    {% if erro %}
+    <div class="form-alert"><i class="fas fa-circle-exclamation"></i> <span>{{ erro }}</span></div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" class="product-form">
+        <div class="form-layout">
+            <section class="form-primary">
+                <h2 class="section-title"><i class="fas fa-pen"></i> Dados do produto</h2>
+
+                <div class="fields-grid">
+                    <div class="field wide">
+                        <label for="nome">Nome do item <span class="required">*</span></label>
+                        <input type="text" id="nome" name="nome" required placeholder="Ex.: Caderno universitário" value="{{ editando.nome if editando else (valores.nome if valores else '') }}">
+                        <span class="field-note">Use um nome claro para facilitar a busca no catálogo.</span>
+                    </div>
+
+                    <div class="field">
+                        <label for="categoria_id">Categoria</label>
+                        <select id="categoria_id" name="categoria_id">
+                            <option value="0">Sem categoria</option>
+                            {% for categoria in categorias %}
+                            <option value="{{ categoria.id }}" {% if (editando and editando.categoria_id == categoria.id) or (valores and valores.get('categoria_id') == categoria.id) %}selected{% endif %}>{{ categoria.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="preco">Preço base (R$) <span class="required">*</span></label>
+                        <input type="number" id="preco" name="preco" required min="0" step="0.01" inputmode="decimal" placeholder="0,00" value="{{ editando.preco if editando else (valores.preco if valores else '') }}">
+                    </div>
+                </div>
+            </section>
+
+            <aside class="form-sidebar">
+                <h2 class="section-title"><i class="fas fa-cubes"></i> Estoque e imagem</h2>
+
+                <div class="field">
+                    <label for="estoque_atual">Quantidade em estoque <span class="required">*</span></label>
+                    <input type="number" id="estoque_atual" name="estoque_atual" required min="0" step="1" inputmode="numeric" value="{{ editando.estoque_atual if editando else (valores.estoque_atual if valores else '0') }}">
+                    <span class="field-note">Informe a quantidade disponível atualmente.</span>
+                </div>
+
+                <div class="field" style="margin-top: 24px;">
+                    <label for="imagem">Foto do produto</label>
+                    <label class="upload-box" for="imagem">
+                        <i class="fas fa-cloud-arrow-up"></i>
+                        <strong id="upload-title">Selecionar uma imagem</strong>
+                        <span id="upload-description">JPG, PNG ou WEBP</span>
+                        <input type="file" id="imagem" name="imagem" accept=".jpg,.jpeg,.png,.webp">
+                    </label>
+                </div>
+
+                {% if editando and editando.imagem_path %}
+                <div class="current-photo">
+                    <img src="{{ editando.imagem_url }}" alt="Imagem atual de {{ editando.nome }}">
+                    <p>Imagem atual do produto</p>
+                </div>
+                {% endif %}
+
+                <div class="availability">
+                    <label><input type="checkbox" name="ativo" {% if (editando and editando.ativo) or (not editando and (not valores or valores.get('ativo', True))) %}checked{% endif %}> Produto disponível</label>
+                    <p>Itens indisponíveis ficam ocultos para as movimentações.</p>
+                </div>
+            </aside>
+        </div>
+
+        <div class="form-footer">
+            <a href="/produtos" class="button button-secondary">Cancelar</a>
+            <button type="submit" class="button button-primary"><i class="fas fa-check"></i> {% if editando %}Salvar alterações{% else %}Cadastrar produto{% endif %}</button>
+        </div>
+    </form>
 </div>
+
+<script>
+    (function () {
+        var imageInput = document.getElementById('imagem');
+        var uploadTitle = document.getElementById('upload-title');
+        var uploadDescription = document.getElementById('upload-description');
+
+        imageInput.addEventListener('change', function () {
+            if (!this.files || !this.files.length) return;
+            uploadTitle.textContent = this.files[0].name;
+            uploadDescription.textContent = 'Imagem pronta para envio';
+        });
+    }());
+</script>
 {% endblock %}
