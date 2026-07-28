@@ -8,6 +8,7 @@ from app.models import usuario
 from app.models import movimentacao
 from app.models import cliente
 from app.models import venda
+from app.models import variacoes
 
 # ...existing code...
 from fastapi import FastAPI, Request

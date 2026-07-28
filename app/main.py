@@ -20,12 +20,12 @@ from app.models.usuario import Usuario
 from app.models.cliente import Cliente
 from app.models.venda import Venda
 from app.models.movimentacao import Movimentacao
+from app.models.variacoes import Variacao
 
 app = FastAPI(title="Gestão de Estoque - AAPM")
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
-
 
 # ── API de carro para o 404 ─────────────────────────────────────────────────
 @app.get("/api/get-carro")
@@ -39,9 +39,9 @@ async def api_get_carro():
             if response.status_code == 200:
                 data = response.json()
                 return {
-                    "modelo":      data.get("alt_description") or "Super Car",
-                    "url":         data["urls"]["regular"],
-                    "fotografo":   data["user"]["name"]
+                    "modelo":     data.get("alt_description") or "Super Car",
+                    "url":        data["urls"]["regular"],
+                    "fotografo":  data["user"]["name"]
                 }
         except Exception as e:
             print(f"Erro na API: {e}")
@@ -93,7 +93,7 @@ def tela_home(
             {
                 "nome":        p.nome,
                 "preco_venda": p.preco,
-                "quantidade":  p.estoque_atual,
+                "quantidade":  sum(v.estoque_atual for v in p.variacoes),
                 "categoria":   p.categoria,
                 "imagem_url":  p.imagem_path if p.imagem_path else None,
             }
@@ -111,9 +111,7 @@ def tela_home(
     total_clientes      = db.query(Cliente).count()
     total_vendas        = db.query(Venda).count()
     total_movimentacoes = db.query(Movimentacao).count()
-    total_estoque       = int(
-        db.query(func.coalesce(func.sum(Produto.estoque_atual), 0)).scalar()
-    )
+    total_estoque       = int(db.query(func.coalesce(func.sum(Variacao.estoque_atual), 0)).scalar())
 
     # ── Gráfico 1 — Doughnut: produtos por categoria ─────────────────────────
     cats = (
@@ -130,9 +128,11 @@ def tela_home(
 
     # ── Gráfico 2 — Barras horizontais: top 5 produtos em estoque ────────────
     top5 = (
-        db.query(Produto.nome, Produto.estoque_atual)
+        db.query(Produto.nome, func.coalesce(func.sum(Variacao.estoque_atual), 0))
+        .outerjoin(Produto.variacoes)
         .filter(Produto.ativo == True)
-        .order_by(Produto.estoque_atual.desc())
+        .group_by(Produto.id, Produto.nome)
+        .order_by(func.sum(Variacao.estoque_atual).desc())
         .limit(5)
         .all()
     )
@@ -145,9 +145,11 @@ def tela_home(
     valor = (
         db.query(
             Categoria.nome,
-            func.coalesce(func.sum(Produto.preco * Produto.estoque_atual), 0),
+            func.coalesce(func.sum(Produto.preco * func.coalesce(Variacao.estoque_atual, 0)), 0),
         )
-        .outerjoin(Produto, (Produto.categoria_id == Categoria.id) & (Produto.ativo == True))
+        .outerjoin(Categoria.produtos)
+        .outerjoin(Produto.variacoes)
+        .filter((Produto.ativo == True) | (Produto.id == None))
         .group_by(Categoria.id, Categoria.nome)
         .order_by(Categoria.nome)
         .all()
@@ -169,7 +171,7 @@ def tela_home(
             "total_vendas":        total_vendas,
             "total_movimentacoes": total_movimentacoes,
             "total_estoque":       total_estoque,
-            "categorias_chart":    categorias_chart,   # ← os três gráficos
+            "categorias_chart":    categorias_chart,
             "produtos_chart":      produtos_chart,
             "valor_chart":         valor_chart,
         }
