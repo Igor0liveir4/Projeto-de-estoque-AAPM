@@ -191,7 +191,7 @@ async def editar_produto(
     nome: str              = Form(...),
     preco: float           = Form(...),
     # 1. Permitimos que o campo venha vazio (None)
-    estoque_atual: Optional[int] = Form(None), 
+    estoque_atual: Optional[int] = Form(None),
     categoria_id: int      = Form(0),
     imagem: UploadFile     = File(None),
     ativo: Optional[str]   = Form(None),

@@ -29,7 +29,7 @@ class Produto(Base):
         else:
             return "/static/img/produto-placeholder.png"
         
-    @property
-    def estoque_total(self):
-        return sum(variacao for variacao in self.variacoes)
+    # @property
+    # def estoque_total(self):
+    #     return sum(variacao for variacao in self.variacoes)
         
