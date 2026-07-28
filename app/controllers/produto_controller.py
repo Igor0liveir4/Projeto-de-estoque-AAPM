@@ -1,7 +1,6 @@
 import os
 import shutil
 import uuid
-from typing import Optional
 from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -90,7 +89,6 @@ async def criar_produto(
     preco: float       = Form(...),
     categoria_id: int  = Form(0),   # 0 = sem categoria
     imagem: UploadFile = File(None), # None = campo opcional
-    ativo: Optional[str] = Form(None),
     db: Session        = Depends(get_db),
     admin              = Depends(get_admin)
 ):
@@ -109,13 +107,7 @@ async def criar_produto(
                 "categorias": categorias,
                 "erro":       "Já existe um produto com este nome.",
                 "valores":    {"nome": nome, "preco": preco,
-<<<<<<< HEAD
                                "categoria_id": categoria_id}
-=======
-                               "estoque_atual": estoque_atual,
-                               "categoria_id": categoria_id,
-                               "ativo": ativo is not None}
->>>>>>> 6977b9a04e83d7bd582ad58f0027573cfc8a74d9
             },
             status_code=400
         )
@@ -128,7 +120,6 @@ async def criar_produto(
         preco         = preco,
         categoria_id  = categoria_id or None,  # 0 vira NULL no banco
         imagem_path   = imagem_path,
-        ativo         = ativo is not None,
     )
 
     db.add(produto)
@@ -187,6 +178,8 @@ def form_editar_produto(
     )
 
 
+from typing import Optional # Certifique-se de ter esse import no topo
+
 @router.post("/{produto_id}/editar")
 async def editar_produto(
     produto_id: int,
@@ -197,7 +190,6 @@ async def editar_produto(
     estoque_atual: Optional[int] = Form(None),
     categoria_id: int      = Form(0),
     imagem: UploadFile     = File(None),
-    ativo: Optional[str]   = Form(None),
     db: Session            = Depends(get_db),
     admin                  = Depends(get_admin)
 ):
@@ -241,7 +233,6 @@ async def editar_produto(
     editando.nome          = nome
     editando.preco         = preco
     editando.categoria_id  = categoria_id or None
-    editando.ativo         = ativo is not None
 
     db.commit()
 
@@ -312,7 +303,6 @@ def _remover_imagem(imagem_path: str | None) -> None:
 
     if os.path.exists(caminho):
         os.remove(caminho)
-<<<<<<< HEAD
 
 # ============================================================
 # GERENCIAMENTO DE VARIAÇÕES (SKUs)
@@ -367,5 +357,3 @@ def excluir_variacao(
     db.commit()
 
     return RedirectResponse(url=f"/produtos/{produto_id}?variacao_removida=ok", status_code=302)
-=======
->>>>>>> 6977b9a04e83d7bd582ad58f0027573cfc8a74d9
