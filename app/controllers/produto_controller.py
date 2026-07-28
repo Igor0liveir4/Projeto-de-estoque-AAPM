@@ -192,6 +192,7 @@ async def editar_produto(
     estoque_atual: Optional[int] = Form(None), 
     categoria_id: int      = Form(0),
     imagem: UploadFile     = File(None),
+    ativo: Optional[str]   = Form(None),
     db: Session            = Depends(get_db),
     admin                  = Depends(get_admin)
 ):
@@ -235,6 +236,7 @@ async def editar_produto(
     editando.nome          = nome
     editando.preco         = preco
     editando.categoria_id  = categoria_id or None
+    editando.ativo         = ativo is not None
 
     db.commit()
 
