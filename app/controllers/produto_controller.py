@@ -1,6 +1,7 @@
 import os
 import shutil
 import uuid
+from typing import Optional
 from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -89,6 +90,7 @@ async def criar_produto(
     estoque_atual: int = Form(...),
     categoria_id: int  = Form(0),   # 0 = sem categoria
     imagem: UploadFile = File(None), # None = campo opcional
+    ativo: Optional[str] = Form(None),
     db: Session        = Depends(get_db),
     admin              = Depends(get_admin)
 ):
@@ -108,7 +110,8 @@ async def criar_produto(
                 "erro":       "Já existe um produto com este nome.",
                 "valores":    {"nome": nome, "preco": preco,
                                "estoque_atual": estoque_atual,
-                               "categoria_id": categoria_id}
+                               "categoria_id": categoria_id,
+                               "ativo": ativo is not None}
             },
             status_code=400
         )
@@ -122,6 +125,7 @@ async def criar_produto(
         estoque_atual = estoque_atual,
         categoria_id  = categoria_id or None,  # 0 vira NULL no banco
         imagem_path   = imagem_path,
+        ativo         = ativo is not None,
     )
 
     db.add(produto)
@@ -179,8 +183,6 @@ def form_editar_produto(
         }
     )
 
-
-from typing import Optional # Certifique-se de ter esse import no topo
 
 @router.post("/{produto_id}/editar")
 async def editar_produto(

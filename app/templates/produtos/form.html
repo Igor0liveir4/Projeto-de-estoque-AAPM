@@ -327,12 +327,10 @@
                 </div>
                 {% endif %}
 
-                {% if editando %}
                 <div class="availability">
-                    <label><input type="checkbox" name="ativo" {% if editando.ativo %}checked{% endif %}> Produto disponível</label>
+                    <label><input type="checkbox" name="ativo" {% if (editando and editando.ativo) or (not editando and (not valores or valores.get('ativo', True))) %}checked{% endif %}> Produto disponível</label>
                     <p>Itens indisponíveis ficam ocultos para as movimentações.</p>
                 </div>
-                {% endif %}
             </aside>
         </div>
 
