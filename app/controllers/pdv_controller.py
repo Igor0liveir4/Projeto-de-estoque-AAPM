@@ -10,10 +10,12 @@ from fastapi import APIRouter, Depends, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from app.database import get_db
 from app.models.venda import Venda, ItemVenda
 from app.models.produto import Produto
+from app.models.variacoes import Variacao
 from app.models.cliente import Cliente
 from app.auth import get_usuario_logado
 
@@ -35,7 +37,10 @@ def tela_pdv(
     """
     produtos  = (
         db.query(Produto)
-        .filter(Produto.ativo == True, Produto.estoque_total > 0)
+        .join(Produto.variacoes)
+        .filter(Produto.ativo == True)
+        .group_by(Produto.id)
+        .having(func.sum(Variacao.estoque_atual) > 0)
         .order_by(Produto.nome)
         .all()
     )
@@ -160,7 +165,7 @@ def finalizar_venda(
             preco_unitario = item["preco"],
         ))
         # Baixa o estoque do produto
-        item["produto"].estoque_total -= item["quantidade"]
+        item["produto"].retirar_estoque(item["quantidade"])
 
     db.commit()
 

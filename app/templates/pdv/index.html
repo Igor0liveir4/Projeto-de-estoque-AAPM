@@ -535,19 +535,19 @@
 
         <div class="produtos-grid" id="produtos-grid">
             {% for p in produtos %}
-            <div class="produto-card {% if p.estoque_atual == 0 %}sem-estoque{% endif %}" data-id="{{ p.id }}"
-                data-nome="{{ p.nome }}" data-preco="{{ p.preco }}" data-estoque="{{ p.estoque_atual }}"
+            <div class="produto-card {% if p.estoque_total == 0 %}sem-estoque{% endif %}" data-id="{{ p.id }}"
+                data-nome="{{ p.nome }}" data-preco="{{ p.preco }}" data-estoque="{{ p.estoque_total }}"
                 data-imagem="{{ p.imagem_url }}"
                 onclick="adicionarAoCarrinho(this)">
-                {% if p.estoque_atual > 0 and p.estoque_atual <= 5 %} <span class="badge-critico">Baixo</span>
+                {% if p.estoque_total > 0 and p.estoque_total <= 5 %} <span class="badge-critico">Baixo</span>
                     {% endif %}
                     <span class="produto-nome">{{ p.nome }}</span>
                     <span class="produto-preco">R$ {{ "%.2f"|format(p.preco) }}</span>
                     <span class="produto-estoque">
-                        {% if p.estoque_atual == 0 %}
+                        {% if p.estoque_total == 0 %}
                         Sem estoque
                         {% else %}
-                        {{ p.estoque_atual }} em estoque
+                        {{ p.estoque_total }} em estoque
                         {% endif %}
                     </span>
             </div>

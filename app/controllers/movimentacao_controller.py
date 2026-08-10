@@ -175,9 +175,9 @@ def registrar_movimentacao(
     # Atualiza o estoque do produto
     # ----------------------------------------------------------
     if tipo == Tipo_de_movimentacao.ENTRADA:
-        produto.estoque_total += quantidade
+        produto.adicionar_estoque(quantidade)
     else:
-        produto.estoque_total -= quantidade
+        produto.retirar_estoque(quantidade)
 
     # ----------------------------------------------------------
     # Registra a movimentação no histórico
