@@ -70,7 +70,7 @@ async def erro_404_customizado(request: Request, exc: StarletteHTTPException):
     return HTMLResponse(str(exc.detail), status_code=exc.status_code)
 
 
-# ── Routers ──────────────────────────────────────────────────────────────────
+# ── Routers ────────────────────────────────────────────────────
 app.include_router(auth_controller.router)
 app.include_router(admin_controller.router)
 app.include_router(categoria_controller.router)
@@ -81,7 +81,7 @@ app.include_router(cliente_controller.router)
 app.include_router(armario_controller.router)
 
 
-# ── Rota principal ───────────────────────────────────────────────────────────
+# ── Rota principal ──────────────────────────────────────────────
 @app.get("/")
 def tela_home(
     request: Request,
@@ -198,7 +198,7 @@ def tela_home(
     )
 
 
-# ── Contato ──────────────────────────────────────────────────────────────────
+# ── Contato ────────────────────────────────────────────────────
 @app.get("/contato", response_class=HTMLResponse)
 def tela_contato(request: Request):
     return templates.TemplateResponse(
