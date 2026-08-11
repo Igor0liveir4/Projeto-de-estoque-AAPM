@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Alugar Armário {{ armario.numero }} — AAPM SENAI</title>
+</head>
+<body>
+    <h1>Alugar armário {{ armario.numero }}</h1>
+
+    {% if armario.localizacao %}
+        <p style="color:gray">{{ armario.localizacao }}</p>
+    {% endif %}
+
+    {% if erro %}
+        <p style="color:red">{{ erro }}</p>
+    {% endif %}
+
+    <form action="/armarios/{{ armario.id }}/alugar" method="post">
+
+        <label>Nome do locatário:
+            <input type="text"
+                   name="locatario_nome"
+                   placeholder="Nome completo do aluno"
+                   required
+                   autofocus>
+        </label>
+        <br>
+
+        <label>Semestre:
+            <!--
+                Lista os semestres mais prováveis dinamicamente.
+                O admin pode digitar outro valor se necessário.
+            -->
+            <input type="text"
+                   name="semestre"
+                   placeholder="Ex: 2025.1"
+                   list="semestres-sugeridos"
+                   required>
+            <datalist id="semestres-sugeridos">
+                <option value="2025.1">
+                <option value="2025.2">
+                <option value="2026.1">
+                <option value="2026.2">
+            </datalist>
+        </label>
+        <br>
+
+        <label>Observação (opcional):
+            <input type="text"
+                   name="observacao"
+                   maxlength="255"
+                   placeholder="Ex: Chave reserva na portaria">
+        </label>
+        <br>
+
+        <button type="submit">Confirmar aluguel</button>
+        <a href="/armarios/{{ armario.id }}">Cancelar</a>
+    </form>
+</body>
+</html>

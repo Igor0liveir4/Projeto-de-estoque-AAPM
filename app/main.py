@@ -9,8 +9,14 @@ import json
 import httpx
 
 from app.controllers import (
-    auth_controller, admin_controller, categoria_controller,
-    produto_controller, movimentacao_controller, pdv_controller, cliente_controller
+    auth_controller, 
+    admin_controller, 
+    categoria_controller,
+    produto_controller,
+    movimentacao_controller, 
+    pdv_controller, 
+    cliente_controller,
+    armario_controller,
 )
 from app.auth import get_usuario_opcional
 from app.database import get_db
@@ -21,6 +27,7 @@ from app.models.cliente import Cliente
 from app.models.venda import Venda
 from app.models.movimentacao import Movimentacao
 from app.models.variacoes import Variacao
+from app.models.armario import Armario, StatusArmario
 
 app = FastAPI(title="Gestão de Estoque - AAPM")
 
@@ -71,6 +78,7 @@ app.include_router(produto_controller.router)
 app.include_router(movimentacao_controller.router)
 app.include_router(pdv_controller.router)
 app.include_router(cliente_controller.router)
+app.include_router(armario_controller.router)
 
 
 # ── Rota principal ───────────────────────────────────────────────────────────
@@ -112,8 +120,18 @@ def tela_home(
     total_usuarios      = db.query(Usuario).count()
     total_clientes      = db.query(Cliente).count()
     total_vendas        = db.query(Venda).count()
+    todos_armarios   = db.query(Armario).filter(Armario.ativo == True).all()
+    armarios_disponiveis = sum(
+        1 for a in todos_armarios
+        if a.status == StatusArmario.DISPONIVEL
+    )
+    armarios_alugados = sum(
+        1 for a in todos_armarios
+        if a.status == StatusArmario.ALUGADO
+    )
     total_movimentacoes = db.query(Movimentacao).count()
     total_estoque       = int(db.query(func.coalesce(func.sum(Variacao.estoque_atual), 0)).scalar())
+    
 
     # ── Gráfico 1 — Doughnut: produtos por categoria ─────────────────────────
     cats = (
