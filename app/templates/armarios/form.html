@@ -13,25 +13,32 @@
         <div class="form-card">
             <p class="page-eyebrow">Gestão de armários</p>
             <h2>{{ "Editar armário" if editando else "Novo armário" }}</h2>
-            <p class="form-help">{{ "Atualize as informações de identificação e localização." if editando else "Cadastre um novo armário para disponibilizá-lo no mapa." }}</p>
+            <p class="form-help">{{ "Atualize as informações de identificação e localização." if editando else "Cadastre
+                um novo armário para disponibilizá-lo no mapa." }}</p>
 
             {% if erro %}<div class="alert error"><i class="fas fa-circle-exclamation"></i> {{ erro }}</div>{% endif %}
 
-            <form action="{{ '/armarios/' + editando.id|string + '/editar' if editando else '/armarios/novo' }}" method="post">
+            <form action="{{ '/armarios/' + editando.id|string + '/editar' if editando else '/armarios/novo' }}"
+                method="post">
                 <div class="field">
                     <label for="numero">Número do armário</label>
-                    <input id="numero" type="text" name="numero" placeholder="Ex.: A01, B12, 42" value="{{ editando.numero if editando else (valores.numero if valores else '') }}" required autofocus>
+                    <input id="numero" type="text" name="numero" placeholder="Ex.: A01, B12, 42"
+                        value="{{ editando.numero if editando else (valores.numero if valores else '') }}" required
+                        autofocus>
                 </div>
                 <div class="field">
                     <label for="localizacao">Localização <span style="font-weight:400">(opcional)</span></label>
-                    <input id="localizacao" type="text" name="localizacao" placeholder="Ex.: Bloco A - Térreo" value="{{ editando.localizacao if editando else (valores.localizacao if valores else '') }}">
+                    <input id="localizacao" type="text" name="localizacao" placeholder="Ex.: Bloco A - Térreo"
+                        value="{{ editando.localizacao if editando else (valores.localizacao if valores else '') }}">
                 </div>
                 <div class="field">
                     <label for="observacao">Observação <span style="font-weight:400">(opcional)</span></label>
-                    <textarea id="observacao" name="observacao" maxlength="255" placeholder="Informação adicional sobre o armário">{{ editando.observacao if editando else (valores.observacao if valores else '') }}</textarea>
+                    <textarea id="observacao" name="observacao" maxlength="255"
+                        placeholder="Informação adicional sobre o armário">{{ editando.observacao if editando else (valores.observacao if valores else '') }}</textarea>
                 </div>
                 <div class="form-actions">
-                    <button type="submit" class="button"><i class="fas fa-floppy-disk"></i> {{ "Salvar alterações" if editando else "Cadastrar armário" }}</button>
+                    <button type="submit" class="button"><i class="fas fa-floppy-disk"></i> {{ "Salvar alterações" if
+                        editando else "Cadastrar armário" }}</button>
                     <a href="/armarios" class="button-secondary">Cancelar</a>
                 </div>
             </form>
@@ -39,7 +46,8 @@
         <aside class="info-panel">
             <i class="fas fa-lightbulb"></i>
             <h3>Organização</h3>
-            <p>Use um identificador curto e único, como <strong>A01</strong> ou <strong>B12</strong>, para facilitar a consulta no mapa.</p>
+            <p>Use um identificador curto e único, como <strong>A01</strong> ou <strong>B12</strong>, para facilitar a
+                consulta no mapa.</p>
         </aside>
     </div>
 </section>
