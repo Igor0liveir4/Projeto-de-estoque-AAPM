@@ -103,7 +103,9 @@ def tela_home(
                 "preco_venda": p.preco,
                 "quantidade":  sum(v.estoque_atual for v in p.variacoes),
                 "categoria":   p.categoria,
-                "imagem_url":  p.imagem_path if p.imagem_path else None,
+                # imagem_path Ã© relativo Ã pasta /static (ex.: uploads/foto.jpg).
+                # A propriedade monta a URL que o navegador consegue acessar.
+                "imagem_url":  p.imagem_url if p.imagem_path else None,
             }
             for p in produtos_db
         ]
