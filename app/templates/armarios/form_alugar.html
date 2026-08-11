@@ -13,22 +13,31 @@
         <div class="form-card">
             <p class="page-eyebrow">Nova locação</p>
             <h2>Alugar armário {{ armario.numero }}</h2>
-            <p class="form-help"><i class="fas fa-location-dot"></i> {{ armario.localizacao or 'Localização não informada' }}</p>
+            <p class="form-help"><i class="fas fa-location-dot"></i> {{ armario.localizacao or 'Localização não
+                informada' }}</p>
             {% if erro %}<div class="alert error"><i class="fas fa-circle-exclamation"></i> {{ erro }}</div>{% endif %}
 
             <form action="/armarios/{{ armario.id }}/alugar" method="post">
                 <div class="field">
                     <label for="locatario_nome">Nome do locatário</label>
-                    <input id="locatario_nome" type="text" name="locatario_nome" placeholder="Nome completo do aluno" required autofocus>
+                    <input id="locatario_nome" type="text" name="locatario_nome" placeholder="Nome completo do aluno"
+                        required autofocus>
                 </div>
                 <div class="field">
                     <label for="semestre">Semestre</label>
-                    <input id="semestre" type="text" name="semestre" placeholder="Ex.: 2026.2" list="semestres-sugeridos" required>
-                    <datalist id="semestres-sugeridos"><option value="2025.1"><option value="2025.2"><option value="2026.1"><option value="2026.2"></datalist>
+                    <input id="semestre" type="text" name="semestre" placeholder="Ex.: 2026.2"
+                        list="semestres-sugeridos" required>
+                    <datalist id="semestres-sugeridos">
+                        <option value="2025.1">
+                        <option value="2025.2">
+                        <option value="2026.1">
+                        <option value="2026.2">
+                    </datalist>
                 </div>
                 <div class="field">
                     <label for="observacao">Observação <span style="font-weight:400">(opcional)</span></label>
-                    <textarea id="observacao" name="observacao" maxlength="255" placeholder="Ex.: chave reserva na portaria"></textarea>
+                    <textarea id="observacao" name="observacao" maxlength="255"
+                        placeholder="Ex.: chave reserva na portaria"></textarea>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="button"><i class="fas fa-key"></i> Confirmar aluguel</button>
