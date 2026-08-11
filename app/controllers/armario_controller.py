@@ -323,7 +323,9 @@ def liberar(
 
     armario.status         = StatusArmario.DISPONIVEL
     armario.locatario_nome = None
-    armario.semestre       = None
+    armario.nome_curso     = None
+    armario.turma          = None
+    armario.email          = None
     armario.alugado_em     = None
 
     db.commit()

@@ -92,7 +92,7 @@
             <p class="armario-location"><i class="fas fa-location-dot"></i> {{ a.localizacao or 'Localização não
                 informada' }}</p>
             {% if a.status.value == 'alugado' %}<p class="armario-renter"><i class="fas fa-user"></i> {{
-                a.locatario_nome }}<small>{{ a.semestre }}</small></p>{% endif %}
+                a.locatario_nome }}<small>{{ a.nome_curso }}{% if a.turma %} · {{ a.turma }}{% endif %}</small></p>{% endif %}
             <div class="armario-card-footer">
                 <a href="/armarios/{{ a.id }}" class="mini-action">Ver detalhes <i class="fas fa-arrow-right"></i></a>
                 {% if usuario.role == 'admin' %}
