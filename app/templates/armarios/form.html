@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ "Editar" if editando else "Novo" }} Armário — AAPM SENAI</title>
+</head>
+<body>
+    <h1>{{ "Editar armário" if editando else "Novo armário" }}</h1>
+
+    {% if erro %}
+        <p style="color:red">{{ erro }}</p>
+    {% endif %}
+
+    <form action="{{ '/armarios/' + editando.id|string + '/editar' if editando else '/armarios/novo' }}"
+          method="post">
+
+        <label>Número do armário:
+            <!--
+                upper() é aplicado no backend — aqui deixamos o placeholder
+                para orientar o padrão esperado.
+            -->
+            <input type="text"
+                   name="numero"
+                   placeholder="Ex: A01, B12, 42"
+                   value="{{ editando.numero if editando else (valores.numero if valores else '') }}"
+                   required
+                   autofocus>
+        </label>
+        <br>
+
+        <label>Localização (opcional):
+            <input type="text"
+                   name="localizacao"
+                   placeholder="Ex: Bloco A - Térreo"
+                   value="{{ editando.localizacao if editando else (valores.localizacao if valores else '') }}">
+        </label>
+        <br>
+
+        <label>Observação (opcional):
+            <input type="text"
+                   name="observacao"
+                   maxlength="255"
+                   value="{{ editando.observacao if editando else (valores.observacao if valores else '') }}">
+        </label>
+        <br>
+
+        <button type="submit">
+            {{ "Salvar alterações" if editando else "Cadastrar armário" }}
+        </button>
+        <a href="/armarios">Cancelar</a>
+    </form>
+</body>
+</html>
