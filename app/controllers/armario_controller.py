@@ -263,14 +263,16 @@ def form_alugar(
 def alugar(
     armario_id: int,
     locatario_nome: str = Form(...),
-    semestre: str       = Form(...),
+    nome_curso: str     = Form(...),
+    turma: str          = Form(...),
+    email: str          = Form(...),
     observacao: str     = Form(""),
     db: Session         = Depends(get_db),
     admin               = Depends(get_admin)
 ):
     """
     Vincula o locatário ao armário e muda o status para ALUGADO.
-    O semestre é fixo durante toda a vigência do contrato.
+    Define a data de aluguel como agora. O acesso é válido por 30 dias.
     """
     armario = db.query(Armario).filter(
         Armario.id == armario_id
@@ -285,7 +287,9 @@ def alugar(
 
     armario.status         = StatusArmario.ALUGADO
     armario.locatario_nome = locatario_nome.strip()
-    armario.semestre       = semestre.strip()
+    armario.nome_curso     = nome_curso.strip()
+    armario.turma          = turma.strip()
+    armario.email          = email.strip()
     armario.observacao     = observacao.strip() or armario.observacao
     armario.alugado_em     = datetime.now(timezone.utc)
 

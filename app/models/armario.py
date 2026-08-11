@@ -5,6 +5,7 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum
 from sqlalchemy.sql import func
 from app.database import Base
+from datetime import datetime, timedelta, timezone
 import enum
 
 
@@ -39,9 +40,14 @@ class Armario(Base):
     # Nome do aluno/cliente que alugou
     locatario_nome = Column(String(150), nullable=True)
 
-    # Semestre fixo do contrato — ex: "2025.1", "2025.2"
-    # O admin define manualmente — não calculamos por data.
-    semestre = Column(String(10), nullable=True)
+    # Nome do curso — ex: "Engenharia de Software"
+    nome_curso = Column(String(100), nullable=True)
+
+    # Turma — ex: "Seduc - Dev", "2026-A"
+    turma = Column(String(50), nullable=True)
+
+    # Email para avisos de pagamento
+    email = Column(String(120), nullable=True)
 
     # Observação livre — ex: "Chave reserva com portaria"
     observacao = Column(String(255), nullable=True)
@@ -59,3 +65,25 @@ class Armario(Base):
     @property
     def disponivel(self) -> bool:
         return self.status == StatusArmario.DISPONIVEL
+
+    @property
+    def dias_aluguel(self) -> int:
+        """Retorna quantos dias o armário está alugado."""
+        if not self.alugado_em:
+            return 0
+        delta = datetime.now(timezone.utc) - self.alugado_em
+        return delta.days
+
+    @property
+    def acesso_ativo(self) -> bool:
+        """Retorna True se o aluguel ainda está válido (< 30 dias)."""
+        if self.status != StatusArmario.ALUGADO or not self.alugado_em:
+            return False
+        return self.dias_aluguel < 30
+
+    @property
+    def prazo_vencimento(self) -> datetime:
+        """Retorna a data de vencimento (30 dias após aluguel)."""
+        if not self.alugado_em:
+            return None
+        return self.alugado_em + timedelta(days=30)
