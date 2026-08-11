@@ -492,6 +492,7 @@
                 {% set is_categorias = current_path == '/categorias' or current_path.startswith('/categorias/') %}
                 {% set is_usuarios = current_path == '/usuarios' or current_path.startswith('/usuarios/') %}
                 {% set is_movimentacoes = current_path == '/movimentacoes' or current_path.startswith('/movimentacoes/') %}
+                {% set is_armarios = current_path == '/armarios' or current_path.startswith('/armarios/') %}
                 {% set is_pdv = current_path == '/pdv' or current_path.startswith('/pdv/') %}
                 <div class="nav-buttons">
                     <a href="/" class="nav-btn {{ 'active' if is_home else '' }}" {% if is_home %}aria-current="page"{% endif %}>
@@ -511,6 +512,9 @@
                     </a>
                     <a href="/movimentacoes" class="nav-btn {{ 'active' if is_movimentacoes else '' }}" {% if is_movimentacoes %}aria-current="page"{% endif %}>
                         <i class="fas fa-exchange-alt"></i> Movimentações
+                    </a>
+                    <a href="/armarios" class="nav-btn {{ 'active' if is_armarios else '' }}" {% if is_armarios %}aria-current="page"{% endif %}>
+                        <i class="fas fa-door-open"></i> Armários
                     </a>
                     <a href="/pdv" class="nav-btn {{ 'active' if is_pdv else '' }}" {% if is_pdv %}aria-current="page"{% endif %}>
                         <i class="fas fa-cash-register"></i> PDV
@@ -551,6 +555,7 @@
                 <ul>
                     <li><a href="/"><i class="fas fa-chevron-right" style="font-size: 10px;"></i> Dashboard Inicial</a></li>
                     <li><a href="/produtos"><i class="fas fa-chevron-right" style="font-size: 10px;"></i> Catálogo de Produtos</a></li>
+                    <li><a href="/armarios"><i class="fas fa-chevron-right" style="font-size: 10px;"></i> Mapa de Armários</a></li>
                     <li><a href="/pdv"><i class="fas fa-chevron-right" style="font-size: 10px;"></i> Ponto de Venda (PDV)</a></li>
                     <li><a href="https://sp.senai.br" target="_blank"><i class="fas fa-globe" style="font-size: 11px;"></i> Portal SENAI-SP</a></li>
                 </ul>

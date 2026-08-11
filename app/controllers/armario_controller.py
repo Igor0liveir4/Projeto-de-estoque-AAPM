@@ -215,7 +215,7 @@ def editar_armario(
             request,
             "armarios/form.html",
             {
-                "request":  None,
+                "request":  request,
                 "usuario":  admin,
                 "editando": editando,
                 "erro":     f"Armário {numero.upper()} já existe.",

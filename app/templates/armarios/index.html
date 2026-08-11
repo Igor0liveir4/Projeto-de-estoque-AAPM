@@ -1,116 +1,91 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Armários — AAPM SENAI</title>
-</head>
-<body>
-    <h1>Armários</h1>
+{% extends "base.html" %}
 
-    <!-- Feedback -->
-    {% if request.query_params.get('criado') == 'ok' %}
-        <p style="color:green">Armário cadastrado com sucesso!</p>
-    {% endif %}
-    {% if request.query_params.get('erro') == 'ja_alugado' %}
-        <p style="color:red">Este armário já foi alugado por outro usuário.</p>
-    {% endif %}
-    {% if request.query_params.get('erro') == 'desativar_alugado' %}
-        <p style="color:red">Libere o armário antes de desativá-lo.</p>
-    {% endif %}
+{% block title %}Armários - AAPM{% endblock %}
 
-    <!-- Resumo -->
-    <p>
-        Total: <strong>{{ total }}</strong> &nbsp;|&nbsp;
-        <span style="color:green">Disponíveis: <strong>{{ disponiveis }}</strong></span> &nbsp;|&nbsp;
-        <span style="color:orange">Alugados: <strong>{{ alugados }}</strong></span>
-    </p>
+{% block head %}
+<link rel="stylesheet" href="/static/armarios.css">
+{% endblock %}
 
-    <!-- Filtros -->
-    <form method="get" action="/armarios">
-        <select name="status">
-            <option value="">Todos os status</option>
-            <option value="disponivel" {{ 'selected' if status == 'disponivel' }}>Disponíveis</option>
-            <option value="alugado"    {{ 'selected' if status == 'alugado' }}>Alugados</option>
-            <option value="inativo"    {{ 'selected' if status == 'inativo' }}>Inativos</option>
-        </select>
-
-        {% if localizacoes %}
-        <select name="localizacao">
-            <option value="">Todas as localizações</option>
-            {% for loc in localizacoes %}
-                <option value="{{ loc }}"
-                    {{ 'selected' if localizacao == loc }}>
-                    {{ loc }}
-                </option>
-            {% endfor %}
-        </select>
-        {% endif %}
-
-        <button type="submit">Filtrar</button>
-        {% if status or localizacao %}
-            <a href="/armarios">Limpar</a>
-        {% endif %}
-    </form>
-
-    {% if usuario.role == 'admin' %}
-        <a href="/armarios/novo">+ Novo armário</a>
-    {% endif %}
-
-    <!-- Grade de armários -->
-    <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:20px;">
-        {% for a in armarios %}
-        <div style="
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 16px;
-            width: 180px;
-            {% if a.status.value == 'disponivel' %}background:#f0fff4{% endif %}
-            {% if a.status.value == 'alugado' %}background:#fffbeb{% endif %}
-            {% if a.status.value == 'inativo' %}background:#f5f5f5; opacity:0.6{% endif %}
-        ">
-            <strong style="font-size:1.2em">{{ a.numero }}</strong>
-
-            {% if a.localizacao %}
-                <br><small style="color:gray">{{ a.localizacao }}</small>
-            {% endif %}
-
-            <br><br>
-
-            {% if a.status.value == 'disponivel' %}
-                <span style="color:green">● Disponível</span>
-            {% elif a.status.value == 'alugado' %}
-                <span style="color:orange">● Alugado</span>
-                <br><small>{{ a.locatario_nome }}</small>
-                <br><small>{{ a.semestre }}</small>
-            {% else %}
-                <span style="color:gray">● Inativo</span>
-            {% endif %}
-
-            <br><br>
-
-            <a href="/armarios/{{ a.id }}">Ver detalhes</a>
-
-            {% if usuario.role == 'admin' %}
-                <br>
-                {% if a.status.value == 'disponivel' %}
-                    <a href="/armarios/{{ a.id }}/alugar">Alugar</a>
-                {% elif a.status.value == 'alugado' %}
-                    <form action="/armarios/{{ a.id }}/liberar"
-                          method="post"
-                          style="display:inline"
-                          onsubmit="return confirm('Liberar armário {{ a.numero }}?')">
-                        <button type="submit">Liberar</button>
-                    </form>
-                {% endif %}
-            {% endif %}
+{% block content %}
+<section class="armarios-page">
+    <div class="armarios-hero">
+        <div>
+            <p class="page-eyebrow"><i class="fas fa-door-open"></i> Gestão de espaços</p>
+            <h2 class="armarios-title">Mapa de armários</h2>
+            <p class="page-subtitle">Consulte a disponibilidade e gerencie as locações da escola.</p>
         </div>
-        {% endfor %}
-
-        {% if not armarios %}
-            <p>Nenhum armário encontrado.</p>
+        {% if usuario.role == 'admin' %}
+        <a href="/armarios/novo" class="button"><i class="fas fa-plus"></i> Novo armário</a>
         {% endif %}
     </div>
 
-    <p><a href="/">← Dashboard</a></p>
-</body>
-</html>
+    {% if request.query_params.get('criado') == 'ok' %}
+    <div class="alert success"><i class="fas fa-circle-check"></i> Armário cadastrado com sucesso.</div>
+    {% endif %}
+    {% if request.query_params.get('erro') == 'ja_alugado' %}
+    <div class="alert error"><i class="fas fa-circle-exclamation"></i> Este armário já foi alugado por outro usuário.</div>
+    {% endif %}
+    {% if request.query_params.get('erro') == 'desativar_alugado' %}
+    <div class="alert error"><i class="fas fa-circle-exclamation"></i> Libere o armário antes de desativá-lo.</div>
+    {% endif %}
+
+    <div class="metrics-grid">
+        <div class="metric-card"><span class="metric-icon"><i class="fas fa-door-open"></i></span><div><p class="metric-label">Total de armários</p><strong class="metric-value">{{ total }}</strong></div></div>
+        <div class="metric-card available"><span class="metric-icon"><i class="fas fa-check"></i></span><div><p class="metric-label">Disponíveis</p><strong class="metric-value">{{ disponiveis }}</strong></div></div>
+        <div class="metric-card rented"><span class="metric-icon"><i class="fas fa-key"></i></span><div><p class="metric-label">Alugados</p><strong class="metric-value">{{ alugados }}</strong></div></div>
+    </div>
+
+    <div class="armarios-card">
+        <form method="get" action="/armarios" class="filters-form">
+            <div class="field">
+                <label for="status">Status</label>
+                <select id="status" name="status">
+                    <option value="">Todos os status</option>
+                    <option value="disponivel" {{ 'selected' if status == 'disponivel' }}>Disponíveis</option>
+                    <option value="alugado" {{ 'selected' if status == 'alugado' }}>Alugados</option>
+                    <option value="inativo" {{ 'selected' if status == 'inativo' }}>Inativos</option>
+                </select>
+            </div>
+            {% if localizacoes %}
+            <div class="field">
+                <label for="localizacao">Localização</label>
+                <select id="localizacao" name="localizacao">
+                    <option value="">Todas as localizações</option>
+                    {% for loc in localizacoes %}<option value="{{ loc }}" {{ 'selected' if localizacao == loc }}>{{ loc }}</option>{% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <div class="filter-actions">
+                <button type="submit" class="button"><i class="fas fa-filter"></i> Filtrar</button>
+                {% if status or localizacao %}<a href="/armarios" class="button-secondary"><i class="fas fa-rotate-left"></i> Limpar</a>{% endif %}
+            </div>
+        </form>
+    </div>
+
+    {% if armarios %}
+    <div class="armarios-grid">
+        {% for a in armarios %}
+        <article class="armario-card {{ a.status.value }}">
+            <div class="armario-card-top">
+                <h3 class="armario-number">{{ a.numero }}</h3>
+                {% if a.status.value == 'disponivel' %}<span class="status-badge available"><i class="fas fa-circle"></i> Disponível</span>
+                {% elif a.status.value == 'alugado' %}<span class="status-badge rented"><i class="fas fa-key"></i> Alugado</span>
+                {% else %}<span class="status-badge inactive"><i class="fas fa-ban"></i> Inativo</span>{% endif %}
+            </div>
+            <p class="armario-location"><i class="fas fa-location-dot"></i> {{ a.localizacao or 'Localização não informada' }}</p>
+            {% if a.status.value == 'alugado' %}<p class="armario-renter"><i class="fas fa-user"></i> {{ a.locatario_nome }}<small>{{ a.semestre }}</small></p>{% endif %}
+            <div class="armario-card-footer">
+                <a href="/armarios/{{ a.id }}" class="mini-action">Ver detalhes <i class="fas fa-arrow-right"></i></a>
+                {% if usuario.role == 'admin' %}
+                    {% if a.status.value == 'disponivel' %}<a href="/armarios/{{ a.id }}/alugar" class="mini-action">Alugar</a>
+                    {% elif a.status.value == 'alugado' %}<form action="/armarios/{{ a.id }}/liberar" method="post" onsubmit="return confirm('Liberar armário {{ a.numero }}?')"><button type="submit" class="mini-action">Liberar</button></form>{% endif %}
+                {% endif %}
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="armarios-empty"><i class="fas fa-door-closed"></i><strong>Nenhum armário encontrado</strong><p>Altere os filtros ou cadastre um novo armário.</p></div>
+    {% endif %}
+</section>
+{% endblock %}
