@@ -1,7 +1,7 @@
 import os
 import shutil
 import uuid
-from typing import Optional
+from typing import Optional, List
 from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -20,6 +20,76 @@ templates = Jinja2Templates(directory="app/templates")
 # Pasta onde as imagens serão salvas dentro de /static
 UPLOAD_DIR = "app/static/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)  # cria a pasta se não existir
+
+
+def _eh_produto_roupa(nome: str, categoria_nome: Optional[str]) -> bool:
+    nome = (nome or "").strip().lower()
+    categoria_nome = (categoria_nome or "").strip().lower()
+    palavras_roupa = [
+        "roupa", "camisa", "camiseta", "blusa", "calca", "calça",
+        "bermuda", "short", "vestido", "jaqueta", "casaco", "calça",
+        "tênis", "tenis", "uniforme", "moletom", "calcinha", "cueca"
+    ]
+    return any(palavra in nome for palavra in palavras_roupa) or any(
+        palavra in categoria_nome for palavra in palavras_roupa
+    )
+
+
+def _parse_variacoes(
+    tamanhos: Optional[List[str]],
+    cores: Optional[List[str]],
+    estoques: Optional[List[str]],
+) -> tuple[list[Variacao], Optional[str]]:
+    variacoes: list[Variacao] = []
+    if not tamanhos or not cores or not estoques:
+        return variacoes, None
+
+    for tamanho, cor, estoque in zip(tamanhos, cores, estoques):
+        tamanho = (tamanho or "").strip()
+        cor = (cor or "").strip()
+        estoque_raw = (estoque or "").strip()
+
+        if not tamanho and not cor and not estoque_raw:
+            continue
+
+        if not tamanho or not cor:
+            return [], "Cada variação precisa ter tamanho e cor preenchidos."
+
+        if estoque_raw == "":
+            return [], "Cada variação precisa ter quantidade de estoque."
+
+        try:
+            quantidade = int(estoque_raw)
+        except ValueError:
+            return [], "A quantidade de estoque deve ser um número inteiro."
+
+        if quantidade < 0:
+            return [], "A quantidade de estoque não pode ser negativa."
+
+        variacoes.append(
+            Variacao(tamanho=tamanho, cor=cor, estoque_atual=quantidade)
+        )
+
+    return variacoes, None
+
+
+def _validar_variacoes_roupa(variacoes: list[Variacao]) -> Optional[str]:
+    """
+    Valida se as variações fazem sentido para um produto de roupa.
+    Retorna mensagem de erro se há inconsistências.
+    """
+    if not variacoes:
+        return None
+
+    tem_variacao_padrao = any(
+        v.tamanho.lower() == "único" and v.cor.lower() == "padrão"
+        for v in variacoes
+    )
+    
+    if len(variacoes) == 1 and tem_variacao_padrao:
+        return "Produtos de roupa não podem usar a variação padrão. Defina tamanho e cor específicos para este item."
+
+    return None
 
 
 # ============================================================
@@ -86,14 +156,17 @@ def form_novo_produto(
 @router.post("/novo")
 async def criar_produto(
     request: Request,
-    nome: str          = Form(...),
-    preco: float       = Form(...),
-    estoque_atual: int = Form(...),
-    categoria_id: int  = Form(0),   # 0 = sem categoria
-    imagem: UploadFile = File(None), # None = campo opcional
-    ativo: Optional[str] = Form(None),
-    db: Session        = Depends(get_db),
-    admin              = Depends(get_admin)
+    nome: str                     = Form(...),
+    preco: float                  = Form(...),
+    estoque_atual: int            = Form(...),
+    categoria_id: int             = Form(0),   # 0 = sem categoria
+    imagem: UploadFile            = File(None), # None = campo opcional
+    ativo: Optional[str]          = Form(None),
+    variacoes_tamanho: Optional[List[str]] = Form(None),
+    variacoes_cor: Optional[List[str]]    = Form(None),
+    variacoes_estoque: Optional[List[str]] = Form(None),
+    db: Session                   = Depends(get_db),
+    admin: object                 = Depends(get_admin)
 ):
     categorias = db.query(Categoria).filter(Categoria.ativa == True).all()
 
@@ -117,6 +190,72 @@ async def criar_produto(
             status_code=400
         )
 
+    categoria_obj = None
+    if categoria_id:
+        categoria_obj = db.query(Categoria).filter(Categoria.id == categoria_id).first()
+    eh_roupa = _eh_produto_roupa(nome, categoria_obj.nome if categoria_obj else None)
+
+    variacoes_valores = []
+    if variacoes_tamanho or variacoes_cor or variacoes_estoque:
+        for tamanho, cor, estoque in zip(
+            variacoes_tamanho or [],
+            variacoes_cor or [],
+            variacoes_estoque or []
+        ):
+            variacoes_valores.append({
+                "tamanho": tamanho or "",
+                "cor": cor or "",
+                "estoque": estoque or ""
+            })
+
+    variacoes, variacoes_erro = _parse_variacoes(
+        variacoes_tamanho, variacoes_cor, variacoes_estoque
+    )
+
+    if eh_roupa and not variacoes:
+        return templates.TemplateResponse(
+            request,
+            "produtos/form.html",
+            {
+                "request": request,
+                "usuario": admin,
+                "editando": None,
+                "categorias": categorias,
+                "erro": variacoes_erro or "Produtos de roupa precisam ter pelo menos uma variação com tamanho, cor e quantidade.",
+                "valores": {
+                    "nome": nome,
+                    "preco": preco,
+                    "categoria_id": categoria_id,
+                    "ativo": ativo is not None,
+                },
+                "variacoes_valores": variacoes_valores,
+            },
+            status_code=400,
+        )
+
+    if eh_roupa and variacoes:
+        variacoes_erro_roupa = _validar_variacoes_roupa(variacoes)
+        if variacoes_erro_roupa:
+            return templates.TemplateResponse(
+                request,
+                "produtos/form.html",
+                {
+                    "request": request,
+                    "usuario": admin,
+                    "editando": None,
+                    "categorias": categorias,
+                    "erro": variacoes_erro_roupa,
+                    "valores": {
+                        "nome": nome,
+                        "preco": preco,
+                        "categoria_id": categoria_id,
+                        "ativo": ativo is not None,
+                    },
+                    "variacoes_valores": variacoes_valores,
+                },
+                status_code=400,
+            )
+
     # Processa o upload da imagem
     imagem_path = await _salvar_imagem(imagem)
 
@@ -127,11 +266,13 @@ async def criar_produto(
         imagem_path   = imagem_path,
         ativo         = ativo is not None,
     )
-    # Produtos sem opções também usam uma variação padrão para manter o
-    # estoque no novo modelo de dados.
-    produto.variacoes.append(
-        Variacao(tamanho="Único", cor="Padrão", estoque_atual=estoque_atual)
-    )
+
+    if variacoes:
+        produto.variacoes.extend(variacoes)
+    else:
+        produto.variacoes.append(
+            Variacao(tamanho="Único", cor="Padrão", estoque_atual=estoque_atual)
+        )
 
     db.add(produto)
     db.commit()
@@ -193,15 +334,18 @@ def form_editar_produto(
 async def editar_produto(
     produto_id: int,
     request: Request,
-    nome: str              = Form(...),
-    preco: float           = Form(...),
+    nome: str                        = Form(...),
+    preco: float                     = Form(...),
     # 1. Permitimos que o campo venha vazio (None)
-    estoque_atual: Optional[int] = Form(None),
-    categoria_id: int      = Form(0),
-    imagem: UploadFile     = File(None),
-    ativo: Optional[str]   = Form(None),
-    db: Session            = Depends(get_db),
-    admin                  = Depends(get_admin)
+    estoque_atual: Optional[int]     = Form(None),
+    categoria_id: int                = Form(0),
+    imagem: UploadFile               = File(None),
+    ativo: Optional[str]             = Form(None),
+    variacoes_tamanho: Optional[List[str]] = Form(None),
+    variacoes_cor: Optional[List[str]]    = Form(None),
+    variacoes_estoque: Optional[List[str]] = Form(None),
+    db: Session                      = Depends(get_db),
+    admin: object                    = Depends(get_admin)
 ):
     editando   = db.query(Produto).filter(Produto.id == produto_id).first()
     categorias = db.query(Categoria).filter(Categoria.ativa == True).all()
@@ -235,8 +379,77 @@ async def editar_produto(
         _remover_imagem(editando.imagem_path)
         editando.imagem_path = nova_imagem_path
 
-    # Se o saldo foi informado, ajusta o total das variações para ele.
-    if estoque_atual is not None:
+    categoria_obj = None
+    if categoria_id:
+        categoria_obj = db.query(Categoria).filter(Categoria.id == categoria_id).first()
+    eh_roupa = _eh_produto_roupa(nome, categoria_obj.nome if categoria_obj else None)
+
+    variacoes_valores = []
+    if variacoes_tamanho or variacoes_cor or variacoes_estoque:
+        for tamanho, cor, estoque in zip(
+            variacoes_tamanho or [],
+            variacoes_cor or [],
+            variacoes_estoque or []
+        ):
+            variacoes_valores.append({
+                "tamanho": tamanho or "",
+                "cor": cor or "",
+                "estoque": estoque or ""
+            })
+
+    variacoes, variacoes_erro = _parse_variacoes(
+        variacoes_tamanho, variacoes_cor, variacoes_estoque
+    )
+
+    if eh_roupa and not variacoes:
+        return templates.TemplateResponse(
+            request,
+            "produtos/form.html",
+            {
+                "request": request,
+                "usuario": admin,
+                "editando": editando,
+                "categorias": categorias,
+                "erro": variacoes_erro or "Produtos de roupa precisam ter pelo menos uma variação com tamanho, cor e quantidade.",
+                "valores": {
+                    "nome": nome,
+                    "preco": preco,
+                    "categoria_id": categoria_id,
+                    "ativo": ativo is not None,
+                },
+                "variacoes_valores": variacoes_valores,
+            },
+            status_code=400,
+        )
+
+    if eh_roupa and variacoes:
+        variacoes_erro_roupa = _validar_variacoes_roupa(variacoes)
+        if variacoes_erro_roupa:
+            return templates.TemplateResponse(
+                request,
+                "produtos/form.html",
+                {
+                    "request": request,
+                    "usuario": admin,
+                    "editando": editando,
+                    "categorias": categorias,
+                    "erro": variacoes_erro_roupa,
+                    "valores": {
+                        "nome": nome,
+                        "preco": preco,
+                        "categoria_id": categoria_id,
+                        "ativo": ativo is not None,
+                    },
+                    "variacoes_valores": variacoes_valores,
+                },
+                status_code=400,
+            )
+
+    if variacoes:
+        editando.variacoes[:] = []
+        editando.variacoes.extend(variacoes)
+    elif estoque_atual is not None:
+        # Ajusta o total quando não há variações explícitas
         diferenca = estoque_atual - editando.estoque_total
         if diferenca > 0:
             editando.adicionar_estoque(diferenca)

@@ -333,6 +333,7 @@
                                     style="color: #64748b; font-size: 11px; font-family: monospace; display: block;">#{{
                                     produto.id }}</span>
                                 {{ produto.nome }}
+                                <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">{{ produto.variacoes|length }} variação{% if produto.variacoes|length != 1 %}es{% endif %}</div>
                             </td>
 
                             <td>

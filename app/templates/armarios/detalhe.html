@@ -38,10 +38,23 @@
                 {% if armario.status.value == 'alugado' %}
                 <div class="detail-row"><span class="detail-label"><i class="fas fa-user"></i> Locatário</span><span
                         class="detail-value">{{ armario.locatario_nome }}</span></div>
-                <div class="detail-row"><span class="detail-label"><i class="fas fa-calendar"></i> Semestre</span><span
-                        class="detail-value">{{ armario.semestre }}</span></div>
+                <div class="detail-row"><span class="detail-label"><i class="fas fa-school"></i> Curso</span><span
+                        class="detail-value">{{ armario.nome_curso }}</span></div>
+                <div class="detail-row"><span class="detail-label"><i class="fas fa-graduation-cap"></i> Turma</span><span
+                        class="detail-value">{{ armario.turma }}</span></div>
+                <div class="detail-row"><span class="detail-label"><i class="fas fa-envelope"></i> Email</span><span
+                        class="detail-value">{{ armario.email }}</span></div>
                 <div class="detail-row"><span class="detail-label"><i class="fas fa-clock"></i> Alugado em</span><span
                         class="detail-value">{{ armario.alugado_em.strftime('%d/%m/%Y às %H:%M') }}</span></div>
+                <div class="detail-row"><span class="detail-label"><i class="fas fa-calendar-days"></i> Dias alugado</span><span
+                        class="detail-value">{{ armario.dias_aluguel }}</span></div>
+                <div class="detail-row"><span class="detail-label"><i class="fas fa-hourglass-end"></i> Acesso</span>
+                    {% if armario.acesso_ativo %}
+                    <span class="detail-value" style="color: #10b981;"><i class="fas fa-circle-check"></i> Ativo ({{ 30 - armario.dias_aluguel }} dias restantes)</span>
+                    {% else %}
+                    <span class="detail-value" style="color: #ef4444;"><i class="fas fa-circle-xmark"></i> Expirado</span>
+                    {% endif %}
+                </div>
                 {% endif %}
                 {% if armario.observacao %}<div class="detail-row"><span class="detail-label"><i
                             class="fas fa-note-sticky"></i> Observação</span><span class="detail-value">{{
