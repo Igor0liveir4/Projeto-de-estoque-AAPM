@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Armário {{ armario.numero }} — AAPM SENAI</title>
+</head>
+<body>
+    <!-- Feedback de ações -->
+    {% if request.query_params.get('alugado') == 'ok' %}
+        <p style="color:green">Armário alugado com sucesso!</p>
+    {% endif %}
+    {% if request.query_params.get('liberado') == 'ok' %}
+        <p style="color:green">Armário liberado com sucesso!</p>
+    {% endif %}
+    {% if request.query_params.get('editado') == 'ok' %}
+        <p style="color:green">Dados atualizados com sucesso!</p>
+    {% endif %}
+
+    <h1>Armário {{ armario.numero }}</h1>
+
+    <table border="1" cellpadding="8">
+        <tr>
+            <td><strong>Localização</strong></td>
+            <td>{{ armario.localizacao or "—" }}</td>
+        </tr>
+        <tr>
+            <td><strong>Status</strong></td>
+            <td>
+                {% if armario.status.value == 'disponivel' %}
+                    <span style="color:green">● Disponível</span>
+                {% elif armario.status.value == 'alugado' %}
+                    <span style="color:orange">● Alugado</span>
+                {% else %}
+                    <span style="color:gray">● Inativo</span>
+                {% endif %}
+            </td>
+        </tr>
+
+        {% if armario.status.value == 'alugado' %}
+        <tr>
+            <td><strong>Locatário</strong></td>
+            <td>{{ armario.locatario_nome }}</td>
+        </tr>
+        <tr>
+            <td><strong>Semestre</strong></td>
+            <td>{{ armario.semestre }}</td>
+        </tr>
+        <tr>
+            <td><strong>Alugado em</strong></td>
+            <td>{{ armario.alugado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+        </tr>
+        {% endif %}
+
+        {% if armario.observacao %}
+        <tr>
+            <td><strong>Observação</strong></td>
+            <td>{{ armario.observacao }}</td>
+        </tr>
+        {% endif %}
+
+        <tr>
+            <td><strong>Cadastrado em</strong></td>
+            <td>{{ armario.criado_em.strftime('%d/%m/%Y') }}</td>
+        </tr>
+    </table>
+
+    {% if usuario.role == 'admin' %}
+        <br>
+
+        {% if armario.status.value == 'disponivel' %}
+            <a href="/armarios/{{ armario.id }}/alugar">Alugar</a> &nbsp;
+        {% endif %}
+
+        {% if armario.status.value == 'alugado' %}
+            <form action="/armarios/{{ armario.id }}/liberar"
+                  method="post"
+                  style="display:inline"
+                  onsubmit="return confirm('Liberar este armário?')">
+                <button type="submit">Liberar armário</button>
+            </form> &nbsp;
+        {% endif %}
+
+        <a href="/armarios/{{ armario.id }}/editar">Editar dados</a> &nbsp;
+
+        <form action="/armarios/{{ armario.id }}/toggle-ativo"
+              method="post"
+              style="display:inline">
+            <button type="submit">
+                {{ "Desativar" if armario.ativo else "Reativar" }}
+            </button>
+        </form>
+    {% endif %}
+
+    <br><br>
+    <a href="/armarios">← Voltar ao mapa</a>
+</body>
+</html>

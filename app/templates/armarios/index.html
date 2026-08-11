@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Armários — AAPM SENAI</title>
+</head>
+<body>
+    <h1>Armários</h1>
+
+    <!-- Feedback -->
+    {% if request.query_params.get('criado') == 'ok' %}
+        <p style="color:green">Armário cadastrado com sucesso!</p>
+    {% endif %}
+    {% if request.query_params.get('erro') == 'ja_alugado' %}
+        <p style="color:red">Este armário já foi alugado por outro usuário.</p>
+    {% endif %}
+    {% if request.query_params.get('erro') == 'desativar_alugado' %}
+        <p style="color:red">Libere o armário antes de desativá-lo.</p>
+    {% endif %}
+
+    <!-- Resumo -->
+    <p>
+        Total: <strong>{{ total }}</strong> &nbsp;|&nbsp;
+        <span style="color:green">Disponíveis: <strong>{{ disponiveis }}</strong></span> &nbsp;|&nbsp;
+        <span style="color:orange">Alugados: <strong>{{ alugados }}</strong></span>
+    </p>
+
+    <!-- Filtros -->
+    <form method="get" action="/armarios">
+        <select name="status">
+            <option value="">Todos os status</option>
+            <option value="disponivel" {{ 'selected' if status == 'disponivel' }}>Disponíveis</option>
+            <option value="alugado"    {{ 'selected' if status == 'alugado' }}>Alugados</option>
+            <option value="inativo"    {{ 'selected' if status == 'inativo' }}>Inativos</option>
+        </select>
+
+        {% if localizacoes %}
+        <select name="localizacao">
+            <option value="">Todas as localizações</option>
+            {% for loc in localizacoes %}
+                <option value="{{ loc }}"
+                    {{ 'selected' if localizacao == loc }}>
+                    {{ loc }}
+                </option>
+            {% endfor %}
+        </select>
+        {% endif %}
+
+        <button type="submit">Filtrar</button>
+        {% if status or localizacao %}
+            <a href="/armarios">Limpar</a>
+        {% endif %}
+    </form>
+
+    {% if usuario.role == 'admin' %}
+        <a href="/armarios/novo">+ Novo armário</a>
+    {% endif %}
+
+    <!-- Grade de armários -->
+    <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:20px;">
+        {% for a in armarios %}
+        <div style="
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 16px;
+            width: 180px;
+            {% if a.status.value == 'disponivel' %}background:#f0fff4{% endif %}
+            {% if a.status.value == 'alugado' %}background:#fffbeb{% endif %}
+            {% if a.status.value == 'inativo' %}background:#f5f5f5; opacity:0.6{% endif %}
+        ">
+            <strong style="font-size:1.2em">{{ a.numero }}</strong>
+
+            {% if a.localizacao %}
+                <br><small style="color:gray">{{ a.localizacao }}</small>
+            {% endif %}
+
+            <br><br>
+
+            {% if a.status.value == 'disponivel' %}
+                <span style="color:green">● Disponível</span>
+            {% elif a.status.value == 'alugado' %}
+                <span style="color:orange">● Alugado</span>
+                <br><small>{{ a.locatario_nome }}</small>
+                <br><small>{{ a.semestre }}</small>
+            {% else %}
+                <span style="color:gray">● Inativo</span>
+            {% endif %}
+
+            <br><br>
+
+            <a href="/armarios/{{ a.id }}">Ver detalhes</a>
+
+            {% if usuario.role == 'admin' %}
+                <br>
+                {% if a.status.value == 'disponivel' %}
+                    <a href="/armarios/{{ a.id }}/alugar">Alugar</a>
+                {% elif a.status.value == 'alugado' %}
+                    <form action="/armarios/{{ a.id }}/liberar"
+                          method="post"
+                          style="display:inline"
+                          onsubmit="return confirm('Liberar armário {{ a.numero }}?')">
+                        <button type="submit">Liberar</button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        {% if not armarios %}
+            <p>Nenhum armário encontrado.</p>
+        {% endif %}
+    </div>
+
+    <p><a href="/">← Dashboard</a></p>
+</body>
+</html>
