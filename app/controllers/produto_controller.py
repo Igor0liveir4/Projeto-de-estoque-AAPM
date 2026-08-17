@@ -22,17 +22,42 @@ UPLOAD_DIR = "app/static/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)  # cria a pasta se não existir
 
 
+PALAVRAS_ROUPA = {
+    "roupa", "camisa", "camiseta", "blusa", "calca", "calça",
+    "bermuda", "short", "vestido", "jaqueta", "casaco",
+    "tênis", "tenis", "uniforme", "moletom", "calcinha", "cueca"
+}
+
+
 def _eh_produto_roupa(nome: str, categoria_nome: Optional[str]) -> bool:
-    nome = (nome or "").strip().lower()
-    categoria_nome = (categoria_nome or "").strip().lower()
-    palavras_roupa = [
-        "roupa", "camisa", "camiseta", "blusa", "calca", "calça",
-        "bermuda", "short", "vestido", "jaqueta", "casaco", "calça",
-        "tênis", "tenis", "uniforme", "moletom", "calcinha", "cueca"
-    ]
-    return any(palavra in nome for palavra in palavras_roupa) or any(
-        palavra in categoria_nome for palavra in palavras_roupa
-    )
+    texto = f"{nome or ''} {categoria_nome or ''}".lower()
+    return any(palavra in texto for palavra in PALAVRAS_ROUPA)
+
+
+def _parse_item_variacao(
+    tamanho: Optional[str],
+    cor: Optional[str],
+    estoque_raw: Optional[str]
+) -> tuple[Optional[Variacao], Optional[str]]:
+    t, c, e = (tamanho or "").strip(), (cor or "").strip(), (estoque_raw or "").strip()
+
+    if not (t or c or e):
+        return None, None  # Linha em branco ignorada
+
+    if not (t and c):
+        return None, "Cada variação precisa ter tamanho e cor preenchidos."
+
+    if not e:
+        return None, "Cada variação precisa ter quantidade de estoque."
+
+    try:
+        qtd = int(e)
+        if qtd < 0:
+            return None, "A quantidade de estoque não pode ser negativa."
+    except ValueError:
+        return None, "A quantidade de estoque deve ser um número inteiro."
+
+    return Variacao(tamanho=t, cor=c, estoque_atual=qtd), None
 
 
 def _parse_variacoes(
@@ -40,58 +65,28 @@ def _parse_variacoes(
     cores: Optional[List[str]],
     estoques: Optional[List[str]],
 ) -> tuple[list[Variacao], Optional[str]]:
+    if not (tamanhos and cores and estoques):
+        return [], None
+
     variacoes: list[Variacao] = []
-    if not tamanhos or not cores or not estoques:
-        return variacoes, None
-
-    for tamanho, cor, estoque in zip(tamanhos, cores, estoques):
-        tamanho = (tamanho or "").strip()
-        cor = (cor or "").strip()
-        estoque_raw = (estoque or "").strip()
-
-        if not tamanho and not cor and not estoque_raw:
-            continue
-
-        if not tamanho or not cor:
-            return [], "Cada variação precisa ter tamanho e cor preenchidos."
-
-        if estoque_raw == "":
-            return [], "Cada variação precisa ter quantidade de estoque."
-
-        try:
-            quantidade = int(estoque_raw)
-        except ValueError:
-            return [], "A quantidade de estoque deve ser um número inteiro."
-
-        if quantidade < 0:
-            return [], "A quantidade de estoque não pode ser negativa."
-
-        variacoes.append(
-            Variacao(tamanho=tamanho, cor=cor, estoque_atual=quantidade)
-        )
+    for t, c, e in zip(tamanhos, cores, estoques):
+        variacao, erro = _parse_item_variacao(t, c, e)
+        if erro:
+            return [], erro
+        if variacao:
+            variacoes.append(variacao)
 
     return variacoes, None
 
 
 def _validar_variacoes_roupa(variacoes: list[Variacao]) -> Optional[str]:
-    """
-    Valida se as variações fazem sentido para um produto de roupa.
-    Retorna mensagem de erro se há inconsistências.
-    """
-    if not variacoes:
-        return None
-
-    tem_variacao_padrao = any(
-        v.tamanho.lower() == "único" and v.cor.lower() == "padrão"
-        for v in variacoes
-    )
-    
-    if len(variacoes) == 1 and tem_variacao_padrao:
-        return "Produtos de roupa não podem usar a variação padrão. Defina tamanho e cor específicos para este item."
+    """Valida se as variações fazem sentido para um produto de roupa."""
+    if len(variacoes) == 1:
+        v = variacoes[0]
+        if v.tamanho.strip().lower() == "único" and v.cor.strip().lower() == "padrão":
+            return "Produtos de roupa não podem usar a variação padrão. Defina tamanho e cor específicos para este item."
 
     return None
-
-
 # ============================================================
 # LISTAGEM
 # ============================================================
