@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}Produtos - AAPM{% endblock %}
+{% from "components/pagination.html" import render as render_pagination with context %}
 
 {% block content %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -343,7 +344,7 @@
             </a>
         </div>
 
-        {% set total_itens = produtos|length %}
+        {% set total_itens = total_produtos %}
         {% set de_fora = namespace(qtd=0) %}
         {% for p in produtos %}{% if p.estoque_total == 0 %}{% set de_fora.qtd = de_fora.qtd + 1 %}{% endif
         %}{% endfor %}
@@ -365,7 +366,7 @@
                     <span
                         style="display: block; color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 500;">Em
                         Estoque</span>
-                    <strong style="color: #f8fafc; font-size: 18px; font-weight: 600;">{{ total_itens - de_fora.qtd }}
+                    <strong style="color: #f8fafc; font-size: 18px; font-weight: 600;">{{ produtos|length - de_fora.qtd }}
                         itens</strong>
                 </div>
             </div>
@@ -381,16 +382,15 @@
             </div>
         </div>
 
-        <div class="search-bar-container">
+        <form class="search-bar-container" method="get" action="/produtos">
             <div class="search-wrapper">
                 <i class="fas fa-magnifying-glass"></i>
-                <input type="text" id="tableSearch" class="search-input"
-                    placeholder="Pesquisar por nome, ID ou categoria...">
+                <input type="search" name="busca" value="{{ busca }}" class="search-input"
+                    placeholder="Pesquisar por nome...">
             </div>
-            <div style="color: #475569; font-size: 12px; font-weight: 500;">
-                <i class="fas fa-filter" style="margin-right: 4px;"></i> Filtro dinâmico ativo
-            </div>
-        </div>
+            {% if categoria_id %}<input type="hidden" name="categoria_id" value="{{ categoria_id }}">{% endif %}
+            <button type="submit" class="btn-action-edit">Buscar</button>
+        </form>
 
         <div class="table-card">
             <div style="overflow-x: auto;">
@@ -471,6 +471,8 @@
                 </table>
             </div>
 
+            {{ render_pagination(pagina, por_pagina, total_produtos, total_paginas, 'produtos') }}
+            <!--
             <div class="table-footer">
                 <div class="page-size-control">
                     <label for="pageSize">Itens por página</label>
@@ -483,6 +485,7 @@
                 <div id="paginationSummary" aria-live="polite">Mostrando 0 registros</div>
                 <nav id="paginationControls" class="pagination-controls" aria-label="Paginação de produtos"></nav>
             </div>
+            -->
         </div>
 
     </div>

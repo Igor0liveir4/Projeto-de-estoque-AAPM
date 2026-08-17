@@ -12,6 +12,7 @@ from app.models.produto import Produto
 from app.models.variacoes import Variacao
 from app.models.categoria import Categoria
 from app.auth import get_usuario_logado, get_admin
+from app.pagination import paginar
 
 router = APIRouter(prefix="/produtos", tags=["Produtos"])
 
@@ -96,6 +97,8 @@ def listar_produtos(
     request: Request,
     busca: str = "",
     categoria_id: int = 0,
+    pagina: int = 1,
+    por_pagina: int = 10,
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado)
 ):
@@ -107,7 +110,7 @@ def listar_produtos(
     if categoria_id:
         query = query.filter(Produto.categoria_id == categoria_id)
 
-    produtos = query.order_by(Produto.nome).all()
+    resultado = paginar(query.order_by(Produto.nome), pagina, por_pagina)
 
     categorias = db.query(Categoria).filter(Categoria.ativa == True).all()
 
@@ -117,10 +120,14 @@ def listar_produtos(
         {
             "request":      request,
             "usuario":      usuario,
-            "produtos":     produtos,
+            "produtos":     resultado.itens,
             "categorias":   categorias,
             "busca":        busca,
             "categoria_id": categoria_id,
+            "pagina":       resultado.atual,
+            "por_pagina":   resultado.por_pagina,
+            "total_paginas": resultado.total_paginas,
+            "total_produtos": resultado.total_itens,
         }
     )
 

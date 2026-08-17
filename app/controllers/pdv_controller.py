@@ -18,6 +18,7 @@ from app.models.produto import Produto
 from app.models.variacoes import Variacao
 from app.models.cliente import Cliente
 from app.auth import get_usuario_logado
+from app.pagination import paginar
 
 router = APIRouter(prefix="/pdv", tags=["PDV"])
 templates = Jinja2Templates(directory="app/templates")
@@ -28,6 +29,9 @@ DESCONTO_ASSOCIADO = 10.0  # percentual fixo
 @router.get("/")
 def tela_pdv(
     request: Request,
+    busca: str = "",
+    pagina: int = 1,
+    por_pagina: int = 10,
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado)
 ):
@@ -35,15 +39,17 @@ def tela_pdv(
     Carrega a tela do PDV com todos os produtos ativos
     e a lista de clientes para o campo de busca.
     """
-    produtos  = (
+    query_produtos = (
         db.query(Produto)
         .join(Produto.variacoes)
         .filter(Produto.ativo == True)
         .group_by(Produto.id)
         .having(func.sum(Variacao.estoque_atual) > 0)
-        .order_by(Produto.nome)
-        .all()
     )
+    if busca:
+        query_produtos = query_produtos.filter(Produto.nome.ilike(f"%{busca}%"))
+
+    resultado = paginar(query_produtos.order_by(Produto.nome), pagina, por_pagina)
     clientes  = (
         db.query(Cliente)
         .filter(Cliente.ativo == True)
@@ -57,9 +63,14 @@ def tela_pdv(
         {
             "request":             request,
             "usuario":             usuario,
-            "produtos":            produtos,
+            "produtos":            resultado.itens,
             "clientes":            clientes,
             "desconto_associado":  DESCONTO_ASSOCIADO,
+            "busca":               busca,
+            "pagina":              resultado.atual,
+            "por_pagina":          resultado.por_pagina,
+            "total_paginas":       resultado.total_paginas,
+            "total_produtos":      resultado.total_itens,
         }
     )
 
@@ -198,18 +209,25 @@ def detalhe_venda(
 @router.get("/historico")
 def historico_vendas(
     request: Request,
+    pagina: int = 1,
+    por_pagina: int = 10,
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado)
 ):
     """Histórico de todas as vendas."""
-    vendas = (
-        db.query(Venda)
-        .order_by(Venda.criado_em.desc())
-        .limit(100)
-        .all()
+    resultado = paginar(
+        db.query(Venda).order_by(Venda.criado_em.desc()), pagina, por_pagina
     )
     return templates.TemplateResponse(
         request,
         "pdv/historico.html",
-        {"request": request, "usuario": usuario, "vendas": vendas}
+        {
+            "request": request,
+            "usuario": usuario,
+            "vendas": resultado.itens,
+            "pagina": resultado.atual,
+            "por_pagina": resultado.por_pagina,
+            "total_paginas": resultado.total_paginas,
+            "total_vendas": resultado.total_itens,
+        }
     )
