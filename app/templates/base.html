@@ -1,4 +1,12 @@
 <!DOCTYPE html>
+<<<<<<< HEAD
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block titulo %}Meu Site{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+=======
 <html lang="pt-BR">
 
 <head>
@@ -503,6 +511,7 @@
             animation: fadeUp 0.4s ease both;
         }
     </style>
+>>>>>>> 9299f42e430989f14795e22b51c13e43e6c5779b
 </head>
 
 <body>
@@ -567,6 +576,18 @@
         </div>
     </header>
 
+<<<<<<< HEAD
+    
+
+    <main>
+        {% block conteudo %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>Projeto escolar - 2026</p>
+    </footer>
+=======
     <main>
         {% block content %}{% endblock %}
     </main>
@@ -588,6 +609,7 @@
                     <strong>E-mail:</strong> senaifranciscomatarazzo@sp.senai.br
                 </p>
             </div>
+>>>>>>> 9299f42e430989f14795e22b51c13e43e6c5779b
 
             {% if usuario %}
             <div class="footer-col">
