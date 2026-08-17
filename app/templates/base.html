@@ -7,39 +7,46 @@
     <title>{% block title %}Gestão de Estoque AAPM{% endblock %}</title>
     {% block head %}{% endblock %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
     <style>
         :root {
-            --bg-base:       #080c14;
-            --bg-surface:    #0d1320;
-            --bg-card:       #111827;
+            --bg-base: #080c14;
+            --bg-surface: #0d1320;
+            --bg-card: #111827;
             --bg-card-hover: #161f30;
-            --border:        rgba(99, 179, 237, 0.1);
-            --border-hover:  rgba(99, 179, 237, 0.28);
-            --accent:        #3b82f6;
-            --accent-glow:   rgba(59, 130, 246, 0.35);
-            --accent-light:  #60a5fa;
-            --red:           #ef4444;
-            --red-glow:      rgba(239, 68, 68, 0.3);
-            --text-primary:  #f0f6ff;
-            --text-secondary:#94a3b8;
-            --text-muted:    #475569;
-            --header-h:      68px;
-            --radius:        12px;
-            --radius-lg:     18px;
-            --transition:    0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            --border: rgba(99, 179, 237, 0.1);
+            --border-hover: rgba(99, 179, 237, 0.28);
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.35);
+            --accent-light: #60a5fa;
+            --red: #ef4444;
+            --red-glow: rgba(239, 68, 68, 0.3);
+            --text-primary: #f0f6ff;
+            --text-secondary: #94a3b8;
+            --text-muted: #475569;
+            --header-h: 68px;
+            --radius: 12px;
+            --radius-lg: 18px;
+            --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 
             /* Cores Oficiais da Identidade do SENAI */
-            --senai-blue:    #0054a6;
-            --senai-yellow:  #ffcb05;
+            --senai-blue: #0054a6;
+            --senai-yellow: #ffcb05;
         }
 
-        *, *::before, *::after {
-            margin: 0; padding: 0;
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
 
-        html { scroll-behavior: smooth; }
+        html {
+            scroll-behavior: smooth;
+        }
 
         body {
             font-family: 'DM Sans', sans-serif;
@@ -51,8 +58,8 @@
             flex-direction: column;
             /* subtle grid texture */
             background-image:
-                linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+                linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
             background-size: 40px 40px;
         }
 
@@ -66,7 +73,7 @@
             backdrop-filter: blur(20px) saturate(160%);
             -webkit-backdrop-filter: blur(20px) saturate(160%);
             border-bottom: 1px solid var(--border);
-            box-shadow: 0 1px 0 0 rgba(59,130,246,0.06);
+            box-shadow: 0 1px 0 0 rgba(59, 130, 246, 0.06);
         }
 
         .container {
@@ -151,14 +158,16 @@
             position: absolute;
             inset: 0;
             background: linear-gradient(110deg,
-                transparent 30%,
-                rgba(255,255,255,0.07) 50%,
-                transparent 70%);
+                    transparent 30%,
+                    rgba(255, 255, 255, 0.07) 50%,
+                    transparent 70%);
             transform: translateX(-100%);
             transition: transform 0.45s ease;
         }
 
-        .nav-btn:hover::after { transform: translateX(100%); }
+        .nav-btn:hover::after {
+            transform: translateX(100%);
+        }
 
         .nav-btn:hover {
             color: var(--text-primary);
@@ -333,7 +342,8 @@
         }
 
         /* ── GLOBAL BUTTON ──────────────────────────────── */
-        button, .btn {
+        button,
+        .btn {
             font-family: 'DM Sans', sans-serif;
             background: var(--accent);
             color: #fff;
@@ -348,14 +358,17 @@
             overflow: hidden;
         }
 
-        button:hover, .btn:hover {
+        button:hover,
+        .btn:hover {
             background: var(--accent-light);
             transform: translateY(-1px);
             box-shadow: 0 6px 20px var(--accent-glow);
         }
 
         /* ── FORM ELEMENTS ──────────────────────────────── */
-        input, textarea, select {
+        input,
+        textarea,
+        select {
             width: 100%;
             padding: 10px 14px;
             margin: 8px 0;
@@ -369,7 +382,9 @@
             outline: none;
         }
 
-        input:focus, textarea:focus, select:focus {
+        input:focus,
+        textarea:focus,
+        select:focus {
             border-color: rgba(59, 130, 246, 0.5);
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
@@ -404,7 +419,9 @@
             font-size: 14px;
         }
 
-        table tr:last-child td { border-bottom: none; }
+        table tr:last-child td {
+            border-bottom: none;
+        }
 
         table tr:hover td {
             background: rgba(59, 130, 246, 0.04);
@@ -417,6 +434,7 @@
                 grid-template-columns: 1fr;
                 gap: 30px;
             }
+
             .footer-bottom-container {
                 flex-direction: column;
                 gap: 10px;
@@ -432,7 +450,9 @@
                 padding: 14px 0;
             }
 
-            header { height: auto; }
+            header {
+                height: auto;
+            }
 
             .logo-header {
                 width: 110px;
@@ -455,7 +475,9 @@
                 font-size: 12px;
             }
 
-            .nav-divider { display: none; }
+            .nav-divider {
+                display: none;
+            }
         }
 
         @media (min-width: 769px) and (max-width: 1120px) {
@@ -466,11 +488,18 @@
 
         /* ── PAGE ENTER ANIMATION ───────────────────────── */
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        main > * {
+        main>* {
             animation: fadeUp 0.4s ease both;
         }
     </style>
@@ -491,28 +520,41 @@
                 {% set is_produtos = current_path == '/produtos' or current_path.startswith('/produtos/') %}
                 {% set is_categorias = current_path == '/categorias' or current_path.startswith('/categorias/') %}
                 {% set is_usuarios = current_path == '/usuarios' or current_path.startswith('/usuarios/') %}
-                {% set is_movimentacoes = current_path == '/movimentacoes' or current_path.startswith('/movimentacoes/') %}
+                {% set is_movimentacoes = current_path == '/movimentacoes' or current_path.startswith('/movimentacoes/')
+                %}
+                {% set is_armarios = current_path == '/armarios' or current_path.startswith('/armarios/') %}
                 {% set is_pdv = current_path == '/pdv' or current_path.startswith('/pdv/') %}
                 <div class="nav-buttons">
-                    <a href="/" class="nav-btn {{ 'active' if is_home else '' }}" {% if is_home %}aria-current="page"{% endif %}>
+                    <a href="/" class="nav-btn {{ 'active' if is_home else '' }}" {% if is_home %}aria-current="page" {%
+                        endif %}>
                         <i class="fas fa-house"></i> Home
                     </a>
-                    <a href="/cliente" class="nav-btn {{ 'active' if is_cliente else '' }}" {% if is_cliente %}aria-current="page"{% endif %}>
+                    <a href="/cliente" class="nav-btn {{ 'active' if is_cliente else '' }}" {% if is_cliente
+                        %}aria-current="page" {% endif %}>
                         <i class="fas fa-users"></i> Clientes
                     </a>
-                    <a href="/produtos" class="nav-btn {{ 'active' if is_produtos else '' }}" {% if is_produtos %}aria-current="page"{% endif %}>
+                    <a href="/produtos" class="nav-btn {{ 'active' if is_produtos else '' }}" {% if is_produtos
+                        %}aria-current="page" {% endif %}>
                         <i class="fas fa-box-open"></i> Produtos
                     </a>
-                    <a href="/categorias" class="nav-btn {{ 'active' if is_categorias else '' }}" {% if is_categorias %}aria-current="page"{% endif %}>
+                    <a href="/categorias" class="nav-btn {{ 'active' if is_categorias else '' }}" {% if is_categorias
+                        %}aria-current="page" {% endif %}>
                         <i class="fas fa-tags"></i> Categorias
                     </a>
-                    <a href="/usuarios" class="nav-btn {{ 'active' if is_usuarios else '' }}" {% if is_usuarios %}aria-current="page"{% endif %}>
+                    <a href="/usuarios" class="nav-btn {{ 'active' if is_usuarios else '' }}" {% if is_usuarios
+                        %}aria-current="page" {% endif %}>
                         <i class="fas fa-user-gear"></i> Usuários
                     </a>
-                    <a href="/movimentacoes" class="nav-btn {{ 'active' if is_movimentacoes else '' }}" {% if is_movimentacoes %}aria-current="page"{% endif %}>
+                    <a href="/movimentacoes" class="nav-btn {{ 'active' if is_movimentacoes else '' }}" {% if
+                        is_movimentacoes %}aria-current="page" {% endif %}>
                         <i class="fas fa-exchange-alt"></i> Movimentações
                     </a>
-                    <a href="/pdv" class="nav-btn {{ 'active' if is_pdv else '' }}" {% if is_pdv %}aria-current="page"{% endif %}>
+                    <a href="/armarios" class="nav-btn {{ 'active' if is_armarios else '' }}" {% if is_armarios
+                        %}aria-current="page" {% endif %}>
+                        <i class="fas fa-door-open"></i> Armários
+                    </a>
+                    <a href="/pdv" class="nav-btn {{ 'active' if is_pdv else '' }}" {% if is_pdv %}aria-current="page"
+                        {% endif %}>
                         <i class="fas fa-cash-register"></i> PDV
                     </a>
                     <div class="nav-divider"></div>
@@ -531,7 +573,7 @@
 
     <footer>
         <div class="footer-grid">
-            
+
             <div class="footer-col">
                 <h3>Escola Francisco Matarazzo</h3>
                 <p style="margin-bottom: 10px;">
@@ -540,8 +582,10 @@
                     São Paulo/SP - CEP 03008-020
                 </p>
                 <p>
-                    <i class="fas fa-phone" style="font-size: 12px; color: var(--accent-light);"></i> <strong>Telefone:</strong> (11) 3312-3550<br>
-                    <i class="fas fa-envelope" style="font-size: 12px; color: var(--accent-light);"></i> <strong>E-mail:</strong> senaifranciscomatarazzo@sp.senai.br
+                    <i class="fas fa-phone" style="font-size: 12px; color: var(--accent-light);"></i>
+                    <strong>Telefone:</strong> (11) 3312-3550<br>
+                    <i class="fas fa-envelope" style="font-size: 12px; color: var(--accent-light);"></i>
+                    <strong>E-mail:</strong> senaifranciscomatarazzo@sp.senai.br
                 </p>
             </div>
 
@@ -549,10 +593,16 @@
             <div class="footer-col">
                 <h3>Links do Sistema</h3>
                 <ul>
-                    <li><a href="/"><i class="fas fa-chevron-right" style="font-size: 10px;"></i> Dashboard Inicial</a></li>
-                    <li><a href="/produtos"><i class="fas fa-chevron-right" style="font-size: 10px;"></i> Catálogo de Produtos</a></li>
-                    <li><a href="/pdv"><i class="fas fa-chevron-right" style="font-size: 10px;"></i> Ponto de Venda (PDV)</a></li>
-                    <li><a href="https://sp.senai.br" target="_blank"><i class="fas fa-globe" style="font-size: 11px;"></i> Portal SENAI-SP</a></li>
+                    <li><a href="/"><i class="fas fa-chevron-right" style="font-size: 10px;"></i> Dashboard Inicial</a>
+                    </li>
+                    <li><a href="/produtos"><i class="fas fa-chevron-right" style="font-size: 10px;"></i> Catálogo de
+                            Produtos</a></li>
+                    <li><a href="/armarios"><i class="fas fa-chevron-right" style="font-size: 10px;"></i> Mapa de
+                            Armários</a></li>
+                    <li><a href="/pdv"><i class="fas fa-chevron-right" style="font-size: 10px;"></i> Ponto de Venda
+                            (PDV)</a></li>
+                    <li><a href="https://sp.senai.br" target="_blank"><i class="fas fa-globe"
+                                style="font-size: 11px;"></i> Portal SENAI-SP</a></li>
                 </ul>
             </div>
             {% endif %}
@@ -560,11 +610,14 @@
             <div class="footer-col">
                 <h3>Redes Sociais & Curso</h3>
                 <div class="social-links">
-                    <a href="https://www.facebook.com/senaifranciscomatarazzo" target="_blank" title="Facebook SENAI"><i class="fab fa-facebook-f"></i></a>
-                    <a href="https://www.instagram.com/senaibras" target="_blank" title="Instagram SENAI"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/senaifranciscomatarazzo" target="_blank" title="Facebook SENAI"><i
+                            class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/senaibras" target="_blank" title="Instagram SENAI"><i
+                            class="fab fa-instagram"></i></a>
                 </div>
                 <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-                    Desenvolvido em ambiente educacional para fins didáticos. Formação Profissional em Têxtil, Vestuário e Tecnologia da Informação.
+                    Desenvolvido em ambiente educacional para fins didáticos. Formação Profissional em Têxtil, Vestuário
+                    e Tecnologia da Informação.
                 </p>
             </div>
 

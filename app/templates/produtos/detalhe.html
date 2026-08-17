@@ -61,6 +61,39 @@
         border: 1px solid rgba(255, 255, 255, 0.04);
     }
 
+    .variations-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .variations-table th,
+    .variations-table td {
+        padding: 12px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #f8fafc;
+        font-size: 13px;
+    }
+
+    .variations-table th {
+        background: rgba(255, 255, 255, 0.03);
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        font-size: 11px;
+    }
+
+    .variations-table tbody tr:nth-child(even) {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .variation-heading {
+        color: #f8fafc;
+        font-size: 16px;
+        margin: 20px 0 10px;
+        font-weight: 600;
+    }
+
     .info-label {
         color: #64748b;
         font-size: 11px;
@@ -172,6 +205,28 @@
                     {% endif %}
                 </div>
 
+            </div>
+
+            <div style="padding: 0 32px 32px;">
+                <h3 class="variation-heading">Variações ({{ produto.variacoes|length }})</h3>
+                <table class="variations-table">
+                    <thead>
+                        <tr>
+                            <th>Tamanho</th>
+                            <th>Cor</th>
+                            <th style="text-align: right;">Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for variacao in produto.variacoes %}
+                        <tr>
+                            <td>{{ variacao.tamanho }}</td>
+                            <td>{{ variacao.cor }}</td>
+                            <td style="text-align: right;">{{ variacao.estoque_atual }} un</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
 
             <div style="padding: 0 32px 32px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.03); padding-top: 24px;">
