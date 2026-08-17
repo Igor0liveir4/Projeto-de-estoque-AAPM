@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+{% block title %}Movimentações de Estoque - AAPM{% endblock %}
+
+{% block head %}
+<style>
+  /* ── PAGE HEADER — mesmo padrão da home ── */
+  .page-wrap {
+    max-width: 1280px;
+    margin: 40px auto;
+    padding: 0 28px;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 36px;
+    animation: fadeUp 0.4s ease both;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin: 0;
+    color: #f0f6ff;
+    line-height: 1;
+  }
+
+  .page-title span { color: #60a5fa; }
+
+  .page-subtitle {
+    color: #64748b;
+    font-size: 14px;
+    margin: 10px 0 0 0;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .page-subtitle span { color: #60a5fa; font-weight: 600; }
+
+  /* ── Botão primário ── */
+  .btn-novo {
+    background: var(--accent);
+    color: white;
+    padding: 11px 20px;
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--transition);
+    box-shadow: 0 4px 14px var(--accent-glow);
+    font-family: 'DM Sans', sans-serif;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    align-self: flex-start;
+  }
+
+  .btn-novo:hover {
+    background: var(--accent-light);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px var(--accent-glow);
+  }
+
+  /* ── Alertas ── */
+  .alert-banner {
+    padding: 13px 18px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    font-weight: 500;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .alert-success { background: rgba(16,185,129,0.1); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.2); }
+  .alert-error   { background: rgba(239,68,68,0.1);  color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
+
+  /* ── Tabela ── */
+  .table-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+    animation-delay: 0.1s;
+    overflow-x: auto;
+  }
+
+  .mov-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    min-width: 800px;
+  }
+
+  .mov-table thead th {
+    background: rgba(59,130,246,0.07);
+    color: var(--accent-light);
+    padding: 14px 18px;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--border);
+    font-family: 'DM Sans', sans-serif;
+    white-space: nowrap;
+  }
+
+  .mov-table thead th.text-right { text-align: right; }
+
+  .mov-table tbody tr {
+    border-bottom: 1px solid rgba(99,179,237,0.05);
+    transition: background var(--transition);
+  }
+
+  .mov-table tbody tr:last-child { border-bottom: none; }
+
+  .mov-table tbody tr:hover td {
+    background: rgba(59,130,246,0.04);
+    color: var(--text-primary);
+  }
+
+  .mov-table td {
+    padding: 14px 18px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    vertical-align: middle;
+    border-bottom: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .mov-table td.text-right { text-align: right; }
+
+  /* ── Badges de tipo ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .badge-entrada {
+    background: rgba(74,222,128,0.1);
+    color: #4ade80;
+    border: 1px solid rgba(74,222,128,0.2);
+  }
+
+  .badge-saida {
+    background: rgba(239,68,68,0.1);
+    color: #fca5a5;
+    border: 1px solid rgba(239,68,68,0.2);
+  }
+
+  /* valor em destaque */
+  .valor-cell {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    color: var(--text-primary) !important;
+  }
+
+  /* obs truncada */
+  .obs-text {
+    font-style: italic;
+    color: var(--text-muted);
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+
+  /* ── Vazio ── */
+  .empty-state {
+    padding: 60px 24px;
+    text-align: center;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .empty-state i { font-size: 40px; display: block; margin-bottom: 14px; opacity: 0.35; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title"><span>Movimentações</span> de Estoque</h1>
+      <p class="page-subtitle">Entradas e saídas de materiais registradas no sistema</p>
+    </div>
+    <a href="/movimentacoes/nova" class="btn-novo">
+      <i class="fas fa-plus"></i> Registrar Movimentação
+    </a>
+  </div>
+
+  {% if msg_sucesso %}
+  <div class="alert-banner alert-success">
+    <i class="fas fa-check-circle"></i> {{ msg_sucesso }}
+  </div>
+  {% endif %}
+  {% if msg_erro %}
+  <div class="alert-banner alert-error">
+    <i class="fas fa-exclamation-circle"></i> {{ msg_erro }}
+  </div>
+  {% endif %}
+
+  <div class="table-wrap">
+    <table class="mov-table">
+      <thead>
+        <tr>
+          <th>Data / Hora</th>
+          <th>Tipo</th>
+          <th>Produto</th>
+          <th class="text-right">Qtd.</th>
+          <th class="text-right">Preço Unit.</th>
+          <th class="text-right">Valor Total</th>
+          <th>Usuário</th>
+          <th>Observação</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for mov in movimentacoes %}
+        <tr>
+          <td style="white-space:nowrap;">
+            {{ mov.criado_em.strftime('%d/%m/%Y') }}<br>
+            <span style="font-size:12px; color:var(--text-muted);">{{ mov.criado_em.strftime('%H:%M') }}</span>
+          </td>
+          <td>
+            {% if mov.tipo.value == 'entrada' %}
+              <span class="badge badge-entrada">
+                <i class="fas fa-arrow-down" style="font-size:9px;"></i> Entrada
+              </span>
+            {% else %}
+              <span class="badge badge-saida">
+                <i class="fas fa-arrow-up" style="font-size:9px;"></i> Saída
+              </span>
+            {% endif %}
+          </td>
+          <td style="font-weight:600; color:var(--text-primary);">{{ mov.produto.nome }}</td>
+          <td class="text-right">{{ mov.quantidade }}</td>
+          <td class="text-right">R$ {{ "%.2f"|format(mov.preco_unitario) }}</td>
+          <td class="text-right valor-cell">R$ {{ "%.2f"|format(mov.valor_total) }}</td>
+          <td>
+            <span style="display:flex; align-items:center; gap:7px;">
+              <i class="fas fa-user-circle" style="color:var(--text-muted); font-size:13px;"></i>
+              {{ mov.usuario.nome if mov.usuario else 'Sistema' }}
+            </span>
+          </td>
+          <td>
+            <span class="obs-text" title="{{ mov.observacao }}">
+              {{ mov.observacao or '—' }}
+            </span>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="8">
+            <div class="empty-state">
+              <i class="fas fa-box-open"></i>
+              <p style="font-weight:600; color:var(--text-secondary);">Nenhuma movimentação registrada ainda.</p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+{% endblock %}

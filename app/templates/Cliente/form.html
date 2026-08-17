@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if editando else 'Novo' }} Cliente{% endblock %}
+
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg:      #0f1117;
+    --surface: #181c27;
+    --border:  #252a38;
+    --accent:  #4f8ef7;
+    --accent2: #6ee7b7;
+    --danger:  #f87171;
+    --text:    #e2e8f0;
+    --muted:   #64748b;
+    --radius:  10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  .page-wrap {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 48px 24px;
+  }
+
+  /* ── Breadcrumb ── */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 32px;
+    text-decoration: none;
+  }
+
+  .breadcrumb a {
+    color: var(--muted);
+    text-decoration: none;
+    transition: color .15s;
+  }
+
+  .breadcrumb a:hover { color: var(--text); }
+
+  .breadcrumb span { color: #3a4155; }
+
+  /* ── Page title ── */
+  .page-title {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.4px;
+    margin-bottom: 8px;
+  }
+
+  .page-subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 32px;
+  }
+
+  /* ── Card ── */
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+  }
+
+  /* ── Erro global ── */
+  .alert-error {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: #2b0d0d;
+    border: 1px solid #4e1313;
+    color: var(--danger);
+    font-size: 14px;
+    margin-bottom: 24px;
+    animation: slideIn .25s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Campos ── */
+  .field {
+    margin-bottom: 20px;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 7px;
+    letter-spacing: .02em;
+  }
+
+  .required-star {
+    color: var(--accent);
+    margin-left: 2px;
+  }
+
+  input[type="text"],
+  input[type="tel"] {
+    width: 100%;
+    padding: 11px 14px;
+    background: #0f1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+
+  input[type="text"]:focus,
+  input[type="tel"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(79,142,247,.12);
+  }
+
+  input[type="text"].has-error,
+  input[type="tel"].has-error {
+    border-color: var(--danger);
+  }
+
+  .hint {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 5px;
+  }
+
+  /* ── Toggle associado ── */
+  .toggle-field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #0f1117;
+    cursor: pointer;
+    transition: border-color .2s;
+    margin-bottom: 28px;
+  }
+
+  .toggle-field:has(input:checked) {
+    border-color: var(--accent2);
+    background: #0a1e17;
+  }
+
+  .toggle-field-label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .toggle-field-label strong {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .toggle-field-label span {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .toggle-switch {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  .toggle-switch input { display: none; }
+
+  .toggle-track {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: 999px;
+    transition: background .2s;
+  }
+
+  .toggle-switch input:checked + .toggle-track {
+    background: var(--accent2);
+  }
+
+  .toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform .2s;
+    pointer-events: none;
+  }
+
+  .toggle-switch input:checked ~ .toggle-thumb {
+    transform: translateX(18px);
+  }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 24px 0;
+  }
+
+  /* ── Botões ── */
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 22px;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: opacity .15s, transform .1s;
+  }
+
+  .btn:active { transform: scale(.97); }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .btn-ghost:hover { border-color: #3a4155; color: var(--text); }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn-primary:hover { opacity: .88; }
+</style>
+
+<div class="page-wrap">
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <a href="/cliente">Clientes</a>
+    <span>/</span>
+    <span>{{ 'Editar' if editando else 'Novo cliente' }}</span>
+  </nav>
+
+  <h1 class="page-title">
+    {% if editando %}Editar cliente{% else %}Novo cliente{% endif %}
+  </h1>
+  <p class="page-subtitle">
+    {% if editando %}
+      Atualize os dados do cliente abaixo.
+    {% else %}
+      Preencha os dados para cadastrar um novo cliente.
+    {% endif %}
+  </p>
+
+  <!-- Card do formulário -->
+  <div class="form-card">
+
+    <!-- Erros -->
+    {% if erro %}
+    <div class="alert-error">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      {{ erro }}
+    </div>
+    {% endif %}
+
+    <form
+      method="post"
+      action="{{ '/cliente/' ~ editando.id ~ '/editar' if editando else '/cliente/novo' }}"
+    >
+      <!-- Nome -->
+      <div class="field">
+        <label for="nome">Nome <span class="required-star">*</span></label>
+        <input
+          type="text"
+          id="nome"
+          name="nome"
+          required
+          maxlength="150"
+          placeholder="Nome completo"
+          value="{{ editando.nome if editando else (valores.nome if valores else '') }}"
+        >
+      </div>
+
+      <!-- E-mail -->
+      <div class="field">
+        <label for="email">E-mail</label>
+        <input
+          type="text"
+          id="email"
+          name="email"
+          maxlength="150"
+          placeholder="exemplo@email.com"
+          value="{{ editando.email or '' if editando else (valores.email if valores else '') }}"
+        >
+      </div>
+
+
+        <div>
+          <label for="telefone">Telefone</label>
+          <input
+            type="tel"
+            id="telefone"
+            name="telefone"
+            maxlength="20"
+            placeholder="(11) 99999-9999"
+            value="{{ editando.telefone or '' if editando else (valores.telefone if valores else '') }}"
+          >
+        </div>
+      </div>
+
+      <!-- Toggle associado -->
+      <label class="toggle-field" for="is_associado">
+        <div class="toggle-field-label">
+          <strong>Associado</strong>
+          <span>Marque se este cliente é um associado ativo</span>
+        </div>
+        <div class="toggle-switch">
+          <input
+            type="checkbox"
+            id="is_associado"
+            name="is_associado"
+            value="true"
+            {% if editando and editando.is_associado %}checked{% elif valores and valores.is_associado %}checked{% endif %}
+          >
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </div>
+      </label>
+
+      <div class="divider"></div>
+
+      <!-- Ações -->
+      <div class="form-actions">
+        <a href="/cliente" class="btn btn-ghost">Cancelar</a>
+        <button type="submit" class="btn btn-primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          {{ 'Salvar alterações' if editando else 'Cadastrar cliente' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+{% endblock %}

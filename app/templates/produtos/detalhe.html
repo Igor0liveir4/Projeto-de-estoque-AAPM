@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}Detalhes do Produto - AAPM{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    .page-wrapper {
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #000000; /* Mesmo fundo escuro das telas anteriores */
+        padding: 40px 20px;
+    }
+
+    .detail-container {
+        width: 100%;
+        max-width: 700px;
+    }
+    
+    .detail-card {
+        background: #050505; /* Mesma superfície interna */
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 24px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+        overflow: hidden;
+    }
+
+    /* Links de navegação minimalistas */
+    .btn-back {
+        color: #64748b;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        font-size: 13px;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+    .btn-back:hover {
+        color: #f8fafc;
+    }
+
+    /* Grid de Informações Internas */
+    .info-grid {
+        padding: 32px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .info-block {
+        background: rgba(255, 255, 255, 0.02);
+        padding: 16px 20px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .variations-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .variations-table th,
+    .variations-table td {
+        padding: 12px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #f8fafc;
+        font-size: 13px;
+    }
+
+    .variations-table th {
+        background: rgba(255, 255, 255, 0.03);
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        font-size: 11px;
+    }
+
+    .variations-table tbody tr:nth-child(even) {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .variation-heading {
+        color: #f8fafc;
+        font-size: 16px;
+        margin: 20px 0 10px;
+        font-weight: 600;
+    }
+
+    .info-label {
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 4px;
+    }
+
+    .info-value {
+        color: #f8fafc;
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    /* Botões Pequenos e Alinhados */
+    .btn-edit {
+        background: #f8fafc;
+        color: #090d16;
+        padding: 8px 14px;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+    }
+    .btn-edit:hover {
+        background: #ffffff;
+        transform: translateY(-1px);
+    }
+
+    .btn-delete {
+        background: transparent;
+        color: #64748b;
+        padding: 8px 12px;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.2s ease;
+    }
+    .btn-delete:hover {
+        background: rgba(239, 68, 68, 0.08);
+        color: #ef4444;
+        border-color: rgba(239, 68, 68, 0.2);
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="detail-container">
+        
+        <a href="/produtos" class="btn-back">
+            <i class="fas fa-arrow-left" style="font-size: 11px;"></i>
+            <span>Voltar para a lista</span>
+        </a>
+
+        <div class="detail-card">
+            
+            <div style="padding: 32px 32px 16px 32px; display: flex; align-items: center; gap: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.03);">
+                <div style="background: rgba(255, 255, 255, 0.03); width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.05);">
+                    <i class="fas fa-cube"></i>
+                </div>
+                <div>
+                    <span style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid rgba(59, 130, 246, 0.15);">
+                        {{ produto.categoria }}
+                    </span>
+                    <h2 style="color: #f8fafc; font-size: 22px; font-weight: 600; margin: 6px 0 0 0; letter-spacing: -0.5px;">
+                        {{ produto.nome }}
+                    </h2>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                
+                <div class="info-block">
+                    <div class="info-label">ID do Produto</div>
+                    <p class="info-value" style="color: #64748b;">#{{ produto.id }}</p>
+                </div>
+
+                <div class="info-block">
+                    <div class="info-label">Preço Unitário</div>
+                    <p class="info-value">R$ {{ produto.preco }}</p>
+                </div>
+
+                <div class="info-block">
+                    <div class="info-label">Estoque Atual</div>
+                    <p class="info-value">
+                        {{ produto.estoque_total }} <span style="font-size: 12px; color: #64748b; font-weight: 400;">unidades</span>
+                    </p>
+                </div>
+
+                <div class="info-block">
+                    <div class="info-label">Status da Operação</div>
+                    {% if produto.estoque_total < 10 %}
+                        <p class="info-value" style="color: #f59e0b; font-size: 14px; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-triangle-exclamation" style="font-size: 12px;"></i> Reposição necessária
+                        </p>
+                    {% else %}
+                        <p class="info-value" style="color: #10b981; font-size: 14px; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-circle-check" style="font-size: 12px;"></i> Operação estável
+                        </p>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <div style="padding: 0 32px 32px;">
+                <h3 class="variation-heading">Variações ({{ produto.variacoes|length }})</h3>
+                <table class="variations-table">
+                    <thead>
+                        <tr>
+                            <th>Tamanho</th>
+                            <th>Cor</th>
+                            <th style="text-align: right;">Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for variacao in produto.variacoes %}
+                        <tr>
+                            <td>{{ variacao.tamanho }}</td>
+                            <td>{{ variacao.cor }}</td>
+                            <td style="text-align: right;">{{ variacao.estoque_atual }} un</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="padding: 0 32px 32px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.03); padding-top: 24px;">
+                <a href="/produtos/excluir/{{ produto.id }}" class="btn-delete" title="Excluir Produto">
+                    <i class="fas fa-trash-can"></i>
+                </a>
+                
+                <a href="/produtos/editar/{{ produto.id }}" class="btn-edit">
+                    <i class="fas fa-pen" style="font-size: 11px;"></i>
+                    <span>Editar item</span>
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

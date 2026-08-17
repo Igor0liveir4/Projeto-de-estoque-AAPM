@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if editando else 'Novo' }} Usuário - Estoque AAPM{% endblock %}
+
+{% block head %}
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+  .back-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: #667eea; text-decoration: none; font-weight: 600; font-size: 14px;
+    margin-bottom: 24px; transition: gap 0.2s;
+  }
+  .back-link:hover { gap: 12px; }
+
+  .form-card {
+    max-width: 540px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.07);
+    border: 1px solid #f0f0f0;
+  }
+
+  .form-header { text-align: center; margin-bottom: 32px; }
+  .form-icon {
+    width: 64px; height: 64px; border-radius: 18px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white; font-size: 26px;
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-bottom: 14px;
+    box-shadow: 0 8px 20px rgba(102,126,234,0.3);
+  }
+  .form-title { font-size: 24px; font-weight: 800; color: #1a202c; margin: 0; }
+  .form-subtitle { color: #718096; font-size: 14px; margin-top: 6px; }
+
+  .alert-error {
+    background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;
+    padding: 13px 16px; border-radius: 10px; margin-bottom: 20px;
+    font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 9px;
+  }
+
+  .field { margin-bottom: 20px; }
+  .field label {
+    display: block; font-weight: 700; font-size: 13px;
+    color: #4a5568; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .input-wrap { position: relative; }
+  .input-wrap i {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: #a0aec0; font-size: 14px; pointer-events: none;
+  }
+  .input-wrap input,
+  .input-wrap select {
+    width: 100%; padding: 13px 14px 13px 40px;
+    border-radius: 12px; border: 2px solid #edf2f7;
+    font-size: 15px; font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none; box-sizing: border-box; color: #1a202c;
+    background: white; appearance: none;
+  }
+  .input-wrap input:focus,
+  .input-wrap select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102,126,234,0.12);
+  }
+
+  .hint { font-size: 12px; color: #a0aec0; margin-top: 5px; font-style: italic; }
+
+  .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .role-option { position: relative; }
+  .role-option input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+  .role-label {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px; border-radius: 12px; border: 2px solid #edf2f7;
+    cursor: pointer; transition: 0.2s; font-weight: 600; font-size: 14px; color: #4a5568;
+  }
+  .role-label i { font-size: 18px; color: #a0aec0; transition: 0.2s; }
+  .role-option input[type="radio"]:checked + .role-label {
+    border-color: #667eea; background: #f0f2ff; color: #667eea;
+  }
+  .role-option input[type="radio"]:checked + .role-label i { color: #667eea; }
+
+  .btn-submit {
+    width: 100%; padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white; border: none; border-radius: 14px;
+    font-size: 16px; font-weight: 700; cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 14px rgba(102,126,234,0.35);
+    margin-top: 8px;
+  }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(102,126,234,0.45); }
+
+  .divider { border: none; border-top: 1px solid #f0f0f0; margin: 24px 0; }
+  .cancel-link {
+    display: block; text-align: center; color: #a0aec0; font-size: 14px;
+    text-decoration: none; font-weight: 600; transition: color 0.2s;
+  }
+  .cancel-link:hover { color: #667eea; }
+
+  /* Wrapper para padding no conteúdo */
+  .form-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 20px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-wrapper">
+  <a href="/usuarios" class="back-link"><i class="fas fa-arrow-left"></i> Voltar para usuários</a>
+
+  <div class="form-card">
+    <div class="form-header">
+      <div class="form-icon">
+        <i class="fas fa-{{ 'user-pen' if editando else 'user-plus' }}"></i>
+      </div>
+      <h2 class="form-title">{{ 'Editar Usuário' if editando else 'Novo Usuário' }}</h2>
+      <p class="form-subtitle">
+        {% if editando %}Atualize os dados de <strong>{{ editando.nome }}</strong>
+        {% else %}Preencha os dados para criar um acesso ao sistema{% endif %}
+      </p>
+    </div>
+
+    {% if erro %}
+    <div class="alert-error"><i class="fas fa-circle-exclamation"></i> {{ erro }}</div>
+    {% endif %}
+
+    <form action="/usuarios/{{ editando.id ~ '/editar' if editando else 'novo' }}" method="post">
+
+      <div class="field">
+        <label>Nome Completo</label>
+        <div class="input-wrap">
+          <i class="fas fa-user"></i>
+          <input type="text" name="nome" placeholder="Nome do usuário" required
+            value="{{ editando.nome if editando else (valores.nome if valores else '') }}">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>E-mail</label>
+        <div class="input-wrap">
+          <i class="fas fa-envelope"></i>
+          <input type="email" name="email" placeholder="usuario@aapm.com" required
+            value="{{ editando.email if editando else (valores.email if valores else '') }}">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>{{ 'Nova Senha' if editando else 'Senha' }}</label>
+        <div class="input-wrap">
+          <i class="fas fa-lock"></i>
+          <input type="password" name="senha" placeholder="••••••••" {{ '' if editando else 'required' }}>
+        </div>
+        {% if editando %}
+        <p class="hint"><i class="fas fa-circle-info"></i> Deixe em branco para manter a senha atual.</p>
+        {% endif %}
+      </div>
+
+      <div class="field">
+        <label>Perfil de Acesso</label>
+        <div class="role-grid">
+          <div class="role-option">
+            <input type="radio" name="role" id="role_admin" value="admin"
+              {{ 'checked' if (editando and editando.role == 'admin') or (valores and valores.role == 'admin') }}>
+            <label for="role_admin" class="role-label">
+              <i class="fas fa-shield-halved"></i> Administrador
+            </label>
+          </div>
+          <div class="role-option">
+            <input type="radio" name="role" id="role_user" value="user"
+              {{ 'checked' if (editando and editando.role == 'user') or (valores and valores.role == 'user') or not editando }}>
+            <label for="role_user" class="role-label">
+              <i class="fas fa-user"></i> User
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit">
+        <i class="fas fa-{{ 'floppy-disk' if editando else 'user-plus' }}"></i>
+        {{ 'Salvar Alterações' if editando else 'Criar Usuário' }}
+      </button>
+    </form>
+
+    <hr class="divider">
+    <a href="/usuarios" class="cancel-link">Cancelar e voltar</a>
+  </div>
+</div>
+{% endblock %}

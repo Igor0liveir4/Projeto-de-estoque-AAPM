@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+{% block title %}Usuários - Estoque AAPM{% endblock %}
+
+{% block head %}
+<style>
+  /* ── PAGE HEADER — mesmo padrão da home ── */
+  .page-wrap {
+    max-width: 1280px;
+    margin: 40px auto;
+    padding: 0 28px;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 36px;
+    animation: fadeUp 0.4s ease both;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin: 0;
+    color: #f0f6ff;
+    line-height: 1;
+  }
+
+  .page-title span { color: #60a5fa; }
+
+  .page-subtitle {
+    color: #64748b;
+    font-size: 14px;
+    margin: 10px 0 0 0;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .page-subtitle span { color: #60a5fa; font-weight: 600; }
+
+  /* ── Botão primário ── */
+  .btn-novo {
+    background: var(--accent);
+    color: white;
+    padding: 11px 20px;
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--transition);
+    box-shadow: 0 4px 14px var(--accent-glow);
+    font-family: 'DM Sans', sans-serif;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    align-self: flex-start;
+  }
+
+  .btn-novo:hover {
+    background: var(--accent-light);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px var(--accent-glow);
+  }
+
+  /* ── Alertas ── */
+  .alert-banner {
+    padding: 13px 18px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    font-weight: 500;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .alert-success { background: rgba(16,185,129,0.1); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.2); }
+  .alert-error   { background: rgba(239,68,68,0.1);  color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
+
+  /* ── Tabela ── */
+  .table-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+    animation-delay: 0.1s;
+  }
+
+  .usuarios-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+  }
+
+  .usuarios-table thead th {
+    background: rgba(59,130,246,0.07);
+    color: var(--accent-light);
+    padding: 14px 18px;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--border);
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .usuarios-table tbody tr {
+    border-bottom: 1px solid rgba(99,179,237,0.05);
+    transition: background var(--transition);
+  }
+
+  .usuarios-table tbody tr:last-child { border-bottom: none; }
+
+  .usuarios-table tbody tr:hover td {
+    background: rgba(59,130,246,0.04);
+    color: var(--text-primary);
+  }
+
+  .usuarios-table td {
+    padding: 14px 18px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    vertical-align: middle;
+    border-bottom: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* ── Avatar + célula de usuário ── */
+  .user-cell { display: flex; align-items: center; gap: 12px; }
+
+  .avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(59,130,246,0.15);
+    border: 1px solid rgba(59,130,246,0.25);
+    color: #60a5fa;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: -0.5px;
+  }
+
+  .user-name  { font-weight: 700; color: var(--text-primary); font-size: 14px; }
+  .user-email { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+  /* ── Badges ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.03em;
+  }
+
+  .badge-admin    { background: rgba(59,130,246,0.12);  color: #60a5fa;  border: 1px solid rgba(59,130,246,0.2); }
+  .badge-operador { background: rgba(74,222,128,0.1);   color: #4ade80;  border: 1px solid rgba(74,222,128,0.2); }
+  .badge-ativo    { background: rgba(74,222,128,0.1);   color: #4ade80;  border: 1px solid rgba(74,222,128,0.2); }
+  .badge-inativo  { background: rgba(251,146,60,0.1);   color: #fb923c;  border: 1px solid rgba(251,146,60,0.2); }
+
+  /* ── Ações ── */
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+  .btn-action {
+    padding: 7px 13px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all var(--transition);
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .btn-edit       { background: rgba(59,130,246,0.1);   color: #60a5fa;  border-color: rgba(59,130,246,0.18); }
+  .btn-edit:hover { background: rgba(59,130,246,0.22);  color: #93c5fd; }
+
+  .btn-toggle       { background: rgba(251,146,60,0.1);   color: #fb923c; border-color: rgba(251,146,60,0.18); }
+  .btn-toggle:hover { background: rgba(251,146,60,0.22);  color: #fdba74; }
+
+  .btn-toggle.ativar       { background: rgba(74,222,128,0.1);  color: #4ade80; border-color: rgba(74,222,128,0.18); }
+  .btn-toggle.ativar:hover { background: rgba(74,222,128,0.22); color: #86efac; }
+
+  /* ── Vazio ── */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .empty-state i { font-size: 40px; margin-bottom: 14px; display: block; opacity: 0.35; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Gerenciar <span>Usuários</span></h1>
+      <p class="page-subtitle">
+        <span>{{ usuarios|length }}</span> usuário{{ 's' if usuarios|length != 1 }} no sistema
+      </p>
+    </div>
+    <a href="/usuarios/novo" class="btn-novo">
+      <i class="fas fa-user-plus"></i> Novo Usuário
+    </a>
+  </div>
+
+  {% if request.query_params.get('criado') == 'ok' %}
+  <div class="alert-banner alert-success">
+    <i class="fas fa-circle-check"></i> Usuário criado com sucesso!
+  </div>
+  {% endif %}
+  {% if request.query_params.get('editado') == 'ok' %}
+  <div class="alert-banner alert-success">
+    <i class="fas fa-circle-check"></i> Usuário atualizado com sucesso!
+  </div>
+  {% endif %}
+  {% if request.query_params.get('erro') == 'autoproprio' %}
+  <div class="alert-banner alert-error">
+    <i class="fas fa-triangle-exclamation"></i> Você não pode desativar sua própria conta.
+  </div>
+  {% endif %}
+
+  <div class="table-wrap">
+    {% if usuarios %}
+    <table class="usuarios-table">
+      <thead>
+        <tr>
+          <th>Usuário</th>
+          <th>Perfil</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in usuarios %}
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div class="avatar">{{ u.nome[0].upper() }}</div>
+              <div>
+                <div class="user-name">{{ u.nome }}</div>
+                <div class="user-email">{{ u.email }}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="badge badge-{{ u.role }}">
+              <i class="fas fa-{{ 'shield-halved' if u.role == 'admin' else 'user' }}" style="font-size:10px;"></i>
+              {{ u.role | capitalize }}
+            </span>
+          </td>
+          <td>
+            <span class="badge badge-{{ 'ativo' if u.ativo else 'inativo' }}">
+              <i class="fas fa-circle" style="font-size:7px;"></i>
+              {{ 'Ativo' if u.ativo else 'Inativo' }}
+            </span>
+          </td>
+          <td>
+            <div class="actions">
+              <a href="/usuarios/{{ u.id }}/editar" class="btn-action btn-edit">
+                <i class="fas fa-pen"></i> Editar
+              </a>
+              <form action="/usuarios/{{ u.id }}/toggle-ativo" method="post" style="margin:0;">
+                <button type="submit"
+                  class="btn-action btn-toggle {{ 'ativar' if not u.ativo else '' }}"
+                  title="{{ 'Ativar usuário' if not u.ativo else 'Desativar usuário' }}">
+                  <i class="fas fa-{{ 'toggle-on' if u.ativo else 'toggle-off' }}"></i>
+                  {{ 'Desativar' if u.ativo else 'Ativar' }}
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% else %}
+    <div class="empty-state">
+      <i class="fas fa-users-slash"></i>
+      <p style="font-weight:600; color:var(--text-secondary); margin-bottom:16px;">Nenhum usuário cadastrado ainda.</p>
+      <a href="/usuarios/novo" class="btn-novo" style="display:inline-flex;">
+        <i class="fas fa-user-plus"></i> Cadastrar primeiro usuário
+      </a>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

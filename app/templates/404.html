@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}Página Não Encontrada - 404{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    .page-wrapper {
+        min-height: calc(100vh - 68px - 70px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'DM Sans', sans-serif;
+        padding: 40px 20px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .error-card {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 460px;
+        background: rgba(10, 16, 30, 0.88);
+        border: 1px solid rgba(239, 68, 68, 0.15);
+        padding: 48px 40px 40px;
+        border-radius: 24px;
+        text-align: center;
+        backdrop-filter: blur(24px);
+    }
+
+    .badge-404 {
+        display: inline-block;
+        background: rgba(239, 68, 68, 0.12);
+        color: #f87171;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 14px;
+        border-radius: 8px;
+        letter-spacing: 0.08em;
+        margin-bottom: 18px;
+        border: 1px solid rgba(239, 68, 68, 0.25);
+    }
+
+    .error-title {
+        font-size: 56px;
+        font-weight: 700;
+        color: #fff;
+        margin: 0 0 10px;
+        line-height: 1;
+    }
+
+    .error-subtitle {
+        font-size: 15px;
+        color: #94a3b8;
+        margin: 0 0 6px;
+        line-height: 1.6;
+    }
+
+    .error-joke {
+        font-size: 13px;
+        color: #64748b;
+        margin: 0 0 24px;
+        line-height: 1.6;
+        font-style: italic;
+    }
+
+    .car-container {
+        width: 100%;
+        height: 220px;
+        border-radius: 16px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .spinner {
+        width: 28px;
+        height: 28px;
+        border: 2px solid rgba(59, 130, 246, 0.25);
+        border-top-color: #3b82f6;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .car-badge {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 11px;
+    }
+
+    .btn-row {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .btn-new {
+        padding: 10px 22px;
+        border-radius: 12px;
+        border: 1px solid rgba(59, 130, 246, 0.4);
+        background: rgba(59, 130, 246, 0.12);
+        color: #93c5fd;
+        font-size: 14px;
+        font-family: 'DM Sans', sans-serif;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-new:hover {
+        background: rgba(59, 130, 246, 0.22);
+        border-color: rgba(59, 130, 246, 0.6);
+    }
+
+    .btn-new:active {
+        transform: scale(0.97);
+    }
+
+    .btn-back {
+        padding: 10px 22px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.04);
+        color: #94a3b8;
+        font-size: 14px;
+        font-family: 'DM Sans', sans-serif;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-back:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .btn-back:active {
+        transform: scale(0.97);
+    }
+
+    .divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.06);
+        margin: 0 0 16px;
+    }
+
+    .error-hint {
+        font-size: 12px;
+        color: #475569;
+        line-height: 1.5;
+    }
+
+    .error-hint i {
+        margin-right: 4px;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="error-card">
+
+        <span class="badge-404">ERRO 404</span>
+
+        <h1 class="error-title">Ops!</h1>
+
+        <p class="error-subtitle">A página que você procurava foi passear e não voltou.</p>
+
+        <p class="error-joke">Enquanto isso, preparamos uma compensação à altura — um carro incrível pra te animar.</p>
+
+        <div class="car-container" id="car-space">
+            <div class="spinner"></div>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn-new" onclick="carregarCarro()">
+                <i class="fas fa-rotate-right"></i> Outro Carro
+            </button>
+            <button class="btn-back" onclick="window.history.back()">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+        </div>
+
+        <div class="divider"></div>
+
+        <p class="error-hint">
+            <i class="fas fa-circle-info"></i>
+            Se você digitou um endereço, confira se não tem nenhum erro — URLs são sensíveis assim.
+        </p>
+
+    </div>
+</div>
+
+<script>
+    async function carregarCarro() {
+        const container = document.getElementById('car-space');
+        container.innerHTML = '<div class="spinner"></div>';
+
+        try {
+            const res = await fetch('/api/get-carro');
+            const data = await res.json();
+
+            const img = new Image();
+            img.src = data.url;
+            img.style.width = "100%";
+            img.style.height = "100%";
+            img.style.objectFit = "cover";
+
+            img.onload = () => {
+                container.innerHTML = "";
+                container.appendChild(img);
+                container.insertAdjacentHTML('beforeend', `<div class="car-badge">Foto por: ${data.fotografo}</div>`);
+            };
+
+            img.onerror = () => {
+                container.innerHTML = '<span style="color:#64748b; font-size:13px;">Não foi possível carregar o carro.</span>';
+            };
+
+        } catch (e) {
+            container.innerHTML = '<span style="color:#64748b; font-size:13px;">Erro ao carregar — verifique a API.</span>';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', carregarCarro);
+</script>
+{% endblock %}

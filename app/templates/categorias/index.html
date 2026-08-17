@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+{% block title %}Categorias - Estoque AAPM{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+  /* ── PAGE HEADER — mesmo padrão da home ── */
+  .page-wrap {
+    max-width: 1280px;
+    margin: 40px auto;
+    padding: 0 28px;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 36px;
+    animation: fadeUp 0.4s ease both;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin: 0;
+    color: #f0f6ff;
+    line-height: 1;
+  }
+
+  .page-title span { color: #60a5fa; }
+
+  .page-subtitle {
+    color: #64748b;
+    font-size: 14px;
+    margin: 10px 0 0 0;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .page-subtitle span {
+    color: #60a5fa;
+    font-weight: 600;
+  }
+
+  .btn-novo {
+    background: var(--accent);
+    color: white;
+    padding: 11px 20px;
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--transition);
+    box-shadow: 0 4px 14px var(--accent-glow);
+    font-family: 'DM Sans', sans-serif;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    align-self: flex-start;
+  }
+
+  .btn-novo:hover {
+    background: var(--accent-light);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px var(--accent-glow);
+  }
+
+  /* ── Alertas ── */
+  .alert-banner {
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .alert-success { background: rgba(16,185,129,0.1); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.2); }
+  .alert-error   { background: rgba(239,68,68,0.1);  color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
+  .alert-warning { background: rgba(245,158,11,0.1); color: #fcd34d; border: 1px solid rgba(245,158,11,0.2); }
+
+  /* ── Grid de cards ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    animation: fadeUp 0.4s ease both;
+    animation-delay: 0.1s;
+  }
+
+  .cat-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 22px 24px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cat-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(59,130,246,0.05), transparent);
+    opacity: 0;
+    transition: opacity var(--transition);
+  }
+
+  .cat-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--border-hover);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+  }
+
+  .cat-card:hover::before { opacity: 1; }
+
+  .cat-card.inativa {
+    opacity: 0.45;
+    border-color: rgba(99,179,237,0.05);
+  }
+
+  .cat-left { display: flex; align-items: center; gap: 14px; }
+
+  .cat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.18);
+    color: #60a5fa;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform var(--transition);
+  }
+
+  .cat-card:hover .cat-icon { transform: scale(1.08) rotate(-3deg); }
+
+  .cat-name {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 15px;
+  }
+
+  .cat-status {
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'DM Sans', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .cat-status.ativa   { color: #4ade80; }
+  .cat-status.inativa { color: #fb923c; }
+
+  .cat-status i { font-size: 7px; }
+
+  .cat-actions { display: flex; gap: 8px; }
+
+  .btn-action {
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all var(--transition);
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .btn-edit       { background: rgba(59,130,246,0.12); color: #60a5fa; border: 1px solid rgba(59,130,246,0.18); }
+  .btn-edit:hover { background: rgba(59,130,246,0.25); color: #93c5fd; }
+
+  .btn-toggle       { background: rgba(251,146,60,0.12); color: #fb923c; border: 1px solid rgba(251,146,60,0.18); }
+  .btn-toggle:hover { background: rgba(251,146,60,0.25); color: #fdba74; }
+
+  .btn-toggle.ativar       { background: rgba(74,222,128,0.12); color: #4ade80; border: 1px solid rgba(74,222,128,0.18); }
+  .btn-toggle.ativar:hover { background: rgba(74,222,128,0.25); color: #86efac; }
+
+  /* ── Vazio ── */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .empty-state i {
+    font-size: 40px;
+    margin-bottom: 12px;
+    display: block;
+    opacity: 0.4;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Gerenciar <span>Categorias</span></h1>
+      <p class="page-subtitle">
+        <span>{{ categorias|length }}</span> categoria{{ 's' if categorias|length != 1 }} cadastrada{{ 's' if categorias|length != 1 }}
+      </p>
+    </div>
+    <a href="/categorias/nova" class="btn-novo">
+      <i class="fas fa-folder-plus"></i> Nova Categoria
+    </a>
+  </div>
+
+  {% if request.query_params.get('criado') == 'ok' %}
+  <div class="alert-banner alert-success">
+    <i class="fas fa-check-circle"></i> Categoria criada com sucesso!
+  </div>
+  {% endif %}
+  {% if request.query_params.get('editado') == 'ok' %}
+  <div class="alert-banner alert-success">
+    <i class="fas fa-check-circle"></i> Categoria atualizada com sucesso!
+  </div>
+  {% endif %}
+  {% if request.query_params.get('erro') == 'produtos_vinculados' %}
+  <div class="alert-banner alert-warning">
+    <i class="fas fa-triangle-exclamation"></i>
+    Não é possível desativar <strong>{{ request.query_params.get('categoria') }}</strong>: há produtos ativos vinculados.
+  </div>
+  {% endif %}
+
+  {% if categorias %}
+  <div class="grid">
+    {% for cat in categorias %}
+    <div class="cat-card {{ '' if cat.ativa else 'inativa' }}">
+      <div class="cat-left">
+        <div class="cat-icon"><i class="fas fa-tag"></i></div>
+        <div>
+          <div class="cat-name">{{ cat.nome }}</div>
+          <div class="cat-status {{ 'ativa' if cat.ativa else 'inativa' }}">
+            <i class="fas fa-circle"></i>
+            {{ 'Ativa' if cat.ativa else 'Inativa' }}
+          </div>
+        </div>
+      </div>
+      <div class="cat-actions">
+        <a href="/categorias/{{ cat.id }}/editar" class="btn-action btn-edit">
+          <i class="fas fa-pen"></i>
+        </a>
+        <form action="/categorias/{{ cat.id }}/toggle-ativo" method="post" style="margin:0;">
+          <button type="submit"
+            class="btn-action btn-toggle {{ 'ativar' if not cat.ativo else '' }}"
+            title="{{ 'Desativar' if cat.ativo else 'Ativar' }}">
+            <i class="fas fa-{{ 'toggle-on' if cat.ativo else 'toggle-off' }}"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <i class="fas fa-folder-open"></i>
+    <p style="font-weight:600; color:var(--text-secondary); margin-bottom:16px;">Nenhuma categoria cadastrada ainda.</p>
+    <a href="/categorias/nova" class="btn-novo" style="display:inline-flex;">
+      <i class="fas fa-folder-plus"></i> Criar primeira categoria
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

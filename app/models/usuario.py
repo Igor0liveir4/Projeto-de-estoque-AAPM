@@ -1,31 +1,17 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
-from datetime import datetime, timedelta
-from database import Base
+from sqlalchemy.sql import func 
+from app.database import Base
 
 class Usuario(Base):
     __tablename__ = "usuarios"
 
     id = Column(Integer, primary_key=True, index=True)
+    nome = Column(String(255), nullable=False)
+    email = Column(String(255), unique=True, nullable=False)
+    senha_hash = Column(String(255), nullable=False)
 
-    email = Column(String, unique=True, nullable=False)
+    role = Column(String(20), default="user")
 
-    role = Column(String, default=True)
+    ativo = Column(Boolean, default=True)
+    criado_em = Column(DateTime, server_default=func.now())
 
-    criado_em = Column(
-        DateTime,
-        default=datetime.utcnow
-    )
-
-    expira_em = Column(
-        DateTime,
-        default=lambda: datetime.utcnow() + timedelta(days=30)
-    )
-
-
-
-
-    
-
-    
-
-    

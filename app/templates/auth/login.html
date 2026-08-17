@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Projeto de Estoque AAPM{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    .page-wrapper {
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background: transparent;
+        padding: 20px;
+    }
+    
+    .login-card {
+        width: 100%;
+        max-width: 400px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        padding: 40px 32px;
+        border-radius: 24px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+        position: relative;
+    }
+
+   
+    .login-card::before {
+        content: '';
+        position: absolute;
+        top: -10%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 180px;
+        height: 180px;
+        background: #3b82f6;
+        filter: blur(90px);
+        opacity: 0.12;
+        pointer-events: none;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .form-group label {
+        font-size: 12px;
+        font-weight: 500;
+        color: #94a3b8; 
+        letter-spacing: 0.02em;
+    }
+
+    
+    .form-control {
+        background: var(--bg-surface);
+        border: 1px solid var(--border);
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #f8fafc;
+        font-family: inherit;
+        transition: all 0.2s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: rgba(255, 255, 255, 0.04);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    .btn-submit {
+        background: #f8fafc;
+        color: #090d16;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        margin-top: 10px;
+    }
+
+    .btn-submit:hover {
+        background: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+    }
+
+  
+    .register-link {
+        color: #64748b;
+        font-size: 13px;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .register-link a {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .register-link a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="login-card">
+        
+        <div style="text-align: center; margin-bottom: 32px;">
+            <h2 style="color: #f8fafc; margin: 0 0 6px 0; font-size: 24px; font-weight: 600; letter-spacing: -0.5px;">
+                Acessar Conta
+            </h2>
+            <p style="color: #64748b; font-size: 13px; margin: 0;">
+                Insira suas credenciais para continuar
+            </p>
+        </div>
+
+        <form action="/auth/login" method="POST" style="display: flex; flex-direction: column;">
+            
+            <div class="form-group">
+                <label for="email">E-mail institucional</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="nome@exemplo.com" required>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 28px;">
+                <label for="senha">Senha de acesso</label>
+                <input type="password" id="senha" name="senha" class="form-control" placeholder="••••••••" required>
+            </div>
+            
+            <div style="display: flex; justify-content: center;">
+                <button type="submit" class="btn-submit" style="width: 100%; max-width: 240px;">
+                    <span>Entrar no painel</span>
+                    <i class="fas fa-sign-in-alt" style="font-size: 11px;"></i>
+                </button>
+            </div>
+        </form>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{{ url_for('tela_home') }}" style="color: #64748b; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: color 0.2s;">
+                <i class="fas fa-arrow-left" style="font-size: 10px;"></i>
+                Voltar para a página inicial
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

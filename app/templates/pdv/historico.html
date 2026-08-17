@@ -1,0 +1,476 @@
+{% extends "base.html" %}
+
+{% block title %}Histórico de Vendas — AAPM{% endblock %}
+
+{% block head %}
+<style>
+    .hist-wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 32px 24px 60px;
+    }
+
+    /* ── Topo ── */
+    .hist-topo {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 28px;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .hist-topo h2 {
+        font-family: 'Syne', sans-serif;
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+
+    .hist-topo p { font-size: 13px; color: var(--text-muted); }
+
+    /* ── Sumário cards ── */
+    .sumario {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 14px;
+        margin-bottom: 28px;
+    }
+
+    .sum-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px 20px;
+    }
+
+    .sum-card label {
+        display: block;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+    }
+
+    .sum-card .val {
+        font-family: 'Syne', sans-serif;
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--text-primary);
+    }
+
+    .sum-card.accent .val { color: var(--accent-light); }
+    .sum-card.green  .val { color: #6ee7b7; }
+
+    /* ── Filtros ── */
+    .filtros {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .filtros input[type="text"],
+    .filtros select {
+        padding: 9px 14px;
+        margin: 0;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 13px;
+        height: 38px;
+    }
+
+    .filtros input[type="text"] { min-width: 220px; }
+
+    /* ── Tabela ── */
+    .hist-table-wrap {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .hist-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+        border-radius: 0;
+        border: none;
+        background: transparent;
+    }
+
+    .hist-table thead th {
+        background: rgba(59,130,246,0.07);
+        color: var(--accent-light);
+        padding: 14px 18px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+    }
+
+    .hist-table thead th:first-child { padding-left: 24px; }
+
+    .hist-table tbody tr {
+        cursor: pointer;
+        transition: background var(--transition);
+        border-bottom: 1px solid rgba(99,179,237,0.05);
+    }
+
+    .hist-table tbody tr:last-child { border-bottom: none; }
+
+    .hist-table tbody tr:hover td {
+        background: rgba(59,130,246,0.05);
+        color: var(--text-primary);
+    }
+
+    .hist-table td {
+        padding: 14px 18px;
+        font-size: 13px;
+        color: var(--text-secondary);
+        border-bottom: none;
+        vertical-align: middle;
+    }
+
+    .hist-table td:first-child {
+        padding-left: 24px;
+        font-family: 'Syne', sans-serif;
+        font-weight: 700;
+        color: var(--text-muted);
+        font-size: 12px;
+    }
+
+    .badge-assoc {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(246,224,94,0.1);
+        color: #f6e05e;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 4px;
+        margin-left: 6px;
+        vertical-align: middle;
+    }
+
+    .badge-desconto {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(72,187,120,0.1);
+        color: #6ee7b7;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 4px;
+    }
+
+    .total-cell {
+        font-family: 'Syne', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--accent-light) !important;
+    }
+
+    .btn-ver {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 600;
+        padding: 5px 10px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all var(--transition);
+        white-space: nowrap;
+    }
+
+    .btn-ver:hover {
+        color: var(--accent-light);
+        border-color: rgba(99,179,237,0.4);
+        background: rgba(59,130,246,0.06);
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* ── Expansão de detalhes ── */
+    .detalhe-row td {
+        padding: 0 !important;
+    }
+
+    .detalhe-inner {
+        padding: 18px 24px;
+        background: rgba(59,130,246,0.03);
+        border-top: 1px solid var(--border);
+        display: none;
+    }
+
+    .detalhe-inner.aberto { display: block; }
+
+    .detalhe-itens {
+        display: grid;
+        gap: 8px;
+        max-width: 600px;
+    }
+
+    .detalhe-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+        color: var(--text-secondary);
+        padding: 8px 12px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+    }
+
+    .detalhe-item-nome { font-weight: 600; color: var(--text-primary); }
+    .detalhe-item-sub  { font-weight: 700; color: var(--accent-light); }
+
+    .detalhe-obs {
+        margin-top: 12px;
+        font-size: 12px;
+        color: var(--text-muted);
+        font-style: italic;
+    }
+
+    /* ── Vazio ── */
+    .hist-vazio {
+        padding: 60px 24px;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 14px;
+    }
+
+    .hist-vazio i { font-size: 36px; display: block; margin-bottom: 12px; opacity: 0.4; }
+
+    /* ── Rodapé tabela ── */
+    .hist-table-footer {
+        padding: 14px 24px;
+        border-top: 1px solid var(--border);
+        font-size: 12px;
+        color: var(--text-muted);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    @media (max-width: 768px) {
+        .hist-topo { flex-direction: column; align-items: flex-start; }
+        .sumario   { grid-template-columns: repeat(2, 1fr); }
+        .hist-table thead th:nth-child(3),
+        .hist-table td:nth-child(3) { display: none; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hist-wrap">
+
+    <!-- Topo -->
+    <div class="hist-topo">
+        <div>
+            <h2>Histórico de Vendas</h2>
+            <p>Últimas {{ vendas|length }} transações registradas</p>
+        </div>
+        <a href="/pdv" class="nav-btn" style="background:var(--accent);color:white;border-color:var(--accent);">
+            <i class="fas fa-plus"></i> Nova Venda
+        </a>
+    </div>
+
+    <!-- Sumário -->
+    {% if vendas %}
+    {% set total_geral  = vendas | sum(attribute='total_liquido') %}
+    {% set total_vendas = vendas | length %}
+    {% set c_assoc = vendas | selectattr('desconto_percentual', 'gt', 0) | list | length %}
+    <div class="sumario">
+        <div class="sum-card">
+            <label>Vendas no período</label>
+            <div class="val">{{ total_vendas }}</div>
+        </div>
+        <div class="sum-card accent">
+            <label>Receita total</label>
+            <div class="val">R$ {{ "%.2f"|format(total_geral) }}</div>
+        </div>
+        <div class="sum-card">
+            <label>Ticket médio</label>
+            <div class="val">R$ {{ "%.2f"|format(total_geral / total_vendas) }}</div>
+        </div>
+        <div class="sum-card green">
+            <label>Vendas c/ desconto</label>
+            <div class="val">{{ c_assoc }}</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Filtros -->
+    <div class="filtros">
+        <input type="text" id="filtro-busca" placeholder="&#xf002;  Buscar cliente ou operador…">
+        <select id="filtro-desconto">
+            <option value="">Todos</option>
+            <option value="assoc">Com desconto</option>
+            <option value="sem">Sem desconto</option>
+        </select>
+    </div>
+
+    <!-- Tabela -->
+    <div class="hist-table-wrap">
+        {% if vendas %}
+        <table class="hist-table" id="hist-table">
+            <thead>
+                <tr>
+                    <th style="width:80px;">#</th>
+                    <th>Data / Hora</th>
+                    <th>Operador</th>
+                    <th>Cliente</th>
+                    <th>Itens</th>
+                    <th>Desconto</th>
+                    <th>Total</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for venda in vendas %}
+                <!-- Linha principal -->
+                <tr class="linha-venda"
+                    data-id="{{ venda.id }}"
+                    data-cliente="{{ venda.cliente.nome if venda.cliente else '' }}"
+                    data-operador="{{ venda.usuario.nome if venda.usuario else '' }}"
+                    data-desconto="{{ '1' if venda.desconto_percentual and venda.desconto_percentual > 0 else '0' }}"
+                    onclick="toggleDetalhe({{ venda.id }}, this)">
+                    <td>#{{ "%04d"|format(venda.id) }}</td>
+                    <td>{{ venda.criado_em.strftime('%d/%m/%Y') }}<br>
+                        <span style="font-size:11px;color:var(--text-muted);">{{ venda.criado_em.strftime('%H:%M') }}</span>
+                    </td>
+                    <td>{{ venda.usuario.nome if venda.usuario else '—' }}</td>
+                    <td>
+                        {% if venda.cliente %}
+                            {{ venda.cliente.nome }}
+                            {% if venda.cliente.is_associado %}
+                                <span class="badge-assoc"><i class="fas fa-star" style="font-size:9px;"></i> Assoc.</span>
+                            {% endif %}
+                        {% else %}
+                            <span style="color:var(--text-muted);">—</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ venda.itens | length }} item{{ 's' if venda.itens | length != 1 }}</td>
+                    <td>
+                        {% if venda.desconto_percentual and venda.desconto_percentual > 0 %}
+                            <span class="badge-desconto">
+                                <i class="fas fa-tag" style="font-size:9px;"></i>
+                                {{ venda.desconto_percentual|int }}%
+                            </span>
+                        {% else %}
+                            <span style="color:var(--text-muted);">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="total-cell">R$ {{ "%.2f"|format(venda.total_liquido) }}</td>
+                    <td>
+                        <a href="/pdv/venda/{{ venda.id }}" class="btn-ver" onclick="event.stopPropagation()">
+                            <i class="fas fa-receipt"></i> Ver
+                        </a>
+                    </td>
+                </tr>
+                <!-- Linha de detalhes expandíveis -->
+                <tr class="detalhe-row" id="detalhe-row-{{ venda.id }}">
+                    <td colspan="8">
+                        <div class="detalhe-inner" id="detalhe-inner-{{ venda.id }}">
+                            <div class="detalhe-itens">
+                                {% for item in venda.itens %}
+                                <div class="detalhe-item">
+                                    <div>
+                                        <span class="detalhe-item-nome">{{ item.produto_nome }}</span>
+                                        <span style="font-size:12px;color:var(--text-muted);margin-left:8px;">
+                                            {{ item.quantidade }} × R$ {{ "%.2f"|format(item.preco_unitario) }}
+                                        </span>
+                                    </div>
+                                    <span class="detalhe-item-sub">
+                                        R$ {{ "%.2f"|format(item.quantidade * item.preco_unitario) }}
+                                    </span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% if venda.observacao %}
+                            <p class="detalhe-obs"><i class="fas fa-comment-alt" style="margin-right:5px;"></i>{{ venda.observacao }}</p>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="hist-table-footer">
+            <span id="linhas-visiveis">{{ vendas|length }} registros exibidos</span>
+            <span style="color:var(--text-muted);">Clique em uma linha para expandir os itens</span>
+        </div>
+
+        {% else %}
+        <div class="hist-vazio">
+            <i class="fas fa-receipt"></i>
+            Nenhuma venda registrada ainda.
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<script>
+(function () {
+    // ── Expandir / recolher detalhes ────────────────
+    window.toggleDetalhe = function (id, row) {
+        const inner = document.getElementById('detalhe-inner-' + id);
+        if (!inner) return;
+        const aberto = inner.classList.toggle('aberto');
+        row.style.background = aberto ? 'rgba(59,130,246,0.06)' : '';
+    };
+
+    // ── Filtros ─────────────────────────────────────
+    const inpBusca   = document.getElementById('filtro-busca');
+    const selDesc    = document.getElementById('filtro-desconto');
+
+    function aplicarFiltros() {
+        const q    = (inpBusca.value || '').toLowerCase().trim();
+        const desc = selDesc.value;
+
+        let visiveis = 0;
+
+        document.querySelectorAll('.linha-venda').forEach(function (tr) {
+            const cliente  = (tr.dataset.cliente  || '').toLowerCase();
+            const operador = (tr.dataset.operador || '').toLowerCase();
+            const temDesc  = tr.dataset.desconto === '1';
+            const detalheRow = tr.nextElementSibling;
+
+            const okBusca = !q || cliente.includes(q) || operador.includes(q);
+            const okDesc  = desc === '' ||
+                            (desc === 'assoc' && temDesc) ||
+                            (desc === 'sem'   && !temDesc);
+
+            const show = okBusca && okDesc;
+            tr.style.display          = show ? '' : 'none';
+            if (detalheRow) detalheRow.style.display = show ? '' : 'none';
+            if (show) visiveis++;
+        });
+
+        const el = document.getElementById('linhas-visiveis');
+        if (el) el.textContent = visiveis + ' registro' + (visiveis !== 1 ? 's' : '') + ' exibido' + (visiveis !== 1 ? 's' : '');
+    }
+
+    if (inpBusca) inpBusca.addEventListener('input',  aplicarFiltros);
+    if (selDesc)  selDesc.addEventListener('change', aplicarFiltros);
+})();
+</script>
+{% endblock %}

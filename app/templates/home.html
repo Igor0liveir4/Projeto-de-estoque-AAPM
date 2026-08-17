@@ -1,0 +1,629 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Gestão de Estoque AAPM{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    /* ── LAYOUT ─────────────────────────────────────────── */
+    .dashboard-container {
+        font-family: 'DM Sans', sans-serif;
+        max-width: 1280px;
+        margin: 40px auto;
+        padding: 0 28px;
+    }
+
+    /* ── HEADER ROW ─────────────────────────────────────── */
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 40px;
+        animation: fadeUp 0.4s ease both;
+    }
+
+    .dashboard-title h1 {
+        font-family: 'Syne', sans-serif;
+        font-size: 34px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin: 0;
+        color: #f0f6ff;
+        line-height: 1;
+    }
+
+    .dashboard-title p {
+        color: #64748b;
+        font-size: 14px;
+        margin: 10px 0 0 0;
+    }
+
+    .dashboard-title p span {
+        color: #60a5fa;
+        font-weight: 600;
+    }
+
+    /* ── USER BADGE ─────────────────────────────────────── */
+    .user-badge {
+        background: rgba(59, 130, 246, 0.08);
+        color: #94a3b8;
+        padding: 8px 15px;
+        border-radius: 24px;
+        font-weight: 600;
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid rgba(59, 130, 246, 0.15);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .status-dot {
+        width: 7px;
+        height: 7px;
+        background: #10b981;
+        border-radius: 50%;
+        box-shadow: 0 0 8px #10b981;
+        animation: pulseGreen 2s ease infinite;
+        flex-shrink: 0;
+    }
+
+    @keyframes pulseGreen {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.4;
+        }
+    }
+
+    /* ── STAT CARDS ─────────────────────────────────────── */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 18px;
+        margin-bottom: 28px;
+    }
+
+    .stat-card {
+        position: relative;
+        background: rgba(13, 19, 32, 0.8);
+        border: 1px solid rgba(99, 179, 237, 0.1);
+        border-radius: 16px;
+        padding: 22px 20px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        cursor: default;
+        overflow: hidden;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transition:
+            border-color 0.25s ease,
+            box-shadow 0.25s ease,
+            transform 0.25s ease;
+        animation: fadeUp 0.4s ease both;
+    }
+
+    /* stagger the 4 cards */
+    .stat-card:nth-child(1) {
+        animation-delay: 0.05s;
+    }
+
+    .stat-card:nth-child(2) {
+        animation-delay: 0.10s;
+    }
+
+    .stat-card:nth-child(3) {
+        animation-delay: 0.15s;
+    }
+
+    .stat-card:nth-child(4) {
+        animation-delay: 0.20s;
+    }
+
+    /* subtle shimmer sweep */
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(110deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.04) 50%,
+                transparent 70%);
+        transform: translateX(-100%);
+        transition: transform 0.6s ease;
+        pointer-events: none;
+    }
+
+    .stat-card:hover::after {
+        transform: translateX(100%);
+    }
+
+    .stat-card:hover {
+        border-color: rgba(59, 130, 246, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+            0 0 0 1px rgba(59, 130, 246, 0.08);
+        transform: translateY(-3px);
+    }
+
+    /* top accent glow per variant */
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+    }
+
+    .stat-card:hover::before {
+        opacity: 1;
+    }
+
+    .stat-card.blue::before {
+        background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+    }
+
+    .stat-card.purple::before {
+        background: linear-gradient(90deg, transparent, #9333ea, transparent);
+    }
+
+    .stat-card.green::before {
+        background: linear-gradient(90deg, transparent, #16a34a, transparent);
+    }
+
+    .stat-card.orange::before {
+        background: linear-gradient(90deg, transparent, #ea580c, transparent);
+    }
+
+    .stat-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+        transition: transform 0.25s ease;
+    }
+
+    .stat-card:hover .stat-icon {
+        transform: scale(1.08) rotate(-3deg);
+    }
+
+    .stat-icon.blue {
+        background: rgba(59, 130, 246, 0.12);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.18);
+    }
+
+    .stat-icon.purple {
+        background: rgba(147, 51, 234, 0.12);
+        color: #c084fc;
+        border: 1px solid rgba(147, 51, 234, 0.18);
+    }
+
+    .stat-icon.green {
+        background: rgba(22, 163, 74, 0.12);
+        color: #4ade80;
+        border: 1px solid rgba(22, 163, 74, 0.18);
+    }
+
+    .stat-icon.orange {
+        background: rgba(234, 88, 12, 0.12);
+        color: #fb923c;
+        border: 1px solid rgba(234, 88, 12, 0.18);
+    }
+
+    .stat-content h3 {
+        font-size: 10.5px;
+        color: #475569;
+        font-weight: 700;
+        margin: 0 0 6px 0;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .stat-content .value {
+        font-family: 'Syne', sans-serif;
+        font-size: 32px;
+        color: #f0f6ff;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1;
+        letter-spacing: -1px;
+    }
+
+    /* ── CHART CARDS ────────────────────────────────────── */
+    .charts-grid {
+        display: grid;
+        /* Mantém os dois gráficos superiores ocupando toda a largura disponível. */
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 28px;
+    }
+
+    .chart-card {
+        background: rgba(13, 19, 32, 0.8);
+        border: 1px solid rgba(99, 179, 237, 0.1);
+        border-radius: 16px;
+        padding: 26px;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transition:
+            border-color 0.25s ease,
+            box-shadow 0.25s ease;
+        min-width: 0;
+        animation: fadeUp 0.4s ease both;
+    }
+
+    .chart-card:nth-child(1) {
+        animation-delay: 0.25s;
+    }
+
+    .chart-card:nth-child(2) {
+        animation-delay: 0.30s;
+    }
+
+    .chart-card:nth-child(3) {
+        animation-delay: 0.35s;
+    }
+
+    .chart-card:hover {
+        border-color: rgba(59, 130, 246, 0.22);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .chart-card h2 {
+        font-family: 'Syne', sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        color: #e2e8f0;
+        margin: 0 0 22px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        letter-spacing: -0.2px;
+    }
+
+    .chart-card h2 i {
+        font-size: 15px;
+        color: #3b82f6;
+        background: rgba(59, 130, 246, 0.1);
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(59, 130, 246, 0.18);
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+
+    .full-width {
+        grid-column: 1 / -1;
+    }
+
+    /* ── ANIMATION ──────────────────────────────────────── */
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(18px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ── RESPONSIVE ─────────────────────────────────────── */
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 0 16px;
+            margin: 20px auto;
+        }
+
+        .dashboard-header {
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .dashboard-title h1 {
+            font-size: 26px;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .charts-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .full-width {
+            grid-column: 1;
+        }
+
+        .chart-container {
+            height: 240px;
+        }
+    }
+
+    strong {
+        color: #f63b3b;
+    }
+</style>
+
+<div class="dashboard-container">
+
+    <div class="dashboard-header">
+        <div class="dashboard-title">
+            <h1>AAPM <strong>SENAI</strong> </h1>
+            <p>
+                Olá, <span>{{ usuario.nome }}</span> &nbsp;·&nbsp; Painel de controle do estoque
+            </p>
+            <p> Bem-vindo ao sistema de gestão de estoque! AAPM senai.</p>
+        </div>
+        <div>
+            <span class="user-badge">
+                <span class="status-dot"></span>
+                {{ usuario.role }}
+            </span>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card blue">
+            <div class="stat-icon blue">
+                <i class="fas fa-box"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Total de Produtos</h3>
+                <p class="value">{{ total_produtos }}</p>
+            </div>
+        </div>
+
+        <div class="stat-card purple">
+            <div class="stat-icon purple">
+                <i class="fas fa-tags"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Categorias</h3>
+                <p class="value">{{ total_categorias }}</p>
+            </div>
+        </div>
+
+        <div class="stat-card green">
+            <div class="stat-icon green">
+                <i class="fas fa-boxes"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Itens em Estoque</h3>
+                <p class="value">{{ total_estoque }}</p>
+            </div>
+        </div>
+
+        <div class="stat-card orange">
+            <div class="stat-icon orange">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Usuários do Sistema</h3>
+                <p class="value">{{ total_usuarios }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h2><i class="fas fa-chart-pie"></i> Distribuição por Categoria</h2>
+            <div class="chart-container">
+                <canvas id="categoriasChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h2><i class="fas fa-chart-bar"></i> Top 5 Produtos em Estoque</h2>
+            <div class="chart-container">
+                <canvas id="produtosChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card full-width">
+            <h2><i class="fas fa-chart-column"></i> Valor Total em Estoque por Categoria (R$)</h2>
+            <div class="chart-container" style="height: 340px;">
+                <canvas id="valorChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script id="chart-data" type="application/json">
+{
+    "categorias": {{ categorias_chart | safe }},
+    "produtos":   {{ produtos_chart | safe }},
+    "valor":      {{ valor_chart | safe }}
+}
+</script>
+
+<script>
+    var _raw = JSON.parse(document.getElementById('chart-data').textContent);
+    var categoriasData = _raw.categorias;
+    var produtosData = _raw.produtos;
+    var valorData = _raw.valor;
+
+    var COLORS = ['#3b82f6', '#9333ea', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899', '#84cc16'];
+    var FONT = "'DM Sans', sans-serif";
+
+    /* Dark theme grid / tick colors */
+    var gridColor = 'rgba(99, 179, 237, 0.07)';
+    var tickColor = '#475569';
+
+    var sharedTooltip = {
+        backgroundColor: '#0d1320',
+        titleColor: '#f0f6ff',
+        bodyColor: '#94a3b8',
+        borderColor: 'rgba(59,130,246,0.2)',
+        borderWidth: 1,
+        padding: 12,
+        cornerRadius: 10,
+        displayColors: true
+    };
+
+    /* ── Doughnut: Categorias ── */
+    if (categoriasData && categoriasData.labels && categoriasData.labels.length > 0) {
+        new Chart(document.getElementById('categoriasChart'), {
+            type: 'doughnut',
+            data: {
+                labels: categoriasData.labels,
+                datasets: [{
+                    data: categoriasData.data,
+                    backgroundColor: COLORS,
+                    borderColor: 'rgba(8,12,20,0.8)',
+                    borderWidth: 3,
+                    hoverBorderWidth: 2,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '62%',
+                animation: { duration: 900, easing: 'easeInOutQuart' },
+                plugins: {
+                    tooltip: sharedTooltip,
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { size: 12, family: FONT },
+                            padding: 16,
+                            usePointStyle: true,
+                            pointStyleWidth: 10,
+                            color: '#64748b'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /* ── Bar (horizontal): Produtos ── */
+    if (produtosData && produtosData.labels && produtosData.labels.length > 0) {
+        new Chart(document.getElementById('produtosChart'), {
+            type: 'bar',
+            data: {
+                labels: produtosData.labels,
+                datasets: [{
+                    label: 'Quantidade em Estoque',
+                    data: produtosData.data,
+                    backgroundColor: COLORS.slice(0, produtosData.data.length),
+                    borderRadius: 6,
+                    borderSkipped: false,
+                    barThickness: 18
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 900, easing: 'easeInOutQuart' },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: sharedTooltip
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: { color: gridColor },
+                        ticks: { font: { family: FONT, size: 12 }, color: tickColor }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { font: { family: FONT, size: 12 }, color: tickColor }
+                    }
+                }
+            }
+        });
+    }
+
+    /* ── Bar (vertical): Valor ── */
+    if (valorData && valorData.labels && valorData.labels.length > 0) {
+        var valorTooltip = Object.assign({}, sharedTooltip, {
+            callbacks: {
+                label: function (context) {
+                    var val = context.parsed.y;
+                    return ' R$ ' + val.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                }
+            }
+        });
+
+        new Chart(document.getElementById('valorChart'), {
+            type: 'bar',
+            data: {
+                labels: valorData.labels,
+                datasets: [{
+                    label: 'Valor Total (R$)',
+                    data: valorData.data,
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                    hoverBackgroundColor: '#60a5fa',
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 900, easing: 'easeInOutQuart' },
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            font: { size: 12, family: FONT },
+                            padding: 16,
+                            usePointStyle: true,
+                            color: '#64748b'
+                        }
+                    },
+                    tooltip: valorTooltip
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: gridColor },
+                        ticks: {
+                            font: { family: FONT, size: 12 },
+                            color: tickColor,
+                            callback: function (value) {
+                                return 'R$ ' + value.toLocaleString('pt-BR');
+                            }
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: FONT, size: 12 }, color: tickColor }
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

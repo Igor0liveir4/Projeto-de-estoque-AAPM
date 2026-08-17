@@ -1,0 +1,435 @@
+{% extends "base.html" %}
+
+{% block title %}Produtos - AAPM{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+<style>
+    .page-wrapper {
+        min-height: 90vh;
+        background: transparent;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        padding: 40px 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .catalog-container {
+        width: 100%;
+        max-width: 1150px;
+    }
+
+    /* METRICS CARDS GRID */
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+
+    .metric-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .metric-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+
+    /* FILTERS BAR */
+    .search-bar-container {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px 16px 0 0;
+        padding: 16px 20px;
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        border-bottom: none;
+    }
+
+    .search-wrapper {
+        position: relative;
+        flex: 1;
+    }
+
+    .search-wrapper i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #475569;
+        font-size: 14px;
+    }
+
+    .search-input {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 10px 14px 10px 40px;
+        border-radius: 8px;
+        font-size: 13px;
+        color: #f8fafc;
+        width: 100%;
+        box-sizing: border-box;
+        transition: all 0.2s;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    /* TABLE MANAGEMENT */
+    .table-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 0 0 20px 20px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+    }
+
+    .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        background: var(--bg-card);
+    }
+
+    .custom-table th {
+        background: var(--bg-card);
+        padding: 14px 20px;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .prod-row {
+        background: var(--bg-card);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        transition: background 0.15s ease;
+        cursor: pointer;
+    }
+
+    .prod-row:hover {
+        background: #1a2234 !important;
+    }
+
+    .prod-row:active {
+        background: #1e2840 !important;
+    }
+
+    .prod-row td {
+        background: transparent !important;
+    }
+
+    .custom-table td {
+        padding: 12px 20px;
+        color: #f8fafc;
+        font-size: 13px;
+        vertical-align: middle;
+        background: transparent;
+    }
+
+    /* BADGES */
+    .badge {
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 11px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .badge-success {
+        background: rgba(16, 185, 129, 0.08);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.15);
+    }
+
+    .badge-warning {
+        background: rgba(245, 158, 11, 0.08);
+        color: #f59e0b;
+        border: 1px solid rgba(245, 158, 11, 0.15);
+    }
+
+    .badge-danger {
+        background: rgba(239, 68, 68, 0.08);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.15);
+    }
+
+    .badge-category {
+        background: rgba(255, 255, 255, 0.03);
+        color: #94a3b8;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* ACTIONS & BUTTONS */
+    .btn-add {
+        background: #f8fafc;
+        color: #090d16;
+        padding: 10px 16px;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-add:hover {
+        background: #ffffff;
+        transform: translateY(-1px);
+    }
+
+    .btn-action-edit {
+        background: rgba(255, 255, 255, 0.02);
+        color: #94a3b8;
+        padding: 6px 10px;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        transition: all 0.2s;
+    }
+
+    .btn-action-edit:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: #f8fafc;
+    }
+
+    .btn-action-disable {
+        background: transparent;
+        color: #64748b;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        cursor: pointer;
+        font-family: inherit;
+    }
+
+    .btn-action-disable:hover {
+        background: rgba(239, 68, 68, 0.05);
+        color: #ef4444;
+        border-color: rgba(239, 68, 68, 0.15);
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="catalog-container">
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
+            <div>
+                <h1
+                    style="font-family: 'Syne', sans-serif; font-size: 34px; font-weight: 800; letter-spacing: -1px; color: #f0f6ff; margin: 0 0 10px 0; line-height: 1;">
+                    Gerenciar <span style="color: #60a5fa;">Produtos</span>
+                </h1>
+                <p style="color: #64748b; font-size: 14px; margin: 0;">
+                    Visão geral de inventário ativo e balanço patrimonial.
+                </p>
+            </div>
+            <a href="/produtos/novo" class="btn-add">
+                <i class="fas fa-plus" style="font-size: 11px;"></i>
+                <span>Novo item</span>
+            </a>
+        </div>
+
+        {% set total_itens = produtos|length %}
+        {% set de_fora = namespace(qtd=0) %}
+        {% for p in produtos %}{% if p.estoque_total == 0 %}{% set de_fora.qtd = de_fora.qtd + 1 %}{% endif
+        %}{% endfor %}
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-icon" style="background: rgba(59, 130, 246, 0.08); color: #3b82f6;"><i
+                        class="fas fa-boxes-stacked"></i></div>
+                <div>
+                    <span
+                        style="display: block; color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 500;">Registrados</span>
+                    <strong style="color: #f8fafc; font-size: 18px; font-weight: 600;">{{ total_itens }} ativos</strong>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon" style="background: rgba(16, 185, 129, 0.08); color: #10b981;"><i
+                        class="fas fa-circle-check"></i></div>
+                <div>
+                    <span
+                        style="display: block; color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 500;">Em
+                        Estoque</span>
+                    <strong style="color: #f8fafc; font-size: 18px; font-weight: 600;">{{ total_itens - de_fora.qtd }}
+                        itens</strong>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon" style="background: rgba(239, 68, 68, 0.08); color: #ef4444;"><i
+                        class="fas fa-triangle-exclamation"></i></div>
+                <div>
+                    <span
+                        style="display: block; color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 500;">Esgotados</span>
+                    <strong style="color: #f8fafc; font-size: 18px; font-weight: 600;">{{ de_fora.qtd }} sem
+                        saldo</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-bar-container">
+            <div class="search-wrapper">
+                <i class="fas fa-magnifying-glass"></i>
+                <input type="text" id="tableSearch" class="search-input"
+                    placeholder="Pesquisar por nome, ID ou categoria...">
+            </div>
+            <div style="color: #475569; font-size: 12px; font-weight: 500;">
+                <i class="fas fa-filter" style="margin-right: 4px;"></i> Filtro dinâmico ativo
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div style="overflow-x: auto;">
+                <table class="custom-table" id="productsTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 70px;">Item</th>
+                            <th>Nome do Ativo</th>
+                            <th>Categoria</th>
+                            <th>Preço Unitário</th>
+                            <th style="text-align: center;">Quantidade</th>
+                            <th style="text-align: center;">Status</th>
+                            <th style="text-align: center; width: 80px;" onclick="event.stopPropagation();">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for produto in produtos %}
+                        <tr class="prod-row" onclick="window.location.href='/produtos/{{ produto.id }}/editar'">
+
+                            <td>
+                                <img src="{{ produto.imagem_url }}" alt="{{ produto.nome }}"
+                                    style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.2);">
+                            </td>
+
+                            <td style="font-weight: 500; letter-spacing: -0.2px;">
+                                <span
+                                    style="color: #64748b; font-size: 11px; font-family: monospace; display: block;">#{{
+                                    produto.id }}</span>
+                                {{ produto.nome }}
+                                <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">{{ produto.variacoes|length }} variação{% if produto.variacoes|length != 1 %}es{% endif %}</div>
+                            </td>
+
+                            <td>
+                                <span class="badge badge-category">
+                                    {% if produto.categoria %}{{ produto.categoria.nome }}{% else %}—{% endif %}
+                                </span>
+                            </td>
+
+                            <td style="color: #94a3b8; font-weight: 500;">
+                                R$ {{ "%.2f"|format(produto.preco) }}
+                            </td>
+
+                            <td style="text-align: center;">
+                                {% if produto.estoque_total == 0 %}
+                                <span class="badge badge-danger">0 un</span>
+                                {% elif produto.estoque_total < 10 %} <span class="badge badge-warning">
+                                    {{ produto.estoque_total }} un</span>
+                                    {% else %}
+                                    <span class="badge badge-success">{{ produto.estoque_total }} un</span>
+                                    {% endif %}
+                            </td>
+
+                            <td style="text-align: center;">
+                                {% if produto.ativo %}
+                                <span style="color: #10b981; font-size: 12px;"><i class="fas fa-circle"
+                                        style="font-size: 8px; margin-right: 5px;"></i> Ativo</span>
+                                {% else %}
+                                <span style="color: #64748b; font-size: 12px;"><i class="fas fa-circle"
+                                        style="font-size: 8px; margin-right: 5px;"></i> Inativo</span>
+                                {% endif %}
+                            </td>
+
+                            <td style="text-align: center;" onclick="event.stopPropagation();">
+                                <div style="display: inline-flex; gap: 6px;">
+                                    <form method="POST" action="/produtos/{{ produto.id }}/desativar"
+                                        style="display: inline;">
+                                        <button type="submit" class="btn-action-disable" title="Remover item"
+                                            onclick="return confirm('Tem certeza que deseja remover este produto da lista? Ele será desativado, mas o registro será mantido.');">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div
+                style="background: rgba(255,255,255,0.01); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.04); font-size: 12px; color: #475569;">
+                <div>Mostrando todos os {{ total_itens }} registros</div>
+                <div style="display: flex; gap: 4px;">
+                    <span
+                        style="padding: 4px 8px; background: rgba(255,255,255,0.04); border-radius: 4px; color: #f8fafc; font-weight: 600;">1</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Mecanismo de Busca Dinâmica em Tempo Real
+    (function () {
+        const tableSearch = document.getElementById('tableSearch');
+        if (!tableSearch) return;
+
+        // Variável injetada pelo servidor: true se houver usuário autenticado
+        const isAuthenticated = {{ 'true' if usuario else 'false' }};
+
+    tableSearch.addEventListener('input', function () {
+        if (this.value && this.value.length > 0) {
+            if (!isAuthenticated) {
+                const goLogin = confirm('Você precisa estar logado para usar a busca. Ir para Login? (OK = Login, Cancelar = Cadastro)');
+                window.location.href = goLogin ? '/auth/login' : '/auth/cadastro';
+                return;
+            }
+            // se autenticado, não redireciona — deixa o filtro local funcionar
+        }
+    });
+
+    // Filtro local em tempo real (uso permitido somente se autenticado)
+    tableSearch.addEventListener('keyup', function () {
+        const searchValue = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#productsTable tbody .prod-row');
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            if (text.includes(searchValue)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+    }) ();
+</script>
+{% endblock %}
