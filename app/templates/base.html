@@ -1,22 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-    <title>{% block titulo %}{% endblock %}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block titulo %}Meu Site{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
-<header>
-    <h1>Sistema Escolar</h1>
-</header>
+    
 
-<main>
-    {% block conteudo %}
-    {% endblock %}
-</main>
+    <main>
+        {% block conteudo %}
+        {% endblock %}
+    </main>
 
-<footer>
-    Copyright 2026
-</footer>
+    <footer>
+        <p>Projeto escolar - 2026</p>
+    </footer>
 
 </body>
 </html>
