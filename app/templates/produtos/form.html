@@ -442,39 +442,21 @@
         var addVariationBtn = document.getElementById('addVariationBtn');
         var variationsWrapper = document.getElementById('variationsWrapper');
         var estoqueTotalInput = document.getElementById('estoque_atual');
-        var categoriaSelect = document.getElementById('categoria_id');
         var variationsField = addVariationBtn ? addVariationBtn.closest('.field.wide') : null;
-        var categoriaAnteriorPermiteTamanho = categoriaExigeTamanho();
-
-        function categoriaExigeTamanho() {
-            if (!categoriaSelect || categoriaSelect.selectedIndex < 0) return false;
-
-            var categoria = categoriaSelect.options[categoriaSelect.selectedIndex].text;
-            categoria = categoria.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
-            return categoria === 'vestuario e uniformes';
-        }
 
         function atualizarDisponibilidadeVariacoes() {
-            var permitido = categoriaExigeTamanho();
-
             if (variationsField) {
-                variationsField.hidden = !permitido;
+                variationsField.hidden = false;
             }
 
             document.querySelectorAll(
                 'input[name="variacoes_tamanho"], input[name="variacoes_cor"], input[name="variacoes_estoque"]'
             ).forEach(function (input) {
-                input.disabled = !permitido;
-                input.required = permitido;
+                input.disabled = false;
+                input.required = false;
             });
 
-            if (addVariationBtn) addVariationBtn.disabled = !permitido;
-        }
-
-        function limparTamanhoECor() {
-            document.querySelectorAll('input[name="variacoes_tamanho"], input[name="variacoes_cor"]').forEach(function (input) {
-                input.value = '';
-            });
+            if (addVariationBtn) addVariationBtn.disabled = false;
         }
 
         function atualizarEstoqueTotal() {
@@ -538,17 +520,6 @@
         document.querySelectorAll('.variation-stock').forEach(function (input) {
             input.addEventListener('input', atualizarEstoqueTotal);
         });
-
-        if (categoriaSelect) {
-            categoriaSelect.addEventListener('change', function () {
-                var categoriaAtualPermiteTamanho = categoriaExigeTamanho();
-                if (categoriaAnteriorPermiteTamanho && !categoriaAtualPermiteTamanho) {
-                    limparTamanhoECor();
-                }
-                atualizarDisponibilidadeVariacoes();
-                categoriaAnteriorPermiteTamanho = categoriaAtualPermiteTamanho;
-            });
-        }
 
         atualizarEstoqueTotal();
         atualizarDisponibilidadeVariacoes();

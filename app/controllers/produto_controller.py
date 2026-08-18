@@ -1,7 +1,6 @@
 import os
 import shutil
 import uuid
-import unicodedata
 from typing import Optional, List
 from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, status
 from fastapi.responses import RedirectResponse
@@ -29,16 +28,6 @@ PALAVRAS_ROUPA = {
     "bermuda", "short", "vestido", "jaqueta", "casaco",
     "tênis", "tenis", "uniforme", "moletom", "calcinha", "cueca"
 }
-
-
-def _categoria_permite_tamanho(categoria_nome: Optional[str]) -> bool:
-    """Indica se a categoria exige variaÃ§Ãµes de tamanho e cor."""
-    nome_normalizado = unicodedata.normalize("NFKD", categoria_nome or "")
-    nome_normalizado = "".join(
-        caractere for caractere in nome_normalizado
-        if not unicodedata.combining(caractere)
-    ).strip().lower()
-    return nome_normalizado == "vestuario e uniformes"
 
 
 def _parse_item_variacao(
@@ -84,16 +73,6 @@ def _parse_variacoes(
             variacoes.append(variacao)
 
     return variacoes, None
-
-
-def _validar_variacoes_roupa(variacoes: list[Variacao]) -> Optional[str]:
-    """Valida se as variações fazem sentido para um produto de roupa."""
-    if len(variacoes) == 1:
-        v = variacoes[0]
-        if v.tamanho.strip().lower() == "único" and v.cor.strip().lower() == "padrão":
-            return "Produtos de roupa não podem usar a variação padrão. Defina tamanho e cor específicos para este item."
-
-    return None
 # ============================================================
 # LISTAGEM
 # ============================================================
@@ -199,31 +178,11 @@ async def criar_produto(
             status_code=400
         )
 
-    categoria_obj = None
-    if categoria_id:
-        categoria_obj = db.query(Categoria).filter(Categoria.id == categoria_id).first()
-    categoria_exige_tamanho = _categoria_permite_tamanho(
-        categoria_obj.nome if categoria_obj else None
-    )
-
-    variacoes_valores = []
-    if variacoes_tamanho or variacoes_cor or variacoes_estoque:
-        for tamanho, cor, estoque in zip(
-            variacoes_tamanho or [],
-            variacoes_cor or [],
-            variacoes_estoque or []
-        ):
-            variacoes_valores.append({
-                "tamanho": tamanho or "",
-                "cor": cor or "",
-                "estoque": estoque or ""
-            })
-
     variacoes, variacoes_erro = _parse_variacoes(
         variacoes_tamanho, variacoes_cor, variacoes_estoque
     )
 
-    if categoria_exige_tamanho and not variacoes:
+    if variacoes_erro:
         return templates.TemplateResponse(
             request,
             "produtos/form.html",
@@ -232,40 +191,21 @@ async def criar_produto(
                 "usuario": admin,
                 "editando": None,
                 "categorias": categorias,
-                "erro": variacoes_erro or "Produtos de roupa precisam ter pelo menos uma variação com tamanho, cor e quantidade.",
+                "erro": variacoes_erro,
                 "valores": {
                     "nome": nome,
                     "preco": preco,
                     "categoria_id": categoria_id,
                     "ativo": ativo is not None,
                 },
-                "variacoes_valores": variacoes_valores,
+                "variacoes_valores": [{
+                    "tamanho": (variacoes_tamanho or [""])[i] if i < len(variacoes_tamanho or []) else "",
+                    "cor": (variacoes_cor or [""])[i] if i < len(variacoes_cor or []) else "",
+                    "estoque": (variacoes_estoque or [""])[i] if i < len(variacoes_estoque or []) else "",
+                } for i in range(max(len(variacoes_tamanho or []), len(variacoes_cor or []), len(variacoes_estoque or [])))],
             },
             status_code=400,
         )
-
-    if categoria_exige_tamanho and variacoes:
-        variacoes_erro_roupa = _validar_variacoes_roupa(variacoes)
-        if variacoes_erro_roupa:
-            return templates.TemplateResponse(
-                request,
-                "produtos/form.html",
-                {
-                    "request": request,
-                    "usuario": admin,
-                    "editando": None,
-                    "categorias": categorias,
-                    "erro": variacoes_erro_roupa,
-                    "valores": {
-                        "nome": nome,
-                        "preco": preco,
-                        "categoria_id": categoria_id,
-                        "ativo": ativo is not None,
-                    },
-                    "variacoes_valores": variacoes_valores,
-                },
-                status_code=400,
-            )
 
     # Processa o upload da imagem
     imagem_path = await _salvar_imagem(imagem)
@@ -390,31 +330,11 @@ async def editar_produto(
         _remover_imagem(editando.imagem_path)
         editando.imagem_path = nova_imagem_path
 
-    categoria_obj = None
-    if categoria_id:
-        categoria_obj = db.query(Categoria).filter(Categoria.id == categoria_id).first()
-    categoria_exige_tamanho = _categoria_permite_tamanho(
-        categoria_obj.nome if categoria_obj else None
-    )
-
-    variacoes_valores = []
-    if variacoes_tamanho or variacoes_cor or variacoes_estoque:
-        for tamanho, cor, estoque in zip(
-            variacoes_tamanho or [],
-            variacoes_cor or [],
-            variacoes_estoque or []
-        ):
-            variacoes_valores.append({
-                "tamanho": tamanho or "",
-                "cor": cor or "",
-                "estoque": estoque or ""
-            })
-
     variacoes, variacoes_erro = _parse_variacoes(
         variacoes_tamanho, variacoes_cor, variacoes_estoque
     )
 
-    if categoria_exige_tamanho and not variacoes:
+    if variacoes_erro:
         return templates.TemplateResponse(
             request,
             "produtos/form.html",
@@ -423,40 +343,21 @@ async def editar_produto(
                 "usuario": admin,
                 "editando": editando,
                 "categorias": categorias,
-                "erro": variacoes_erro or "Produtos de roupa precisam ter pelo menos uma variação com tamanho, cor e quantidade.",
+                "erro": variacoes_erro,
                 "valores": {
                     "nome": nome,
                     "preco": preco,
                     "categoria_id": categoria_id,
                     "ativo": ativo is not None,
                 },
-                "variacoes_valores": variacoes_valores,
+                "variacoes_valores": [{
+                    "tamanho": (variacoes_tamanho or [""])[i] if i < len(variacoes_tamanho or []) else "",
+                    "cor": (variacoes_cor or [""])[i] if i < len(variacoes_cor or []) else "",
+                    "estoque": (variacoes_estoque or [""])[i] if i < len(variacoes_estoque or []) else "",
+                } for i in range(max(len(variacoes_tamanho or []), len(variacoes_cor or []), len(variacoes_estoque or [])))],
             },
             status_code=400,
         )
-
-    if categoria_exige_tamanho and variacoes:
-        variacoes_erro_roupa = _validar_variacoes_roupa(variacoes)
-        if variacoes_erro_roupa:
-            return templates.TemplateResponse(
-                request,
-                "produtos/form.html",
-                {
-                    "request": request,
-                    "usuario": admin,
-                    "editando": editando,
-                    "categorias": categorias,
-                    "erro": variacoes_erro_roupa,
-                    "valores": {
-                        "nome": nome,
-                        "preco": preco,
-                        "categoria_id": categoria_id,
-                        "ativo": ativo is not None,
-                    },
-                    "variacoes_valores": variacoes_valores,
-                },
-                status_code=400,
-            )
 
     if variacoes:
         editando.variacoes[:] = []
