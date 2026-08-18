@@ -2,7 +2,7 @@
 # models/armario.py — Tabela de armários
 # ============================================================
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum, UniqueConstraint
 from sqlalchemy.sql import func
 from app.database import Base
 from datetime import datetime, timedelta, timezone
@@ -17,11 +17,14 @@ class StatusArmario(str, enum.Enum):
 
 class Armario(Base):
     __tablename__ = "armarios"
+    __table_args__ = (
+        UniqueConstraint('numero', 'localizacao', name='uix_numero_localizacao'),
+    )
 
     id     = Column(Integer, primary_key=True, index=True)
 
     # Número visível na porta do armário — ex: "A01", "B12", "42"
-    numero = Column(String(20), nullable=False, unique=True)
+    numero = Column(String(20), nullable=False)
 
     # Localização opcional — ex: "Bloco A - Térreo"
     localizacao = Column(String(100), nullable=True)

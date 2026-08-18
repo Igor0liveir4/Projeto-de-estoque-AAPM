@@ -103,9 +103,14 @@ def criar_armario(
     db: Session      = Depends(get_db),
     admin            = Depends(get_admin)
 ):
-    # Número do armário deve ser único
+    # Normaliza entrada
+    num = numero.strip().upper()
+    loc = localizacao.strip() or None
+
+    # Número do armário deve ser único dentro da mesma localização/bloco
     existente = db.query(Armario).filter(
-        Armario.numero == numero.strip().upper()
+        Armario.numero == num,
+        Armario.localizacao == loc
     ).first()
 
     if existente:
@@ -116,9 +121,9 @@ def criar_armario(
                 "request":  request,
                 "usuario":  admin,
                 "editando": None,
-                "erro":     f"Armário {numero.upper()} já está cadastrado.",
+                "erro":     f"Armário {num} já está cadastrado nesta localização.",
                 "valores":  {
-                    "numero": numero,
+                    "numero": num,
                     "localizacao": localizacao,
                     "observacao": observacao,
                 },
@@ -127,8 +132,8 @@ def criar_armario(
         )
 
     db.add(Armario(
-        numero      = numero.strip().upper(),
-        localizacao = localizacao.strip() or None,
+        numero      = num,
+        localizacao = loc,
         observacao  = observacao.strip() or None,
     ))
     db.commit()
@@ -193,6 +198,7 @@ def form_editar_armario(
 @router.post("/{armario_id}/editar")
 def editar_armario(
     armario_id: int,
+    request: Request,
     numero: str      = Form(...),
     localizacao: str = Form(""),
     observacao: str  = Form(""),
@@ -204,9 +210,14 @@ def editar_armario(
     if not editando:
         return RedirectResponse(url="/armarios", status_code=302)
 
-    # Verifica conflito de número com outro armário
+    # Normaliza entrada
+    num = numero.strip().upper()
+    loc = localizacao.strip() or None
+
+    # Verifica conflito de número com outro armário na mesma localização
     conflito = db.query(Armario).filter(
-        Armario.numero == numero.strip().upper(),
+        Armario.numero == num,
+        Armario.localizacao == loc,
         Armario.id != armario_id
     ).first()
 
@@ -218,13 +229,13 @@ def editar_armario(
                 "request":  request,
                 "usuario":  admin,
                 "editando": editando,
-                "erro":     f"Armário {numero.upper()} já existe.",
+                "erro":     f"Armário {num} já existe nesta localização.",
             },
             status_code=400
         )
 
-    editando.numero      = numero.strip().upper()
-    editando.localizacao = localizacao.strip() or None
+    editando.numero      = num
+    editando.localizacao = loc
     editando.observacao  = observacao.strip() or None
     db.commit()
 
