@@ -4,14 +4,20 @@
 {% set primeira_visivel = [1, pagina - 2] | max %}
 {% set ultima_visivel = [total_paginas, pagina + 2] | min %}
 <div class="server-pagination">
-  <div class="server-pagination__size">
+  <form class="server-pagination__size" action="{{ request.url.path }}" method="get">
+    {% for chave, valor in request.query_params.multi_items() %}
+      {% if chave not in ('pagina', 'por_pagina') %}
+      <input type="hidden" name="{{ chave }}" value="{{ valor }}">
+      {% endif %}
+    {% endfor %}
     <label for="por-pagina">Itens por página</label>
-    <select id="por-pagina" aria-label="Itens por página" onchange="const url = new URL(window.location.href); url.searchParams.set('por_pagina', this.value); url.searchParams.set('pagina', '1'); window.location.href = url.toString();">
+    <select id="por-pagina" name="por_pagina" aria-label="Itens por página" onchange="this.form.submit()">
       {% for tamanho in (10, 20, 50) %}
       <option value="{{ tamanho }}" {% if por_pagina == tamanho %}selected{% endif %}>{{ tamanho }}</option>
       {% endfor %}
     </select>
-  </div>
+    <button type="submit" class="server-pagination__apply">Aplicar</button>
+  </form>
 
   <span class="server-pagination__summary" aria-live="polite">
     {% if total_itens %}Mostrando {{ inicio }}–{{ fim }} de {{ total_itens }} {{ item_nome }}{% else %}Nenhum {{ item_nome }} encontrado{% endif %}
