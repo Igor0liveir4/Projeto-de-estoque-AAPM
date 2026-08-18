@@ -138,6 +138,7 @@ def tela_home(
     total_produtos      = db.query(Produto).count()
     total_categorias    = db.query(Categoria).count()
     total_usuarios      = db.query(Usuario).count()
+    total_armarios      = db.query(Armario).count()
     total_clientes      = db.query(Cliente).count()
     total_vendas        = db.query(Venda).count()
     todos_armarios   = db.query(Armario).filter(Armario.ativo == True).all()
@@ -206,6 +207,7 @@ def tela_home(
             "usuario":             usuario,
             "total_produtos":      total_produtos,
             "total_categorias":    total_categorias,
+            "total_armarios":      total_armarios,
             "total_usuarios":      total_usuarios,
             "total_clientes":      total_clientes,
             "total_vendas":        total_vendas,
