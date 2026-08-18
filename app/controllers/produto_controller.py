@@ -1,6 +1,7 @@
 import os
 import shutil
 import uuid
+import unicodedata
 from typing import Optional, List
 from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, status
 from fastapi.responses import RedirectResponse
@@ -30,9 +31,14 @@ PALAVRAS_ROUPA = {
 }
 
 
-def _eh_produto_roupa(nome: str, categoria_nome: Optional[str]) -> bool:
-    texto = f"{nome or ''} {categoria_nome or ''}".lower()
-    return any(palavra in texto for palavra in PALAVRAS_ROUPA)
+def _categoria_permite_tamanho(categoria_nome: Optional[str]) -> bool:
+    """Indica se a categoria exige variaÃ§Ãµes de tamanho e cor."""
+    nome_normalizado = unicodedata.normalize("NFKD", categoria_nome or "")
+    nome_normalizado = "".join(
+        caractere for caractere in nome_normalizado
+        if not unicodedata.combining(caractere)
+    ).strip().lower()
+    return nome_normalizado == "vestuario e uniformes"
 
 
 def _parse_item_variacao(
@@ -196,7 +202,9 @@ async def criar_produto(
     categoria_obj = None
     if categoria_id:
         categoria_obj = db.query(Categoria).filter(Categoria.id == categoria_id).first()
-    eh_roupa = _eh_produto_roupa(nome, categoria_obj.nome if categoria_obj else None)
+    categoria_exige_tamanho = _categoria_permite_tamanho(
+        categoria_obj.nome if categoria_obj else None
+    )
 
     variacoes_valores = []
     if variacoes_tamanho or variacoes_cor or variacoes_estoque:
@@ -215,7 +223,7 @@ async def criar_produto(
         variacoes_tamanho, variacoes_cor, variacoes_estoque
     )
 
-    if eh_roupa and not variacoes:
+    if categoria_exige_tamanho and not variacoes:
         return templates.TemplateResponse(
             request,
             "produtos/form.html",
@@ -236,7 +244,7 @@ async def criar_produto(
             status_code=400,
         )
 
-    if eh_roupa and variacoes:
+    if categoria_exige_tamanho and variacoes:
         variacoes_erro_roupa = _validar_variacoes_roupa(variacoes)
         if variacoes_erro_roupa:
             return templates.TemplateResponse(
@@ -385,7 +393,9 @@ async def editar_produto(
     categoria_obj = None
     if categoria_id:
         categoria_obj = db.query(Categoria).filter(Categoria.id == categoria_id).first()
-    eh_roupa = _eh_produto_roupa(nome, categoria_obj.nome if categoria_obj else None)
+    categoria_exige_tamanho = _categoria_permite_tamanho(
+        categoria_obj.nome if categoria_obj else None
+    )
 
     variacoes_valores = []
     if variacoes_tamanho or variacoes_cor or variacoes_estoque:
@@ -404,7 +414,7 @@ async def editar_produto(
         variacoes_tamanho, variacoes_cor, variacoes_estoque
     )
 
-    if eh_roupa and not variacoes:
+    if categoria_exige_tamanho and not variacoes:
         return templates.TemplateResponse(
             request,
             "produtos/form.html",
@@ -425,7 +435,7 @@ async def editar_produto(
             status_code=400,
         )
 
-    if eh_roupa and variacoes:
+    if categoria_exige_tamanho and variacoes:
         variacoes_erro_roupa = _validar_variacoes_roupa(variacoes)
         if variacoes_erro_roupa:
             return templates.TemplateResponse(

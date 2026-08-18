@@ -442,6 +442,40 @@
         var addVariationBtn = document.getElementById('addVariationBtn');
         var variationsWrapper = document.getElementById('variationsWrapper');
         var estoqueTotalInput = document.getElementById('estoque_atual');
+        var categoriaSelect = document.getElementById('categoria_id');
+        var variationsField = addVariationBtn ? addVariationBtn.closest('.field.wide') : null;
+        var categoriaAnteriorPermiteTamanho = categoriaExigeTamanho();
+
+        function categoriaExigeTamanho() {
+            if (!categoriaSelect || categoriaSelect.selectedIndex < 0) return false;
+
+            var categoria = categoriaSelect.options[categoriaSelect.selectedIndex].text;
+            categoria = categoria.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+            return categoria === 'vestuario e uniformes';
+        }
+
+        function atualizarDisponibilidadeVariacoes() {
+            var permitido = categoriaExigeTamanho();
+
+            if (variationsField) {
+                variationsField.hidden = !permitido;
+            }
+
+            document.querySelectorAll(
+                'input[name="variacoes_tamanho"], input[name="variacoes_cor"], input[name="variacoes_estoque"]'
+            ).forEach(function (input) {
+                input.disabled = !permitido;
+                input.required = permitido;
+            });
+
+            if (addVariationBtn) addVariationBtn.disabled = !permitido;
+        }
+
+        function limparTamanhoECor() {
+            document.querySelectorAll('input[name="variacoes_tamanho"], input[name="variacoes_cor"]').forEach(function (input) {
+                input.value = '';
+            });
+        }
 
         function atualizarEstoqueTotal() {
             var total = 0;
@@ -483,6 +517,7 @@
             linha.querySelector('.variation-stock').addEventListener('input', atualizarEstoqueTotal);
             linha.querySelector('input[name="variacoes_tamanho"]').addEventListener('input', atualizarEstoqueTotal);
             linha.querySelector('input[name="variacoes_cor"]').addEventListener('input', atualizarEstoqueTotal);
+            atualizarDisponibilidadeVariacoes();
 
             return linha;
         }
@@ -504,7 +539,19 @@
             input.addEventListener('input', atualizarEstoqueTotal);
         });
 
+        if (categoriaSelect) {
+            categoriaSelect.addEventListener('change', function () {
+                var categoriaAtualPermiteTamanho = categoriaExigeTamanho();
+                if (categoriaAnteriorPermiteTamanho && !categoriaAtualPermiteTamanho) {
+                    limparTamanhoECor();
+                }
+                atualizarDisponibilidadeVariacoes();
+                categoriaAnteriorPermiteTamanho = categoriaAtualPermiteTamanho;
+            });
+        }
+
         atualizarEstoqueTotal();
+        atualizarDisponibilidadeVariacoes();
 
         imageInput.addEventListener('change', function () {
             if (!this.files || !this.files.length) return;
