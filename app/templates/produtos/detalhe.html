@@ -147,6 +147,52 @@
         color: #ef4444;
         border-color: rgba(239, 68, 68, 0.2);
     }
+
+    /* Botão de Variações */
+    .btn-variations {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(99, 102, 241, 0.1));
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 24px;
+    }
+
+    .btn-variations:hover {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(99, 102, 241, 0.15));
+        border-color: rgba(59, 130, 246, 0.3);
+        transform: translateY(-1px);
+    }
+
+    .btn-variations i {
+        transition: transform 0.3s ease;
+        font-size: 12px;
+    }
+
+    .btn-variations.active i {
+        transform: rotate(180deg);
+    }
+
+    /* Container de Variações */
+    .variations-container {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+
+    .variations-container.show {
+        max-height: 500px;
+        transition: max-height 0.3s ease;
+    }
 </style>
 
 <div class="page-wrapper">
@@ -207,27 +253,35 @@
 
             </div>
 
-            <div style="padding: 0 32px 32px;">
-                <h3 class="variation-heading">Variações ({{ produto.variacoes|length }})</h3>
-                <table class="variations-table">
-                    <thead>
-                        <tr>
-                            <th>Tamanho</th>
-                            <th>Cor</th>
-                            <th style="text-align: right;">Quantidade</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for variacao in produto.variacoes %}
-                        <tr>
-                            <td>{{ variacao.tamanho }}</td>
-                            <td>{{ variacao.cor }}</td>
-                            <td style="text-align: right;">{{ variacao.estoque_atual }} un</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            {% if produto.variacoes %}
+            <div style="padding: 0 32px;">
+                <button class="btn-variations" onclick="toggleVariations(this)" title="Mostrar/Esconder variações">
+                    <i class="fas fa-chevron-down"></i>
+                    <span>Variações ({{ produto.variacoes|length }})</span>
+                </button>
+
+                <div class="variations-container" id="variationsContainer">
+                    <table class="variations-table">
+                        <thead>
+                            <tr>
+                                <th>Tamanho</th>
+                                <th>Cor</th>
+                                <th style="text-align: right;">Quantidade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for variacao in produto.variacoes %}
+                            <tr>
+                                <td>{{ variacao.tamanho }}</td>
+                                <td>{{ variacao.cor }}</td>
+                                <td style="text-align: right;">{{ variacao.estoque_atual }} un</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
+            {% endif %}
 
             <div style="padding: 0 32px 32px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.03); padding-top: 24px;">
                 <a href="/produtos/excluir/{{ produto.id }}" class="btn-delete" title="Excluir Produto">
@@ -243,4 +297,12 @@
         </div>
     </div>
 </div>
+
+<script>
+    function toggleVariations(button) {
+        const container = document.getElementById('variationsContainer');
+        button.classList.toggle('active');
+        container.classList.toggle('show');
+    }
+</script>
 {% endblock %}

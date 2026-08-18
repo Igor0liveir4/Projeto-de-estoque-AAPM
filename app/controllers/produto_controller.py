@@ -5,7 +5,7 @@ from typing import Optional, List
 from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
 from app.models.produto import Produto
@@ -239,7 +239,7 @@ def detalhe_produto(
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado)
 ):
-    produto = db.query(Produto).filter(
+    produto = db.query(Produto).options(joinedload(Produto.variacoes)).filter(
         Produto.id == produto_id,
         Produto.ativo == True
     ).first()
