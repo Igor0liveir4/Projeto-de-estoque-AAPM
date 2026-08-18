@@ -69,12 +69,20 @@ class Armario(Base):
     def disponivel(self) -> bool:
         return self.status == StatusArmario.DISPONIVEL
 
+    @staticmethod
+    def _to_utc(dt: datetime | None) -> datetime | None:
+        if dt is None:
+            return None
+        if dt.tzinfo is None:
+            return dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(timezone.utc)
+
     @property
     def dias_aluguel(self) -> int:
         """Retorna quantos dias o armário está alugado."""
         if not self.alugado_em:
             return 0
-        delta = datetime.now(timezone.utc) - self.alugado_em
+        delta = datetime.now(timezone.utc) - self._to_utc(self.alugado_em)
         return delta.days
 
     @property
@@ -89,4 +97,4 @@ class Armario(Base):
         """Retorna a data de vencimento (30 dias após aluguel)."""
         if not self.alugado_em:
             return None
-        return self.alugado_em + timedelta(days=30)
+        return self._to_utc(self.alugado_em) + timedelta(days=30)

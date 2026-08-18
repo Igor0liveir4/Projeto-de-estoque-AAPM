@@ -243,6 +243,61 @@ def editar_armario(
 
 
 # ============================================================
+# EDITAR DADOS DO LOCATÁRIO DO ARMÁRIO — admin
+# ============================================================
+
+@router.get("/{armario_id}/editar-locacao")
+def form_editar_locacao(
+    armario_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    admin = Depends(get_admin)
+):
+    armario = db.query(Armario).filter(Armario.id == armario_id).first()
+
+    if not armario or armario.status != StatusArmario.ALUGADO:
+        return RedirectResponse(url=f"/armarios/{armario_id}", status_code=302)
+
+    return templates.TemplateResponse(
+        request,
+        "armarios/form_editar_locacao.html",
+        {
+            "request": request,
+            "usuario": admin,
+            "armario": armario,
+        }
+    )
+
+
+@router.post("/{armario_id}/editar-locacao")
+def editar_locacao(
+    armario_id: int,
+    request: Request,
+    locatario_nome: str = Form(...),
+    nome_curso: str     = Form(...),
+    turma: str          = Form(...),
+    email: str          = Form(...),
+    observacao: str     = Form(""),
+    db: Session         = Depends(get_db),
+    admin               = Depends(get_admin)
+):
+    armario = db.query(Armario).filter(Armario.id == armario_id).first()
+
+    if not armario:
+        return RedirectResponse(url="/armarios", status_code=302)
+
+    armario.locatario_nome = locatario_nome.strip()
+    armario.nome_curso     = nome_curso.strip()
+    armario.turma          = turma.strip()
+    armario.email          = email.strip()
+    armario.observacao     = observacao.strip() or armario.observacao
+
+    db.commit()
+
+    return RedirectResponse(url=f"/armarios/{armario_id}?editado=ok", status_code=302)
+
+
+# ============================================================
 # ALUGAR ARMÁRIO — admin preenche o nome do locatário
 # ============================================================
 

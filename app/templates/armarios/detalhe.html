@@ -75,6 +75,7 @@
                 {% if armario.status.value == 'alugado' %}<form action="/armarios/{{ armario.id }}/liberar"
                     method="post" onsubmit="return confirm('Liberar este armário?')"><button type="submit"
                         class="button"><i class="fas fa-unlock"></i> Liberar</button></form>{% endif %}
+                {% if armario.status.value == 'alugado' %}<a href="/armarios/{{ armario.id }}/editar-locacao" class="button-secondary"><i class="fas fa-user-pen"></i> Editar cliente</a>{% endif %}
                 <a href="/armarios/{{ armario.id }}/editar" class="button-secondary"><i class="fas fa-pen"></i>
                     Editar</a>
                 <form action="/armarios/{{ armario.id }}/toggle-ativo" method="post"><button type="submit"
