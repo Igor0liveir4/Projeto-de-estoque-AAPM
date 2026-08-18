@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -33,6 +33,26 @@ app = FastAPI(title="Gestão de Estoque - AAPM")
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
+
+ROTAS_PROTEGIDAS = (
+    "/armarios",
+    "/categorias",
+    "/cliente",
+    "/movimentacoes",
+    "/pdv",
+    "/produtos",
+    "/usuarios",
+)
+
+
+@app.middleware("http")
+async def redirecionar_visitante_para_inicio(request: Request, call_next):
+    """Redireciona visitantes sem sessao ao acessar paginas restritas."""
+    if request.url.path.startswith(ROTAS_PROTEGIDAS):
+        if get_usuario_opcional(request) is None:
+            return RedirectResponse(url="/", status_code=302)
+
+    return await call_next(request)
 
 # ── API de carro para o 404 ─────────────────────────────────────────────────
 @app.get("/api/get-carro")
