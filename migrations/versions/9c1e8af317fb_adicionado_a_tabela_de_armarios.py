@@ -34,7 +34,7 @@ def upgrade() -> None:
     sa.Column('criado_em', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
     sa.Column('atualizado_em', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('numero')
+    sa.UniqueConstraint('numero', 'localizacao', name='uix_numero_localizacao')
     )
     op.create_index(op.f('ix_armarios_id'), 'armarios', ['id'], unique=False)
     # ### end Alembic commands ###
