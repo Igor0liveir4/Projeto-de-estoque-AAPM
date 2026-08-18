@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Editar locatário - Armário {{ armario.numero }} - AAPM{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/armarios.css">
+{% endblock %}
+
+{% block content %}
+<section class="armarios-page">
+    <a href="/armarios/{{ armario.id }}" class="button-link"><i class="fas fa-arrow-left"></i> Voltar aos detalhes</a>
+    <div class="form-layout" style="margin-top: 18px;">
+        <div class="form-card">
+            <p class="page-eyebrow">Editar locação</p>
+            <h2>Dados do locatário do armário {{ armario.numero }}</h2>
+            <p class="form-help"><i class="fas fa-location-dot"></i> {{ armario.localizacao or 'Localização não informada' }}</p>
+            {% if erro %}<div class="alert error"><i class="fas fa-circle-exclamation"></i> {{ erro }}</div>{% endif %}
+
+            <form action="/armarios/{{ armario.id }}/editar-locacao" method="post">
+                <div class="field">
+                    <label for="locatario_nome">Nome do locatário <span style="color: #ef4444;">*</span></label>
+                    <input id="locatario_nome" type="text" name="locatario_nome" value="{{ armario.locatario_nome or '' }}" placeholder="Nome completo do aluno" required autofocus>
+                </div>
+                <div class="field">
+                    <label for="nome_curso">Nome do curso <span style="color: #ef4444;">*</span></label>
+                    <input id="nome_curso" type="text" name="nome_curso" value="{{ armario.nome_curso or '' }}" placeholder="Ex.: Engenharia de Software" required>
+                </div>
+                <div class="field">
+                    <label for="turma">Turma <span style="color: #ef4444;">*</span></label>
+                    <input id="turma" type="text" name="turma" value="{{ armario.turma or '' }}" placeholder="Ex.: Seduc - Dev, 2026-A" required>
+                </div>
+                <div class="field">
+                    <label for="email">Email para avisos <span style="color: #ef4444;">*</span></label>
+                    <input id="email" type="email" name="email" value="{{ armario.email or '' }}" placeholder="Ex.: aluno@email.com" required>
+                </div>
+                <div class="field">
+                    <label for="observacao">Observação <span style="font-weight:400">(opcional)</span></label>
+                    <textarea id="observacao" name="observacao" maxlength="255" placeholder="Ex.: chave reserva na portaria">{{ armario.observacao or '' }}</textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="button"><i class="fas fa-save"></i> Salvar alterações</button>
+                    <a href="/armarios/{{ armario.id }}" class="button-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+        <aside class="info-panel">
+            <i class="fas fa-user-pen"></i>
+            <h3>Atualização do cliente</h3>
+            <p>Use este formulário para ajustar dados do locatário sem liberar o armário.</p>
+        </aside>
+    </div>
+</section>
+{% endblock %}
