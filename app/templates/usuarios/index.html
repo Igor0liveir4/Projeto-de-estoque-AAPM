@@ -83,6 +83,7 @@
   }
   .alert-success { background: rgba(16,185,129,0.1); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.2); }
   .alert-error   { background: rgba(239,68,68,0.1);  color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
+  .alert-warning { background: rgba(245,158,11,0.1); color: #fcd34d; border: 1px solid rgba(245,158,11,0.2); }
 
   /* ── Tabela ── */
   .table-wrap {
@@ -204,6 +205,9 @@
   .btn-toggle.ativar       { background: rgba(74,222,128,0.1);  color: #4ade80; border-color: rgba(74,222,128,0.18); }
   .btn-toggle.ativar:hover { background: rgba(74,222,128,0.22); color: #86efac; }
 
+  .btn-delete       { background: rgba(239,68,68,0.1); color: #f87171; border-color: rgba(239,68,68,0.18); }
+  .btn-delete:hover { background: rgba(239,68,68,0.22); color: #fca5a5; }
+
   /* ── Vazio ── */
   .empty-state {
     text-align: center;
@@ -241,9 +245,25 @@
     <i class="fas fa-circle-check"></i> Usuário atualizado com sucesso!
   </div>
   {% endif %}
+  {% if request.query_params.get('excluido') == 'ok' %}
+  <div class="alert-banner alert-success">
+    <i class="fas fa-circle-check"></i> Usuário excluído com sucesso!
+  </div>
+  {% endif %}
   {% if request.query_params.get('erro') == 'autoproprio' %}
   <div class="alert-banner alert-error">
     <i class="fas fa-triangle-exclamation"></i> Você não pode desativar sua própria conta.
+  </div>
+  {% endif %}
+  {% if request.query_params.get('erro') == 'autoproprio_exclusao' %}
+  <div class="alert-banner alert-error">
+    <i class="fas fa-triangle-exclamation"></i> Você não pode excluir sua própria conta.
+  </div>
+  {% endif %}
+  {% if request.query_params.get('erro') == 'registros_impedem_exclusao' %}
+  <div class="alert-banner alert-warning">
+    <i class="fas fa-triangle-exclamation"></i>
+    Não é possível excluir <strong>{{ request.query_params.get('usuario') }}</strong>: há movimentações ou vendas vinculadas a este usuário.
   </div>
   {% endif %}
 
@@ -293,6 +313,12 @@
                   title="{{ 'Ativar usuário' if not u.ativo else 'Desativar usuário' }}">
                   <i class="fas fa-{{ 'toggle-on' if u.ativo else 'toggle-off' }}"></i>
                   {{ 'Desativar' if u.ativo else 'Ativar' }}
+                </button>
+              </form>
+              <form action="/usuarios/{{ u.id }}/excluir" method="post" style="margin:0;"
+                onsubmit="return confirm('Deseja realmente excluir este usuário?');">
+                <button type="submit" class="btn-action btn-delete" title="Excluir usuário">
+                  <i class="fas fa-trash"></i> Excluir
                 </button>
               </form>
             </div>
