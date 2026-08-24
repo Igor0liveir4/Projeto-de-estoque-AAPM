@@ -158,6 +158,11 @@
         font-size: 18px;
         font-weight: 700;
         color: var(--accent-light);
+        transition: color var(--transition);
+    }
+
+    .produto-card.com-desconto-associado .produto-preco {
+        color: #6ee7b7;
     }
 
     .produto-estoque {
@@ -726,8 +731,21 @@ window.atualizarCliente = function () {
     isAssociado = opt.dataset.associado === 'true';
     document.getElementById('desconto-badge').style.display = isAssociado ? 'flex' : 'none';
     document.getElementById('cliente-id-input').value = sel.value;
+    atualizarPrecosProdutos();
     renderCarrinho();
 };
+
+function atualizarPrecosProdutos() {
+    document.querySelectorAll('.produto-card').forEach(card => {
+        const precoOriginal = parseFloat(card.dataset.preco);
+        const precoExibido = isAssociado
+            ? precoOriginal * (1 - DESCONTO_PCT / 100)
+            : precoOriginal;
+
+        card.querySelector('.produto-preco').textContent = fmtBRL(precoExibido);
+        card.classList.toggle('com-desconto-associado', isAssociado);
+    });
+}
 
 // ── Render ─────────────────────────────────────
 function renderCarrinho() {
