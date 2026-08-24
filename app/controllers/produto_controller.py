@@ -5,6 +5,7 @@ from typing import Optional, List
 from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
@@ -97,6 +98,23 @@ def listar_produtos(
 
     resultado = paginar(query.order_by(Produto.nome), pagina, por_pagina)
 
+    # Os cards resumem todo o estoque ativo, e não somente os produtos
+    # carregados na página atual da listagem.
+    total_estoque = (
+        db.query(func.coalesce(func.sum(Variacao.estoque_atual), 0))
+        .join(Produto, Variacao.produto_id == Produto.id)
+        .filter(Produto.ativo == True)
+        .scalar()
+    )
+    total_esgotados = (
+        db.query(Produto.id)
+        .outerjoin(Variacao)
+        .filter(Produto.ativo == True)
+        .group_by(Produto.id)
+        .having(func.coalesce(func.sum(Variacao.estoque_atual), 0) == 0)
+        .count()
+    )
+
     categorias = db.query(Categoria).filter(Categoria.ativa == True).all()
 
     return templates.TemplateResponse(
@@ -113,6 +131,8 @@ def listar_produtos(
             "por_pagina":   resultado.por_pagina,
             "total_paginas": resultado.total_paginas,
             "total_produtos": resultado.total_itens,
+            "total_estoque": int(total_estoque),
+            "total_esgotados": total_esgotados,
         }
     )
 
