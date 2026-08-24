@@ -596,31 +596,36 @@
                 %}
                 {% set is_armarios = current_path == '/armarios' or current_path.startswith('/armarios/') %}
                 {% set is_pdv = current_path == '/pdv' or current_path.startswith('/pdv/') %}
+                {% set is_admin = usuario.role == 'admin' %}
                 <div class="nav-buttons">
                     <a href="/" class="nav-btn {{ 'active' if is_home else '' }}" {% if is_home %}aria-current="page" {%
                         endif %}>
                         <i class="fas fa-house"></i> Home
                     </a>
-                    <a href="/cliente" class="nav-btn {{ 'active' if is_cliente else '' }}" {% if is_cliente
-                        %}aria-current="page" {% endif %}>
-                        <i class="fas fa-users"></i> Clientes
-                    </a>
+                    {% if is_admin %}
+                        <a href="/cliente" class="nav-btn {{ 'active' if is_cliente else '' }}" {% if is_cliente
+                            %}aria-current="page" {% endif %}>
+                            <i class="fas fa-users"></i> Clientes
+                        </a>
+                    {% endif %}
                     <a href="/produtos" class="nav-btn {{ 'active' if is_produtos else '' }}" {% if is_produtos
                         %}aria-current="page" {% endif %}>
                         <i class="fas fa-box-open"></i> Produtos
                     </a>
-                    <a href="/categorias" class="nav-btn {{ 'active' if is_categorias else '' }}" {% if is_categorias
-                        %}aria-current="page" {% endif %}>
-                        <i class="fas fa-tags"></i> Categorias
-                    </a>
-                    <a href="/usuarios" class="nav-btn {{ 'active' if is_usuarios else '' }}" {% if is_usuarios
-                        %}aria-current="page" {% endif %}>
-                        <i class="fas fa-user-gear"></i> Usuários
-                    </a>
-                    <a href="/movimentacoes" class="nav-btn {{ 'active' if is_movimentacoes else '' }}" {% if
-                        is_movimentacoes %}aria-current="page" {% endif %}>
-                        <i class="fas fa-exchange-alt"></i> Movimentações
-                    </a>
+                    {% if is_admin %}
+                        <a href="/categorias" class="nav-btn {{ 'active' if is_categorias else '' }}" {% if is_categorias
+                            %}aria-current="page" {% endif %}>
+                            <i class="fas fa-tags"></i> Categorias
+                        </a>
+                        <a href="/usuarios" class="nav-btn {{ 'active' if is_usuarios else '' }}" {% if is_usuarios
+                            %}aria-current="page" {% endif %}>
+                            <i class="fas fa-user-gear"></i> Usuários
+                        </a>
+                        <a href="/movimentacoes" class="nav-btn {{ 'active' if is_movimentacoes else '' }}" {% if
+                            is_movimentacoes %}aria-current="page" {% endif %}>
+                            <i class="fas fa-exchange-alt"></i> Movimentações
+                        </a>
+                    {% endif %}
                     <a href="/armarios" class="nav-btn {{ 'active' if is_armarios else '' }}" {% if is_armarios
                         %}aria-current="page" {% endif %}>
                         <i class="fas fa-door-open"></i> Armários
