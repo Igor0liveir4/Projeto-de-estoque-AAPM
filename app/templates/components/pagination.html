@@ -1,0 +1,50 @@
+{% macro render(pagina, por_pagina, total_itens, total_paginas, item_nome='registros') %}
+{% set inicio = (pagina - 1) * por_pagina + 1 if total_itens else 0 %}
+{% set fim = [pagina * por_pagina, total_itens] | min %}
+{% set primeira_visivel = [1, pagina - 2] | max %}
+{% set ultima_visivel = [total_paginas, pagina + 2] | min %}
+<div class="server-pagination">
+  <form class="server-pagination__size" action="{{ request.url.path }}" method="get">
+    {% for chave, valor in request.query_params.multi_items() %}
+      {% if chave not in ('pagina', 'por_pagina') %}
+      <input type="hidden" name="{{ chave }}" value="{{ valor }}">
+      {% endif %}
+    {% endfor %}
+    <label for="por-pagina">Itens por página</label>
+    <select id="por-pagina" name="por_pagina" aria-label="Itens por página" onchange="this.form.submit()">
+      {% for tamanho in (10, 20, 50) %}
+      <option value="{{ tamanho }}" {% if por_pagina == tamanho %}selected{% endif %}>{{ tamanho }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="server-pagination__apply">Aplicar</button>
+  </form>
+
+  <span class="server-pagination__summary" aria-live="polite">
+    {% if total_itens %}Mostrando {{ inicio }}–{{ fim }} de {{ total_itens }} {{ item_nome }}{% else %}Nenhum {{ item_nome }} encontrado{% endif %}
+  </span>
+
+  {% if total_paginas > 1 %}
+  <nav class="server-pagination__controls" aria-label="Paginação">
+    <a class="server-pagination__button {% if pagina == 1 %}is-disabled{% endif %}"
+       {% if pagina > 1 %}href="{{ request.url.include_query_params(pagina=pagina - 1, por_pagina=por_pagina) }}"{% else %}aria-disabled="true"{% endif %}
+       aria-label="Página anterior">‹</a>
+    {% if primeira_visivel > 1 %}
+      <a class="server-pagination__button" href="{{ request.url.include_query_params(pagina=1, por_pagina=por_pagina) }}">1</a>
+      {% if primeira_visivel > 2 %}<span class="server-pagination__ellipsis">…</span>{% endif %}
+    {% endif %}
+    {% for numero in range(primeira_visivel, ultima_visivel + 1) %}
+      <a class="server-pagination__button {% if numero == pagina %}is-active{% endif %}"
+         href="{{ request.url.include_query_params(pagina=numero, por_pagina=por_pagina) }}"
+         {% if numero == pagina %}aria-current="page"{% endif %}>{{ numero }}</a>
+    {% endfor %}
+    {% if ultima_visivel < total_paginas %}
+      {% if ultima_visivel < total_paginas - 1 %}<span class="server-pagination__ellipsis">…</span>{% endif %}
+      <a class="server-pagination__button" href="{{ request.url.include_query_params(pagina=total_paginas, por_pagina=por_pagina) }}">{{ total_paginas }}</a>
+    {% endif %}
+    <a class="server-pagination__button {% if pagina == total_paginas %}is-disabled{% endif %}"
+       {% if pagina < total_paginas %}href="{{ request.url.include_query_params(pagina=pagina + 1, por_pagina=por_pagina) }}"{% else %}aria-disabled="true"{% endif %}
+       aria-label="Próxima página">›</a>
+  </nav>
+  {% endif %}
+</div>
+{% endmacro %}

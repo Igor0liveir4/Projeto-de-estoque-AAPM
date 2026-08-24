@@ -13,6 +13,7 @@ from app.database import get_db
 from app.models.movimentacao import Movimentacao, Tipo_de_movimentacao
 from app.models.produto import Produto
 from app.auth import get_usuario_logado, get_admin
+from app.pagination import paginar
 
 router = APIRouter(prefix="/movimentacoes", tags=["Movimentações"])
 
@@ -28,6 +29,8 @@ def listar_movimentacoes(
     request: Request,
     produto_id: int = 0,     # filtra por produto específico
     tipo: str = "",          # "entrada" ou "saida"
+    pagina: int = 1,
+    por_pagina: int = 10,
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
@@ -43,7 +46,7 @@ def listar_movimentacoes(
     if tipo in ("entrada", "saida", "cancelamento", "ajuste"):
         query = query.filter(Movimentacao.tipo == tipo)
 
-    movimentacoes = query.limit(200).all()  # limita para não sobrecarregar
+    resultado = paginar(query, pagina, por_pagina)
     produtos      = db.query(Produto).filter(Produto.ativo == True).all()
 
     return templates.TemplateResponse(
@@ -52,10 +55,14 @@ def listar_movimentacoes(
         {
             "request":        request,
             "usuario":        admin,
-            "movimentacoes":  movimentacoes,
+            "movimentacoes":  resultado.itens,
             "produtos":       produtos,
             "produto_id":     produto_id,
             "tipo":           tipo,
+            "pagina":         resultado.atual,
+            "por_pagina":     resultado.por_pagina,
+            "total_paginas":  resultado.total_paginas,
+            "total_movimentacoes": resultado.total_itens,
         }
     )
 
@@ -153,7 +160,7 @@ def registrar_movimentacao(
         return RedirectResponse(url="/movimentacoes/nova", status_code=302)
 
     # Impede saída maior que o estoque disponível
-    if tipo == Tipo_de_movimentacao.SAIDA and quantidade > produto.estoque_atual:
+    if tipo == Tipo_de_movimentacao.SAIDA and quantidade > produto.estoque_total:
         return templates.TemplateResponse(
             request,
             "movimentacoes/form.html",
@@ -165,7 +172,7 @@ def registrar_movimentacao(
                 "tipos":      Tipo_de_movimentacao,
                 "erro": (
                     f"Estoque insuficiente. "
-                    f"Disponível: {produto.estoque_atual} unidade(s)."
+                    f"Disponível: {produto.estoque_total} unidade(s)."
                 ),
             },
             status_code=400
@@ -175,9 +182,9 @@ def registrar_movimentacao(
     # Atualiza o estoque do produto
     # ----------------------------------------------------------
     if tipo == Tipo_de_movimentacao.ENTRADA:
-        produto.estoque_atual += quantidade
+        produto.adicionar_estoque(quantidade)
     else:
-        produto.estoque_atual -= quantidade
+        produto.retirar_estoque(quantidade)
 
     # ----------------------------------------------------------
     # Registra a movimentação no histórico

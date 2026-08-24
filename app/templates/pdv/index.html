@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}PDV — AAPM{% endblock %}
+{% from "components/pagination.html" import render as render_pagination with context %}
 
 {% block head %}
 <style>
@@ -519,10 +520,10 @@
     <section class="produtos-panel">
         <div class="produtos-toolbar">
             <h2><i class="fas fa-cash-register" style="color:var(--accent-light);margin-right:6px;"></i> PDV</h2>
-            <div class="search-wrap">
+            <form class="search-wrap" method="get" action="/pdv">
                 <i class="fas fa-search"></i>
-                <input id="busca-produto" type="text" placeholder="Buscar produto…" autocomplete="off">
-            </div>
+                <input id="busca-produto" name="busca" value="{{ busca }}" type="search" placeholder="Buscar produto…" autocomplete="off">
+            </form>
             <a href="/pdv/historico" class="nav-btn" style="flex-shrink:0;">
                 <i class="fas fa-history"></i> Histórico
             </a>
@@ -535,24 +536,25 @@
 
         <div class="produtos-grid" id="produtos-grid">
             {% for p in produtos %}
-            <div class="produto-card {% if p.estoque_atual == 0 %}sem-estoque{% endif %}" data-id="{{ p.id }}"
-                data-nome="{{ p.nome }}" data-preco="{{ p.preco }}" data-estoque="{{ p.estoque_atual }}"
+            <div class="produto-card {% if p.estoque_total == 0 %}sem-estoque{% endif %}" data-id="{{ p.id }}"
+                data-nome="{{ p.nome }}" data-preco="{{ p.preco }}" data-estoque="{{ p.estoque_total }}"
                 data-imagem="{{ p.imagem_url }}"
                 onclick="adicionarAoCarrinho(this)">
-                {% if p.estoque_atual > 0 and p.estoque_atual <= 5 %} <span class="badge-critico">Baixo</span>
+                {% if p.estoque_total > 0 and p.estoque_total <= 5 %} <span class="badge-critico">Baixo</span>
                     {% endif %}
                     <span class="produto-nome">{{ p.nome }}</span>
                     <span class="produto-preco">R$ {{ "%.2f"|format(p.preco) }}</span>
                     <span class="produto-estoque">
-                        {% if p.estoque_atual == 0 %}
+                        {% if p.estoque_total == 0 %}
                         Sem estoque
                         {% else %}
-                        {{ p.estoque_atual }} em estoque
+                        {{ p.estoque_total }} em estoque
                         {% endif %}
                     </span>
             </div>
             {% endfor %}
         </div>
+        {{ render_pagination(pagina, por_pagina, total_produtos, total_paginas, 'produtos') }}
     </section>
 
     <!-- ── CARRINHO ──────────────────────────────── -->
@@ -628,7 +630,7 @@
 </div>
 
 <script>
-    let carrinho = [];   // [{produto_id, nome, preco, quantidade, estoque_max}]
+let carrinho = JSON.parse(sessionStorage.getItem('pdv-carrinho') || '[]');
 let isAssociado = false;
 
 // Captura o valor do desconto vindo do Jinja2 com segurança
@@ -697,6 +699,7 @@ function renderCarrinho() {
     const linDesc = document.getElementById('linha-desconto');
 
     const totalItems = carrinho.reduce((a, i) => a + i.quantidade, 0);
+    sessionStorage.setItem('pdv-carrinho', JSON.stringify(carrinho));
     count.textContent = totalItems;
     btnFin.disabled = carrinho.length === 0;
 
@@ -792,6 +795,8 @@ const erros = {
     estoque: 'Estoque insuficiente para: ' + (params.get('produto') || ''),
 };
 if (params.get('erro') && erros[params.get('erro')]) mostrarErro(erros[params.get('erro')]);
+
+renderCarrinho();
 
 // Sync obs ao submeter
 document.getElementById('form-venda').addEventListener('submit', function () {
