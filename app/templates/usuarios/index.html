@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Usuários - Estoque AAPM{% endblock %}
+{% from "components/pagination.html" import render as render_pagination with context %}
 
 {% block head %}
 <style>
@@ -222,7 +223,7 @@
     <div>
       <h1 class="page-title">Gerenciar <span>Usuários</span></h1>
       <p class="page-subtitle">
-        <span>{{ usuarios|length }}</span> usuário{{ 's' if usuarios|length != 1 }} no sistema
+        <span>{{ total_usuarios }}</span> usuário{{ 's' if total_usuarios != 1 }} no sistema
       </p>
     </div>
     <a href="/usuarios/novo" class="btn-novo">
@@ -300,6 +301,7 @@
         {% endfor %}
       </tbody>
     </table>
+    {{ render_pagination(pagina, por_pagina, total_usuarios, total_paginas, 'usuários') }}
 
     {% else %}
     <div class="empty-state">

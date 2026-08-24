@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}Produtos - AAPM{% endblock %}
+{% from "components/pagination.html" import render as render_pagination with context %}
 
 {% block content %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -235,6 +236,93 @@
         color: #ef4444;
         border-color: rgba(239, 68, 68, 0.15);
     }
+
+    /* Estrutura pronta para receber paginação pelo servidor futuramente. */
+    .table-footer {
+        background: rgba(255, 255, 255, 0.01);
+        padding: 14px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.04);
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .page-size-control,
+    .pagination-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .page-size-select {
+        appearance: none;
+        background: #151d2d;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        color: #e2e8f0;
+        font: inherit;
+        padding: 5px 8px;
+        cursor: pointer;
+    }
+
+    .pagination-controls {
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .page-button {
+        min-width: 30px;
+        height: 30px;
+        padding: 0 8px;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 6px;
+        color: #94a3b8;
+        font: inherit;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .page-button:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(96, 165, 250, 0.45);
+        color: #f8fafc;
+    }
+
+    .page-button.is-active {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        color: #fff;
+        font-weight: 700;
+    }
+
+    .page-button:disabled {
+        cursor: not-allowed;
+        opacity: 0.35;
+    }
+
+    .pagination-ellipsis {
+        padding: 0 2px;
+        color: #64748b;
+    }
+
+    .empty-table-message td {
+        padding: 36px 20px;
+        color: #64748b;
+        text-align: center;
+    }
+
+    @media (max-width: 680px) {
+        .page-wrapper { padding: 28px 14px; }
+        .metrics-grid { grid-template-columns: 1fr; }
+        .search-bar-container { align-items: stretch; flex-direction: column; }
+        .table-footer { align-items: flex-start; flex-direction: column; }
+        .pagination-controls { justify-content: flex-start; }
+    }
 </style>
 
 <div class="page-wrapper">
@@ -256,7 +344,7 @@
             </a>
         </div>
 
-        {% set total_itens = produtos|length %}
+        {% set total_itens = total_produtos %}
         {% set de_fora = namespace(qtd=0) %}
         {% for p in produtos %}{% if p.estoque_total == 0 %}{% set de_fora.qtd = de_fora.qtd + 1 %}{% endif
         %}{% endfor %}
@@ -278,7 +366,7 @@
                     <span
                         style="display: block; color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 500;">Em
                         Estoque</span>
-                    <strong style="color: #f8fafc; font-size: 18px; font-weight: 600;">{{ total_itens - de_fora.qtd }}
+                    <strong style="color: #f8fafc; font-size: 18px; font-weight: 600;">{{ produtos|length - de_fora.qtd }}
                         itens</strong>
                 </div>
             </div>
@@ -294,16 +382,15 @@
             </div>
         </div>
 
-        <div class="search-bar-container">
+        <form class="search-bar-container" method="get" action="/produtos">
             <div class="search-wrapper">
                 <i class="fas fa-magnifying-glass"></i>
-                <input type="text" id="tableSearch" class="search-input"
-                    placeholder="Pesquisar por nome, ID ou categoria...">
+                <input type="search" name="busca" value="{{ busca }}" class="search-input"
+                    placeholder="Pesquisar por nome...">
             </div>
-            <div style="color: #475569; font-size: 12px; font-weight: 500;">
-                <i class="fas fa-filter" style="margin-right: 4px;"></i> Filtro dinâmico ativo
-            </div>
-        </div>
+            {% if categoria_id %}<input type="hidden" name="categoria_id" value="{{ categoria_id }}">{% endif %}
+            <button type="submit" class="btn-action-edit">Buscar</button>
+        </form>
 
         <div class="table-card">
             <div style="overflow-x: auto;">
@@ -333,6 +420,7 @@
                                     style="color: #64748b; font-size: 11px; font-family: monospace; display: block;">#{{
                                     produto.id }}</span>
                                 {{ produto.nome }}
+                                                                <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">{{ produto.variacoes|length }} variação{% if produto.variacoes|length != 1 %}es{% endif %}</div>
                             </td>
 
                             <td>
@@ -383,14 +471,21 @@
                 </table>
             </div>
 
-            <div
-                style="background: rgba(255,255,255,0.01); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.04); font-size: 12px; color: #475569;">
-                <div>Mostrando todos os {{ total_itens }} registros</div>
-                <div style="display: flex; gap: 4px;">
-                    <span
-                        style="padding: 4px 8px; background: rgba(255,255,255,0.04); border-radius: 4px; color: #f8fafc; font-weight: 600;">1</span>
+            {{ render_pagination(pagina, por_pagina, total_produtos, total_paginas, 'produtos') }}
+            <!--
+            <div class="table-footer">
+                <div class="page-size-control">
+                    <label for="pageSize">Itens por página</label>
+                    <select id="pageSize" class="page-size-select" aria-label="Itens por página">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                    </select>
                 </div>
+                <div id="paginationSummary" aria-live="polite">Mostrando 0 registros</div>
+                <nav id="paginationControls" class="pagination-controls" aria-label="Paginação de produtos"></nav>
             </div>
+            -->
         </div>
 
     </div>
@@ -430,5 +525,125 @@
         });
     });
     }) ();
+</script>
+<script>
+    /* Paginação no navegador: mantém a página pronta enquanto a API ainda entrega todos os itens. */
+    (function () {
+        const tableSearch = document.getElementById('tableSearch');
+        const tableBody = document.querySelector('#productsTable tbody');
+        const productRows = Array.from(document.querySelectorAll('#productsTable tbody .prod-row'));
+        const pageSize = document.getElementById('pageSize');
+        const paginationSummary = document.getElementById('paginationSummary');
+        const paginationControls = document.getElementById('paginationControls');
+
+        if (!tableSearch || !tableBody || !pageSize || !paginationSummary || !paginationControls) return;
+
+        let currentPage = 1;
+        let itemsPerPage = Number(pageSize.value);
+
+        function getFilteredRows() {
+            const searchValue = tableSearch.value.trim().toLowerCase();
+            return productRows.filter((row) => row.textContent.toLowerCase().includes(searchValue));
+        }
+
+        function createButton(label, targetPage, options = {}) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = `page-button${options.active ? ' is-active' : ''}`;
+            button.textContent = label;
+            button.disabled = Boolean(options.disabled);
+            button.setAttribute('aria-label', options.ariaLabel || `Pagina ${label}`);
+            if (options.active) button.setAttribute('aria-current', 'page');
+            button.addEventListener('click', () => {
+                currentPage = targetPage;
+                renderPage();
+            });
+            return button;
+        }
+
+        function addEllipsis() {
+            const ellipsis = document.createElement('span');
+            ellipsis.className = 'pagination-ellipsis';
+            ellipsis.textContent = '...';
+            ellipsis.setAttribute('aria-hidden', 'true');
+            paginationControls.appendChild(ellipsis);
+        }
+
+        function renderControls(totalPages) {
+            paginationControls.replaceChildren();
+            paginationControls.appendChild(createButton('‹', currentPage - 1, {
+                disabled: currentPage === 1 || totalPages === 0,
+                ariaLabel: 'Pagina anterior'
+            }));
+
+            const pages = [...new Set([
+                1,
+                totalPages,
+                currentPage - 1,
+                currentPage,
+                currentPage + 1
+            ])].filter((page) => page >= 1 && page <= totalPages).sort((a, b) => a - b);
+
+            let previousPage = 0;
+            pages.forEach((page) => {
+                if (page - previousPage > 1) addEllipsis();
+                paginationControls.appendChild(createButton(String(page), page, { active: page === currentPage }));
+                previousPage = page;
+            });
+
+            paginationControls.appendChild(createButton('›', currentPage + 1, {
+                disabled: currentPage === totalPages || totalPages === 0,
+                ariaLabel: 'Proxima pagina'
+            }));
+        }
+
+        function renderPage() {
+            const filteredRows = getFilteredRows();
+            const totalRows = filteredRows.length;
+            const totalPages = Math.ceil(totalRows / itemsPerPage);
+
+            if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+            if (totalPages === 0) currentPage = 1;
+
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const visibleRows = new Set(filteredRows.slice(start, end));
+
+            productRows.forEach((row) => {
+                row.style.display = visibleRows.has(row) ? '' : 'none';
+            });
+
+            document.getElementById('emptyTableMessage')?.remove();
+
+            if (totalRows === 0) {
+                const emptyMessage = document.createElement('tr');
+                emptyMessage.id = 'emptyTableMessage';
+                emptyMessage.className = 'empty-table-message';
+                emptyMessage.innerHTML = '<td colspan="7"><i class="fas fa-box-open" style="margin-right: 8px;"></i>Nenhum produto encontrado.</td>';
+                tableBody.appendChild(emptyMessage);
+                paginationSummary.textContent = 'Nenhum registro encontrado';
+            } else {
+                const lastItem = Math.min(end, totalRows);
+                paginationSummary.textContent = `Mostrando ${start + 1}–${lastItem} de ${totalRows} registro${totalRows !== 1 ? 's' : ''}`;
+            }
+
+            renderControls(totalPages);
+        }
+
+        tableSearch.addEventListener('input', () => {
+            currentPage = 1;
+            renderPage();
+        });
+
+        tableSearch.addEventListener('keyup', renderPage);
+
+        pageSize.addEventListener('change', function () {
+            itemsPerPage = Number(this.value);
+            currentPage = 1;
+            renderPage();
+        });
+
+        renderPage();
+    })();
 </script>
 {% endblock %}

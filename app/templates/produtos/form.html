@@ -125,6 +125,38 @@
     .field { display: flex; flex-direction: column; gap: 8px; }
     .field.wide { grid-column: 1 / -1; }
 
+    .variations-wrapper {
+        display: grid;
+        gap: 14px;
+        margin-top: 12px;
+    }
+
+    .variation-entry {
+        display: grid;
+        grid-template-columns: 1.2fr 1.2fr 1fr auto;
+        gap: 12px;
+        align-items: end;
+    }
+
+    .variation-entry .field {
+        margin: 0;
+    }
+
+    .variation-remove {
+        background: rgba(239, 68, 68, .08);
+        border: 1px solid rgba(239, 68, 68, .2);
+        color: #ef4444;
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: background .2s ease, border-color .2s ease;
+    }
+
+    .variation-remove:hover {
+        background: rgba(239, 68, 68, .14);
+    }
+
     .field label {
         color: #cbd5e1;
         font-size: 12px;
@@ -298,6 +330,67 @@
                         <label for="preco">Preço base (R$) <span class="required">*</span></label>
                         <input type="number" id="preco" name="preco" required min="0" step="0.01" inputmode="decimal" placeholder="0,00" value="{{ editando.preco if editando else (valores.preco if valores else '') }}">
                     </div>
+
+                    <div class="field wide">
+                        <label>Variações</label>
+                        <div class="variations-wrapper" id="variationsWrapper">
+                            {% if editando and editando.variacoes %}
+                                {% for variacao in editando.variacoes %}
+                                <div class="variation-entry">
+                                    <div class="field">
+                                        <label>Tamanho</label>
+                                        <input type="text" name="variacoes_tamanho" placeholder="Ex.: P, M, G" value="{{ variacao.tamanho }}">
+                                    </div>
+                                    <div class="field">
+                                        <label>Cor</label>
+                                        <input type="text" name="variacoes_cor" placeholder="Ex.: Azul, Preto" value="{{ variacao.cor }}">
+                                    </div>
+                                    <div class="field">
+                                        <label>Quantidade</label>
+                                        <input type="number" name="variacoes_estoque" min="0" step="1" value="{{ variacao.estoque_atual }}" class="variation-stock">
+                                    </div>
+                                    <button type="button" class="variation-remove">Remover</button>
+                                </div>
+                                {% endfor %}
+                            {% elif variacoes_valores %}
+                                {% for variacao in variacoes_valores %}
+                                <div class="variation-entry">
+                                    <div class="field">
+                                        <label>Tamanho</label>
+                                        <input type="text" name="variacoes_tamanho" placeholder="Ex.: P, M, G" value="{{ variacao.tamanho }}">
+                                    </div>
+                                    <div class="field">
+                                        <label>Cor</label>
+                                        <input type="text" name="variacoes_cor" placeholder="Ex.: Azul, Preto" value="{{ variacao.cor }}">
+                                    </div>
+                                    <div class="field">
+                                        <label>Quantidade</label>
+                                        <input type="number" name="variacoes_estoque" min="0" step="1" value="{{ variacao.estoque }}" class="variation-stock">
+                                    </div>
+                                    <button type="button" class="variation-remove">Remover</button>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="variation-entry">
+                                    <div class="field">
+                                        <label>Tamanho</label>
+                                        <input type="text" name="variacoes_tamanho" placeholder="Ex.: P, M, G" value="">
+                                    </div>
+                                    <div class="field">
+                                        <label>Cor</label>
+                                        <input type="text" name="variacoes_cor" placeholder="Ex.: Azul, Preto" value="">
+                                    </div>
+                                    <div class="field">
+                                        <label>Quantidade</label>
+                                        <input type="number" name="variacoes_estoque" min="0" step="1" value="0" class="variation-stock">
+                                    </div>
+                                    <button type="button" class="variation-remove">Remover</button>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <button type="button" class="button button-secondary" id="addVariationBtn" style="margin-top: 10px;">Adicionar variação</button>
+                        <span class="field-note">Informe as combinações de tamanho, cor e quantidade para este produto.</span>
+                    </div>
                 </div>
             </section>
 
@@ -305,9 +398,9 @@
                 <h2 class="section-title"><i class="fas fa-cubes"></i> Estoque e imagem</h2>
 
                 <div class="field">
-                    <label for="estoque_atual">Quantidade em estoque <span class="required">*</span></label>
-                    <input type="number" id="estoque_atual" name="estoque_atual" required min="0" step="1" inputmode="numeric" value="{{ editando.estoque_total if editando else (valores.estoque_atual if valores else '0') }}">
-                    <span class="field-note">Informe a quantidade disponível atualmente.</span>
+                    <label for="estoque_atual">Quantidade total em estoque <span class="required">*</span></label>
+                    <input type="number" id="estoque_atual" name="estoque_atual" readonly min="0" step="1" inputmode="numeric" value="{{ editando.estoque_total if editando else (valores.estoque_atual if valores else '0') }}">
+                    <span class="field-note">Total calculado automaticamente com base nas variações.</span>
                 </div>
 
                 <div class="field" style="margin-top: 24px;">
@@ -346,6 +439,90 @@
         var imageInput = document.getElementById('imagem');
         var uploadTitle = document.getElementById('upload-title');
         var uploadDescription = document.getElementById('upload-description');
+        var addVariationBtn = document.getElementById('addVariationBtn');
+        var variationsWrapper = document.getElementById('variationsWrapper');
+        var estoqueTotalInput = document.getElementById('estoque_atual');
+        var variationsField = addVariationBtn ? addVariationBtn.closest('.field.wide') : null;
+
+        function atualizarDisponibilidadeVariacoes() {
+            if (variationsField) {
+                variationsField.hidden = false;
+            }
+
+            document.querySelectorAll(
+                'input[name="variacoes_tamanho"], input[name="variacoes_cor"], input[name="variacoes_estoque"]'
+            ).forEach(function (input) {
+                input.disabled = false;
+                input.required = false;
+            });
+
+            if (addVariationBtn) addVariationBtn.disabled = false;
+        }
+
+        function atualizarEstoqueTotal() {
+            var total = 0;
+            document.querySelectorAll('.variation-stock').forEach(function (input) {
+                var valor = parseInt(input.value, 10);
+                if (!isNaN(valor) && valor > 0) {
+                    total += valor;
+                }
+            });
+            if (estoqueTotalInput) {
+                estoqueTotalInput.value = total;
+            }
+        }
+
+        function criarLinhaVariacao(tamanho, cor, estoque) {
+            var linha = document.createElement('div');
+            linha.className = 'variation-entry';
+            linha.innerHTML = `
+                <div class="field">
+                    <label>Tamanho</label>
+                    <input type="text" name="variacoes_tamanho" placeholder="Ex.: P, M, G" value="${tamanho || ''}">
+                </div>
+                <div class="field">
+                    <label>Cor</label>
+                    <input type="text" name="variacoes_cor" placeholder="Ex.: Azul, Preto" value="${cor || ''}">
+                </div>
+                <div class="field">
+                    <label>Quantidade</label>
+                    <input type="number" name="variacoes_estoque" min="0" step="1" value="${estoque ?? 0}" class="variation-stock">
+                </div>
+                <button type="button" class="variation-remove">Remover</button>
+            `;
+
+            linha.querySelector('.variation-remove').addEventListener('click', function () {
+                linha.remove();
+                atualizarEstoqueTotal();
+            });
+
+            linha.querySelector('.variation-stock').addEventListener('input', atualizarEstoqueTotal);
+            linha.querySelector('input[name="variacoes_tamanho"]').addEventListener('input', atualizarEstoqueTotal);
+            linha.querySelector('input[name="variacoes_cor"]').addEventListener('input', atualizarEstoqueTotal);
+            atualizarDisponibilidadeVariacoes();
+
+            return linha;
+        }
+
+        if (addVariationBtn && variationsWrapper) {
+            addVariationBtn.addEventListener('click', function () {
+                variationsWrapper.appendChild(criarLinhaVariacao('', '', 0));
+            });
+        }
+
+        document.querySelectorAll('.variation-remove').forEach(function (button) {
+            button.addEventListener('click', function () {
+                button.closest('.variation-entry')?.remove();
+                atualizarEstoqueTotal();
+            });
+        });
+
+        document.querySelectorAll('.variation-stock').forEach(function (input) {
+            input.addEventListener('input', atualizarEstoqueTotal);
+        });
+
+        atualizarEstoqueTotal();
+        atualizarDisponibilidadeVariacoes();
 
         imageInput.addEventListener('change', function () {
             if (!this.files || !this.files.length) return;

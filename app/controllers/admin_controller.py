@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.usuario import Usuario
 from app.auth import get_admin, hash_password
+from app.pagination import paginar
 
 
 router = APIRouter(prefix="/usuarios", tags=["Usuários"])
@@ -20,10 +21,12 @@ templates = Jinja2Templates(directory="app/templates")
 @router.get("/")
 def listar_usuarios(
     request: Request,
+    pagina: int = 1,
+    por_pagina: int = 10,
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
-    usuarios = db.query(Usuario).order_by(Usuario.nome).all()
+    resultado = paginar(db.query(Usuario).order_by(Usuario.nome), pagina, por_pagina)
 
     return templates.TemplateResponse(
         request,
@@ -31,7 +34,11 @@ def listar_usuarios(
         {
             "request": request,
             "usuario": admin,   # ← era "admin", corrigido para "usuario"
-            "usuarios": usuarios
+            "usuarios": resultado.itens,
+            "pagina": resultado.atual,
+            "por_pagina": resultado.por_pagina,
+            "total_paginas": resultado.total_paginas,
+            "total_usuarios": resultado.total_itens,
         }
     )
 

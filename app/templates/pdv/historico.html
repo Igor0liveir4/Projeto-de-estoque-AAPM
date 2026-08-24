@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}Histórico de Vendas — AAPM{% endblock %}
+{% from "components/pagination.html" import render as render_pagination with context %}
 
 {% block head %}
 <style>
@@ -284,7 +285,7 @@
     <div class="hist-topo">
         <div>
             <h2>Histórico de Vendas</h2>
-            <p>Últimas {{ vendas|length }} transações registradas</p>
+            <p>{{ total_vendas }} transações registradas</p>
         </div>
         <a href="/pdv" class="nav-btn" style="background:var(--accent);color:white;border-color:var(--accent);">
             <i class="fas fa-plus"></i> Nova Venda
@@ -294,12 +295,12 @@
     <!-- Sumário -->
     {% if vendas %}
     {% set total_geral  = vendas | sum(attribute='total_liquido') %}
-    {% set total_vendas = vendas | length %}
+    {% set total_vendas_pagina = vendas | length %}
     {% set c_assoc = vendas | selectattr('desconto_percentual', 'gt', 0) | list | length %}
     <div class="sumario">
         <div class="sum-card">
             <label>Vendas no período</label>
-            <div class="val">{{ total_vendas }}</div>
+            <div class="val">{{ total_vendas_pagina }}</div>
         </div>
         <div class="sum-card accent">
             <label>Receita total</label>
@@ -307,7 +308,7 @@
         </div>
         <div class="sum-card">
             <label>Ticket médio</label>
-            <div class="val">R$ {{ "%.2f"|format(total_geral / total_vendas) }}</div>
+            <div class="val">R$ {{ "%.2f"|format(total_geral / total_vendas_pagina) }}</div>
         </div>
         <div class="sum-card green">
             <label>Vendas c/ desconto</label>
@@ -414,9 +415,10 @@
         </table>
 
         <div class="hist-table-footer">
-            <span id="linhas-visiveis">{{ vendas|length }} registros exibidos</span>
+            <span id="linhas-visiveis">{{ vendas|length }} registros exibidos nesta página</span>
             <span style="color:var(--text-muted);">Clique em uma linha para expandir os itens</span>
         </div>
+        {{ render_pagination(pagina, por_pagina, total_vendas, total_paginas, 'vendas') }}
 
         {% else %}
         <div class="hist-vazio">
