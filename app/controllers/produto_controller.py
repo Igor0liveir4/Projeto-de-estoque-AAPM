@@ -36,7 +36,7 @@ def _parse_item_variacao(
     cor: Optional[str],
     estoque_raw: Optional[str]
 ) -> tuple[Optional[Variacao], Optional[str]]:
-    t, c, e = (tamanho or "").strip(), (cor or "").strip(), (estoque_raw or "").strip()
+    t, c, e = (tamanho or "").strip().upper(), (cor or "").strip(), (estoque_raw or "").strip()
 
     if not (t or c or e):
         return None, None  # Linha em branco ignorada
@@ -66,11 +66,17 @@ def _parse_variacoes(
         return [], None
 
     variacoes: list[Variacao] = []
+    combinacoes = set()
     for t, c, e in zip(tamanhos, cores, estoques):
         variacao, erro = _parse_item_variacao(t, c, e)
         if erro:
             return [], erro
         if variacao:
+            # A comparação é sem diferença de maiúsculas/minúsculas e espaços.
+            chave = (variacao.tamanho, " ".join(variacao.cor.split()).casefold())
+            if chave in combinacoes:
+                return [], "Cada combinação de tamanho e cor deve ser informada apenas uma vez."
+            combinacoes.add(chave)
             variacoes.append(variacao)
 
     return variacoes, None
