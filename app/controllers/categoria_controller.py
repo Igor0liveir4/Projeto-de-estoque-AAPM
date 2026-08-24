@@ -6,9 +6,11 @@ from fastapi import APIRouter, Depends, Request, Form
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from urllib.parse import urlencode
 
 from app.database import get_db
 from app.models.categoria import Categoria
+from app.models.produto import Produto
 from app.auth import get_admin
 
 router = APIRouter(prefix="/categorias", tags=["Categorias"])
@@ -167,6 +169,44 @@ def editar_categoria(
     db.commit()
 
     return RedirectResponse(url="/categorias?editado=ok", status_code=302)
+
+
+# ============================================================
+# EXCLUSÃO
+# ============================================================
+
+@router.post("/{categoria_id}/excluir")
+def excluir_categoria(
+    categoria_id: int,
+    db: Session = Depends(get_db),
+    admin = Depends(get_admin)
+):
+    """Exclui uma categoria somente quando não há produtos vinculados."""
+    categoria = db.query(Categoria).filter(
+        Categoria.id == categoria_id
+    ).first()
+
+    if not categoria:
+        return RedirectResponse(url="/categorias", status_code=302)
+
+    produto_vinculado = db.query(Produto.id).filter(
+        Produto.categoria_id == categoria_id
+    ).first()
+
+    if produto_vinculado:
+        query = urlencode({
+            "erro": "produtos_impedem_exclusao",
+            "categoria": categoria.nome,
+        })
+        return RedirectResponse(
+            url=f"/categorias?{query}",
+            status_code=302
+        )
+
+    db.delete(categoria)
+    db.commit()
+
+    return RedirectResponse(url="/categorias?excluido=ok", status_code=302)
 
 
 # ============================================================
