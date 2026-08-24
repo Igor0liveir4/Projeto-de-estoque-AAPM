@@ -108,6 +108,7 @@
         border-color: var(--border);
         color: var(--text-primary);
     }
+
 </style>
 {% endblock %}
 
@@ -197,7 +198,6 @@
     // ✅ Preenche o preço automaticamente ao selecionar o produto
     const selectProduto = document.getElementById('produto_id');
     const inputPreco    = document.getElementById('preco_unitario');
-
     selectProduto.addEventListener('change', function() {
         const preco = this.options[this.selectedIndex].dataset.preco;
         inputPreco.value = preco ? parseFloat(preco).toFixed(2) : '';

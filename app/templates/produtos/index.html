@@ -385,7 +385,7 @@
         <form class="search-bar-container" method="get" action="/produtos">
             <div class="search-wrapper">
                 <i class="fas fa-magnifying-glass"></i>
-                <input type="search" name="busca" value="{{ busca }}" class="search-input"
+                <input id="tableSearch" type="search" name="busca" value="{{ busca }}" class="search-input"
                     placeholder="Pesquisar por nome...">
             </div>
             {% if categoria_id %}<input type="hidden" name="categoria_id" value="{{ categoria_id }}">{% endif %}
@@ -512,7 +512,7 @@
     });
 
     // Filtro local em tempo real (uso permitido somente se autenticado)
-    tableSearch.addEventListener('keyup', function () {
+    tableSearch.addEventListener('input', function () {
         const searchValue = this.value.toLowerCase();
         const rows = document.querySelectorAll('#productsTable tbody .prod-row');
         rows.forEach(row => {
