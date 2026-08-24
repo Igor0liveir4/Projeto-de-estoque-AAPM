@@ -80,10 +80,11 @@
     {% if armarios %}
     <div class="armarios-grid">
         {% for a in armarios %}
-        <article class="armario-card {{ a.status.value }}">
+        <article class="armario-card {{ 'inactive' if not a.ativo else a.status.value }}">
             <div class="armario-card-top">
                 <h3 class="armario-number">{{ a.numero }}</h3>
-                {% if a.status.value == 'disponivel' %}<span class="status-badge available"><i
+                {% if not a.ativo %}<span class="status-badge inactive"><i class="fas fa-ban"></i> Inativo</span>
+                {% elif a.status.value == 'disponivel' %}<span class="status-badge available"><i
                         class="fas fa-circle"></i> Disponível</span>
                 {% elif a.status.value == 'alugado' %}<span class="status-badge rented"><i class="fas fa-key"></i>
                     Alugado</span>
@@ -96,7 +97,7 @@
             <div class="armario-card-footer">
                 <a href="/armarios/{{ a.id }}" class="mini-action">Ver detalhes <i class="fas fa-arrow-right"></i></a>
                 {% if usuario.role == 'admin' %}
-                {% if a.status.value == 'disponivel' %}<a href="/armarios/{{ a.id }}/alugar"
+                {% if a.ativo and a.status.value == 'disponivel' %}<a href="/armarios/{{ a.id }}/alugar"
                     class="mini-action">Alugar</a>
                 {% elif a.status.value == 'alugado' %}<form action="/armarios/{{ a.id }}/liberar" method="post"
                     onsubmit="return confirm('Liberar armário {{ a.numero }}?')"><button type="submit"

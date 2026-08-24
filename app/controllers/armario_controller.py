@@ -36,10 +36,22 @@ def listar_armarios(
     Exibe o mapa de armários agrupado por status.
     Qualquer usuário logado pode ver a disponibilidade.
     """
-    query = db.query(Armario).filter(Armario.ativo == True)
+    # Base: se o usuário pediu especificamente por inativos, mostre apenas
+    # os armários com `ativo == False`. Caso contrário mostramos os ativos.
+    if status == "inativo":
+        query = db.query(Armario).filter(Armario.ativo == False)
+    else:
+        query = db.query(Armario).filter(Armario.ativo == True)
 
-    if status in ("disponivel", "alugado", "inativo"):
-        query = query.filter(Armario.status == status)
+    # Filtra por status quando foi informado (converte para Enum para
+    # evitar comparações de string ambíguas no banco).
+    if status in ("disponivel", "alugado"):
+        try:
+            enum_status = StatusArmario(status)
+            query = query.filter(Armario.status == enum_status)
+        except ValueError:
+            # valor inválido — ignora o filtro de status
+            pass
 
     if localizacao:
         query = query.filter(Armario.localizacao.ilike(f"%{localizacao}%"))
@@ -428,9 +440,17 @@ def toggle_ativo(
         )
 
     armario.ativo = not armario.ativo
-    # Se estava inativo e está reativando, volta como disponível
+    # Se está reativando, volta como disponível; se está desativando,
+    # marque explicitamente como INATIVO e limpe dados de locatário.
     if armario.ativo:
         armario.status = StatusArmario.DISPONIVEL
+    else:
+        armario.status = StatusArmario.INATIVO
+        armario.locatario_nome = None
+        armario.nome_curso = None
+        armario.turma = None
+        armario.email = None
+        armario.alugado_em = None
 
     db.commit()
 

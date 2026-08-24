@@ -24,7 +24,8 @@
                     <p class="page-eyebrow">Detalhes do armário</p>
                     <h2>Armário {{ armario.numero }}</h2>
                 </div>
-                {% if armario.status.value == 'disponivel' %}<span class="status-badge available"><i
+                {% if not armario.ativo %}<span class="status-badge inactive"><i class="fas fa-ban"></i> Inativo</span>
+                {% elif armario.status.value == 'disponivel' %}<span class="status-badge available"><i
                         class="fas fa-circle"></i> Disponível</span>
                 {% elif armario.status.value == 'alugado' %}<span class="status-badge rented"><i class="fas fa-key"></i>
                     Alugado</span>
@@ -70,7 +71,7 @@
             <h3>Ações administrativas</h3>
             <p>Gerencie a disponibilidade e os dados deste armário.</p>
             <div class="detail-actions">
-                {% if armario.status.value == 'disponivel' %}<a href="/armarios/{{ armario.id }}/alugar"
+                {% if armario.ativo and armario.status.value == 'disponivel' %}<a href="/armarios/{{ armario.id }}/alugar"
                     class="button"><i class="fas fa-key"></i> Alugar</a>{% endif %}
                 {% if armario.status.value == 'alugado' %}<form action="/armarios/{{ armario.id }}/liberar"
                     method="post" onsubmit="return confirm('Liberar este armário?')"><button type="submit"
