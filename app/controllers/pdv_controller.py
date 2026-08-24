@@ -89,8 +89,7 @@ def finalizar_venda(
 
     Formato esperado do carrinho_json:
     [
-        {"produto_id": 1, "nome": "Caneta", "preco": 2.50, "quantidade": 3},
-        {"produto_id": 2, "nome": "Caderno", "preco": 15.00, "quantidade": 1}
+        {"produto_id": 1, "variacao_id": 3, "quantidade": 2}
     ]
     """
     try:
@@ -117,25 +116,46 @@ def finalizar_venda(
     # ── Valida estoque e calcula totais ──────────────────────
     total_bruto = 0.0
     itens_validados = []
+    itens_normalizados = {}
 
     for item in itens:
+        try:
+            produto_id = int(item["produto_id"])
+            variacao_id = int(item["variacao_id"])
+            qtd = int(item["quantidade"])
+        except (KeyError, TypeError, ValueError):
+            return RedirectResponse(url="/pdv?erro=json", status_code=302)
+
+        chave = (produto_id, variacao_id)
+        itens_normalizados[chave] = itens_normalizados.get(chave, 0) + qtd
+
+    for (produto_id, variacao_id), qtd in itens_normalizados.items():
         produto = db.query(Produto).filter(
-            Produto.id == item["produto_id"],
+            Produto.id == produto_id,
             Produto.ativo == True
-        ).with_for_update().first()
+        ).first()
 
         if not produto:
             return RedirectResponse(
-                url=f"/pdv?erro=produto_inexistente&id={item['produto_id']}",
+                url=f"/pdv?erro=produto_inexistente&id={produto_id}",
                 status_code=302
             )
 
-        qtd = int(item["quantidade"])
+        variacao = db.query(Variacao).filter(
+            Variacao.id == variacao_id,
+            Variacao.produto_id == produto.id
+        ).with_for_update().first()
+
+        if not variacao:
+            return RedirectResponse(
+                url="/pdv?erro=variacao_inexistente",
+                status_code=302
+            )
 
         if qtd <= 0:
             return RedirectResponse(url="/pdv?erro=quantidade", status_code=302)
 
-        if produto.estoque_total < qtd:
+        if variacao.estoque_atual < qtd:
             return RedirectResponse(
                 url=f"/pdv?erro=estoque&produto={produto.nome}",
                 status_code=302
@@ -146,9 +166,10 @@ def finalizar_venda(
 
         itens_validados.append({
             "produto":       produto,
+            "variacao":      variacao,
             "quantidade":    qtd,
             "preco":         produto.preco,
-            "produto_nome":  produto.nome,
+            "produto_nome":  f"{produto.nome} — {variacao.tamanho} / {variacao.cor}",
         })
 
     # ── Calcula desconto e total final
@@ -175,8 +196,8 @@ def finalizar_venda(
             quantidade     = item["quantidade"],
             preco_unitario = item["preco"],
         ))
-        # Baixa o estoque do produto
-        item["produto"].retirar_estoque(item["quantidade"])
+        # Baixa somente o estoque da variação vendida
+        item["variacao"].estoque_atual -= item["quantidade"]
 
     db.commit()
 

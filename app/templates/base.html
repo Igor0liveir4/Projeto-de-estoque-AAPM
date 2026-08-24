@@ -504,11 +504,10 @@
         }
 
         .server-pagination {
-            display: flex;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
             align-items: center;
-            justify-content: space-between;
             gap: 14px;
-            flex-wrap: wrap;
             padding: 14px 18px;
             border-top: 1px solid var(--border);
             color: var(--text-muted);
@@ -522,6 +521,10 @@
             gap: 7px;
         }
 
+        .server-pagination__summary {
+            text-align: center;
+        }
+
         .server-pagination select {
             background: var(--bg-surface);
             border: 1px solid var(--border);
@@ -531,22 +534,14 @@
             padding: 5px 7px;
         }
 
-        .server-pagination__apply {
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text-primary);
-            cursor: pointer;
-            font: inherit;
-            padding: 5px 9px;
-        }
-
-        .server-pagination__apply:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
         .server-pagination__controls { flex-wrap: wrap; }
+
+        .server-pagination__page {
+            color: var(--text-muted);
+            font-size: 11px;
+            margin-right: 2px;
+            white-space: nowrap;
+        }
 
         .server-pagination__button {
             display: inline-flex;
@@ -570,6 +565,15 @@
 
         .server-pagination__button.is-disabled { cursor: not-allowed; opacity: .4; }
         .server-pagination__ellipsis { padding: 0 2px; }
+
+        @media (max-width: 760px) {
+            .server-pagination {
+                grid-template-columns: 1fr;
+                justify-items: center;
+            }
+
+            .server-pagination__summary { order: -1; }
+        }
     </style>
 </head>
 
@@ -592,31 +596,36 @@
                 %}
                 {% set is_armarios = current_path == '/armarios' or current_path.startswith('/armarios/') %}
                 {% set is_pdv = current_path == '/pdv' or current_path.startswith('/pdv/') %}
+                {% set is_admin = usuario.role == 'admin' %}
                 <div class="nav-buttons">
                     <a href="/" class="nav-btn {{ 'active' if is_home else '' }}" {% if is_home %}aria-current="page" {%
                         endif %}>
                         <i class="fas fa-house"></i> Home
                     </a>
-                    <a href="/cliente" class="nav-btn {{ 'active' if is_cliente else '' }}" {% if is_cliente
-                        %}aria-current="page" {% endif %}>
-                        <i class="fas fa-users"></i> Clientes
-                    </a>
+                    {% if is_admin %}
+                        <a href="/cliente" class="nav-btn {{ 'active' if is_cliente else '' }}" {% if is_cliente
+                            %}aria-current="page" {% endif %}>
+                            <i class="fas fa-users"></i> Clientes
+                        </a>
+                    {% endif %}
                     <a href="/produtos" class="nav-btn {{ 'active' if is_produtos else '' }}" {% if is_produtos
                         %}aria-current="page" {% endif %}>
                         <i class="fas fa-box-open"></i> Produtos
                     </a>
-                    <a href="/categorias" class="nav-btn {{ 'active' if is_categorias else '' }}" {% if is_categorias
-                        %}aria-current="page" {% endif %}>
-                        <i class="fas fa-tags"></i> Categorias
-                    </a>
-                    <a href="/usuarios" class="nav-btn {{ 'active' if is_usuarios else '' }}" {% if is_usuarios
-                        %}aria-current="page" {% endif %}>
-                        <i class="fas fa-user-gear"></i> Usuários
-                    </a>
-                    <a href="/movimentacoes" class="nav-btn {{ 'active' if is_movimentacoes else '' }}" {% if
-                        is_movimentacoes %}aria-current="page" {% endif %}>
-                        <i class="fas fa-exchange-alt"></i> Movimentações
-                    </a>
+                    {% if is_admin %}
+                        <a href="/categorias" class="nav-btn {{ 'active' if is_categorias else '' }}" {% if is_categorias
+                            %}aria-current="page" {% endif %}>
+                            <i class="fas fa-tags"></i> Categorias
+                        </a>
+                        <a href="/usuarios" class="nav-btn {{ 'active' if is_usuarios else '' }}" {% if is_usuarios
+                            %}aria-current="page" {% endif %}>
+                            <i class="fas fa-user-gear"></i> Usuários
+                        </a>
+                        <a href="/movimentacoes" class="nav-btn {{ 'active' if is_movimentacoes else '' }}" {% if
+                            is_movimentacoes %}aria-current="page" {% endif %}>
+                            <i class="fas fa-exchange-alt"></i> Movimentações
+                        </a>
+                    {% endif %}
                     <a href="/armarios" class="nav-btn {{ 'active' if is_armarios else '' }}" {% if is_armarios
                         %}aria-current="page" {% endif %}>
                         <i class="fas fa-door-open"></i> Armários

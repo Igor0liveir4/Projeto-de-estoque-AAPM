@@ -89,7 +89,7 @@
     /* ── STAT CARDS ─────────────────────────────────────── */
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 18px;
         margin-bottom: 28px;
     }
@@ -342,6 +342,12 @@
     }
 
     /* ── RESPONSIVE ─────────────────────────────────────── */
+    @media (max-width: 1024px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
     @media (max-width: 768px) {
         .dashboard-container {
             padding: 0 16px;
@@ -408,15 +414,17 @@
                 </div>
             </a>
 
-        <a href="/categorias" class="stat-card purple">
-            <div class="stat-icon purple">
-                <i class="fas fa-tags"></i>
-            </div>
-            <div class="stat-content">
-                <h3>Categorias</h3>
-                <p class="value">{{ total_categorias }}</p>
-            </div>
-        </a>
+        {% if usuario.role == 'admin' %}
+            <a href="/categorias" class="stat-card purple">
+                <div class="stat-icon purple">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Categorias</h3>
+                    <p class="value">{{ total_categorias }}</p>
+                </div>
+            </a>
+        {% endif %}
 
         <a href="/produtos" class="stat-card green">
             <div class="stat-icon green">
@@ -428,15 +436,17 @@
             </div>
         </a>
 
-        <a href="/usuarios" class="stat-card orange">
-            <div class="stat-icon orange">
-                <i class="fas fa-users"></i>
-            </div>
-            <div class="stat-content">
-                <h3>Usuários do Sistema</h3>
-                <p class="value">{{ total_usuarios }}</p>
-            </div>
-        </a>
+        {% if usuario.role == 'admin' %}
+            <a href="/usuarios" class="stat-card orange">
+                <div class="stat-icon orange">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Usuários do Sistema</h3>
+                    <p class="value">{{ total_usuarios }}</p>
+                </div>
+            </a>
+        {% endif %}
         
         <a href="/armarios" class="stat-card teal">
             <div class="stat-icon" style="background: rgba(6,182,212,0.12); color: #06b6d4; border: 1px solid rgba(6,182,212,0.18);">

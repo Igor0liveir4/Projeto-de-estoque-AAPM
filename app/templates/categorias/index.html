@@ -209,6 +209,9 @@
   .btn-toggle.ativar       { background: rgba(74,222,128,0.12); color: #4ade80; border: 1px solid rgba(74,222,128,0.18); }
   .btn-toggle.ativar:hover { background: rgba(74,222,128,0.25); color: #86efac; }
 
+  .btn-delete       { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.18); }
+  .btn-delete:hover { background: rgba(239,68,68,0.25); color: #fca5a5; }
+
   /* ── Vazio ── */
   .empty-state {
     text-align: center;
@@ -253,10 +256,21 @@
     <i class="fas fa-check-circle"></i> Categoria atualizada com sucesso!
   </div>
   {% endif %}
+  {% if request.query_params.get('excluido') == 'ok' %}
+  <div class="alert-banner alert-success">
+    <i class="fas fa-check-circle"></i> Categoria excluída com sucesso!
+  </div>
+  {% endif %}
   {% if request.query_params.get('erro') == 'produtos_vinculados' %}
   <div class="alert-banner alert-warning">
     <i class="fas fa-triangle-exclamation"></i>
     Não é possível desativar <strong>{{ request.query_params.get('categoria') }}</strong>: há produtos ativos vinculados.
+  </div>
+  {% endif %}
+  {% if request.query_params.get('erro') == 'produtos_impedem_exclusao' %}
+  <div class="alert-banner alert-warning">
+    <i class="fas fa-triangle-exclamation"></i>
+    Não é possível excluir <strong>{{ request.query_params.get('categoria') }}</strong>: há produtos vinculados a esta categoria.
   </div>
   {% endif %}
 
@@ -280,9 +294,15 @@
         </a>
         <form action="/categorias/{{ cat.id }}/toggle-ativo" method="post" style="margin:0;">
           <button type="submit"
-            class="btn-action btn-toggle {{ 'ativar' if not cat.ativo else '' }}"
-            title="{{ 'Desativar' if cat.ativo else 'Ativar' }}">
-            <i class="fas fa-{{ 'toggle-on' if cat.ativo else 'toggle-off' }}"></i>
+            class="btn-action btn-toggle {{ 'ativar' if not cat.ativa else '' }}"
+            title="{{ 'Desativar' if cat.ativa else 'Ativar' }}">
+            <i class="fas fa-{{ 'toggle-on' if cat.ativa else 'toggle-off' }}"></i>
+          </button>
+        </form>
+        <form action="/categorias/{{ cat.id }}/excluir" method="post" style="margin:0;"
+          onsubmit="return confirm('Deseja realmente excluir esta categoria?');">
+          <button type="submit" class="btn-action btn-delete" title="Excluir">
+            <i class="fas fa-trash"></i>
           </button>
         </form>
       </div>

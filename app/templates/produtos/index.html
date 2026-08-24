@@ -344,11 +344,6 @@
             </a>
         </div>
 
-        {% set total_itens = total_produtos %}
-        {% set de_fora = namespace(qtd=0) %}
-        {% for p in produtos %}{% if p.estoque_total == 0 %}{% set de_fora.qtd = de_fora.qtd + 1 %}{% endif
-        %}{% endfor %}
-
         <div class="metrics-grid">
             <div class="metric-card">
                 <div class="metric-icon" style="background: rgba(59, 130, 246, 0.08); color: #3b82f6;"><i
@@ -356,7 +351,7 @@
                 <div>
                     <span
                         style="display: block; color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 500;">Registrados</span>
-                    <strong style="color: #f8fafc; font-size: 18px; font-weight: 600;">{{ total_itens }} ativos</strong>
+                    <strong style="color: #f8fafc; font-size: 18px; font-weight: 600;">{{ total_produtos }} ativos</strong>
                 </div>
             </div>
             <div class="metric-card">
@@ -366,8 +361,7 @@
                     <span
                         style="display: block; color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 500;">Em
                         Estoque</span>
-                    <strong style="color: #f8fafc; font-size: 18px; font-weight: 600;">{{ produtos|length - de_fora.qtd }}
-                        itens</strong>
+                    <strong style="color: #f8fafc; font-size: 18px; font-weight: 600;">{{ total_estoque }} unidades</strong>
                 </div>
             </div>
             <div class="metric-card">
@@ -376,7 +370,7 @@
                 <div>
                     <span
                         style="display: block; color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 500;">Esgotados</span>
-                    <strong style="color: #f8fafc; font-size: 18px; font-weight: 600;">{{ de_fora.qtd }} sem
+                    <strong style="color: #f8fafc; font-size: 18px; font-weight: 600;">{{ total_esgotados }} sem
                         saldo</strong>
                 </div>
             </div>
@@ -385,7 +379,7 @@
         <form class="search-bar-container" method="get" action="/produtos">
             <div class="search-wrapper">
                 <i class="fas fa-magnifying-glass"></i>
-                <input type="search" name="busca" value="{{ busca }}" class="search-input"
+                <input id="tableSearch" type="search" name="busca" value="{{ busca }}" class="search-input"
                     placeholder="Pesquisar por nome...">
             </div>
             {% if categoria_id %}<input type="hidden" name="categoria_id" value="{{ categoria_id }}">{% endif %}
@@ -512,7 +506,7 @@
     });
 
     // Filtro local em tempo real (uso permitido somente se autenticado)
-    tableSearch.addEventListener('keyup', function () {
+    tableSearch.addEventListener('input', function () {
         const searchValue = this.value.toLowerCase();
         const rows = document.querySelectorAll('#productsTable tbody .prod-row');
         rows.forEach(row => {
