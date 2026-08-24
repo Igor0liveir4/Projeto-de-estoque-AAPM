@@ -77,6 +77,36 @@
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
     }
 
+    .password-field {
+        position: relative;
+        display: flex;
+    }
+
+    .password-field .form-control {
+        width: 100%;
+        padding-right: 46px;
+    }
+
+    .toggle-password {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        border: 0;
+        background: transparent;
+        color: #94a3b8;
+        cursor: pointer;
+        padding: 6px;
+        font-size: 14px;
+        line-height: 1;
+    }
+
+    .toggle-password:hover,
+    .toggle-password:focus-visible {
+        color: #f8fafc;
+        outline: none;
+    }
+
     .btn-submit {
         background: #f8fafc;
         color: #090d16;
@@ -141,7 +171,12 @@
             
             <div class="form-group" style="margin-bottom: 28px;">
                 <label for="senha">Senha de acesso</label>
-                <input type="password" id="senha" name="senha" class="form-control" placeholder="••••••••" required>
+                <div class="password-field">
+                    <input type="password" id="senha" name="senha" class="form-control" placeholder="••••••••" required>
+                    <button type="button" class="toggle-password" aria-label="Mostrar senha" aria-controls="senha">
+                        <i class="fas fa-eye" aria-hidden="true"></i>
+                    </button>
+                </div>
             </div>
             
             <div style="display: flex; justify-content: center;">
@@ -161,4 +196,15 @@
 
     </div>
 </div>
+<script>
+    const passwordInput = document.getElementById('senha');
+    const togglePasswordButton = document.querySelector('.toggle-password');
+
+    togglePasswordButton.addEventListener('click', () => {
+        const showingPassword = passwordInput.type === 'text';
+        passwordInput.type = showingPassword ? 'password' : 'text';
+        togglePasswordButton.setAttribute('aria-label', showingPassword ? 'Mostrar senha' : 'Ocultar senha');
+        togglePasswordButton.querySelector('i').className = showingPassword ? 'fas fa-eye' : 'fas fa-eye-slash';
+    });
+</script>
 {% endblock %}
