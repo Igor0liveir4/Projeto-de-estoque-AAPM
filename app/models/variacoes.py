@@ -1,9 +1,12 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint
+from sqlalchemy.orm import relationship, validates
 from app.database import Base
 
 class Variacao(Base):
     __tablename__ = "variacoes"
+    __table_args__ = (
+        UniqueConstraint("produto_id", "tamanho", "cor", name="uq_variacao_produto_tamanho_cor"),
+    )
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     
@@ -19,3 +22,8 @@ class Variacao(Base):
 
     # Relacionamento de volta para o Produto
     produto = relationship("Produto", back_populates="variacoes")
+
+    @validates("tamanho")
+    def normalizar_tamanho(self, _chave, tamanho: str) -> str:
+        # Impede que "m" e "M" virem opções diferentes no PDV.
+        return tamanho.strip().upper()
