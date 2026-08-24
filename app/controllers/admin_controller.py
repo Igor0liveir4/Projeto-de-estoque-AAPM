@@ -1,13 +1,17 @@
 # Rotas acessíveis apenas por admin
 # controllers/admin_controller.py
 
+from urllib.parse import urlencode
+
 from fastapi import APIRouter, Depends, Request, Form, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.models.movimentacao import Movimentacao
 from app.models.usuario import Usuario
+from app.models.venda import Venda
 from app.auth import get_admin, hash_password
 from app.pagination import paginar
 
@@ -198,6 +202,46 @@ def editar_usuario(
     db.commit()
 
     return RedirectResponse(url="/usuarios?editado=ok", status_code=302)
+
+
+# EXCLUSÃO
+
+@router.post("/{usuario_id}/excluir")
+def excluir_usuario(
+    usuario_id: int,
+    db: Session = Depends(get_db),
+    admin = Depends(get_admin)
+):
+    """Exclui um usuário somente quando não há históricos vinculados."""
+    usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+
+    if not usuario:
+        return RedirectResponse(url="/usuarios", status_code=302)
+
+    if usuario.email == admin.get("sub"):
+        return RedirectResponse(
+            url="/usuarios?erro=autoproprio_exclusao",
+            status_code=302
+        )
+
+    possui_movimentacao = db.query(Movimentacao.id).filter(
+        Movimentacao.usuario_id == usuario_id
+    ).first()
+    possui_venda = db.query(Venda.id).filter(
+        Venda.usuario_id == usuario_id
+    ).first()
+
+    if possui_movimentacao or possui_venda:
+        query = urlencode({
+            "erro": "registros_impedem_exclusao",
+            "usuario": usuario.nome,
+        })
+        return RedirectResponse(url=f"/usuarios?{query}", status_code=302)
+
+    db.delete(usuario)
+    db.commit()
+
+    return RedirectResponse(url="/usuarios?excluido=ok", status_code=302)
 
 
 # ATIVAR / DESATIVAR
