@@ -131,6 +131,8 @@
         margin-top: 12px;
     }
 
+    .field[hidden] { display: none; }
+
     .variation-entry {
         display: grid;
         grid-template-columns: 1.2fr 1.2fr 1fr auto;
@@ -272,6 +274,8 @@
     .button:hover { transform: translateY(-1px); }
     .button-secondary { border: 1px solid rgba(148, 163, 184, .16); color: #94a3b8; }
     .button-secondary:hover { background: rgba(148, 163, 184, .07); border-color: rgba(148, 163, 184, .3); color: #e2e8f0; }
+    #addVariationBtn,
+    #addVariationBtn:hover { color: #fff; }
     .button-primary { background: #3b82f6; border: 0; color: #fff; cursor: pointer; padding-left: 19px; padding-right: 19px; }
     .button-primary:hover { background: #2563eb; box-shadow: 0 8px 18px rgba(37, 99, 235, .23); }
 
@@ -331,7 +335,13 @@
                         <input type="number" id="preco" name="preco" required min="0" step="0.01" inputmode="decimal" placeholder="0,00" value="{{ editando.preco if editando else (valores.preco if valores else '') }}">
                     </div>
 
-                    <div class="field wide">
+                    <div class="field" id="estoqueField">
+                        <label for="estoque_atual">Quantidade em estoque <span class="required">*</span></label>
+                        <input type="number" id="estoque_atual" name="estoque_atual" min="0" step="1" inputmode="numeric" value="{{ editando.estoque_total if editando else (valores.estoque_atual if valores else '0') }}">
+                        <span class="field-note" id="estoque-help">Informe a quantidade total disponível para este produto.</span>
+                    </div>
+
+                    <div class="field wide" id="variationsField">
                         <label>Variações</label>
                         <div class="variations-wrapper" id="variationsWrapper">
                             {% if editando and editando.variacoes %}
@@ -398,12 +408,6 @@
                 <h2 class="section-title"><i class="fas fa-cubes"></i> Estoque e imagem</h2>
 
                 <div class="field">
-                    <label for="estoque_atual">Quantidade total em estoque <span class="required">*</span></label>
-                    <input type="number" id="estoque_atual" name="estoque_atual" readonly min="0" step="1" inputmode="numeric" value="{{ editando.estoque_total if editando else (valores.estoque_atual if valores else '0') }}">
-                    <span class="field-note">Total calculado automaticamente com base nas variações.</span>
-                </div>
-
-                <div class="field" style="margin-top: 24px;">
                     <label for="imagem">Foto do produto</label>
                     <label class="upload-box" for="imagem">
                         <i class="fas fa-cloud-arrow-up"></i>
@@ -442,24 +446,53 @@
         var addVariationBtn = document.getElementById('addVariationBtn');
         var variationsWrapper = document.getElementById('variationsWrapper');
         var estoqueTotalInput = document.getElementById('estoque_atual');
-        var variationsField = addVariationBtn ? addVariationBtn.closest('.field.wide') : null;
+        var estoqueField = document.getElementById('estoqueField');
+        var variationsField = document.getElementById('variationsField');
+        var categoriaSelect = document.getElementById('categoria_id');
+        var estoqueHelp = document.getElementById('estoque-help');
+
+        function categoriaEhVestuario() {
+            if (!categoriaSelect || !categoriaSelect.selectedOptions.length) return false;
+
+            var nomeCategoria = categoriaSelect.selectedOptions[0].textContent
+                .trim()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase();
+
+            return nomeCategoria.includes('vestuario');
+        }
 
         function atualizarDisponibilidadeVariacoes() {
+            var exibirVariacoes = categoriaEhVestuario();
+
             if (variationsField) {
-                variationsField.hidden = false;
+                variationsField.hidden = !exibirVariacoes;
+            }
+            if (estoqueField) {
+                estoqueField.hidden = exibirVariacoes;
             }
 
             document.querySelectorAll(
                 'input[name="variacoes_tamanho"], input[name="variacoes_cor"], input[name="variacoes_estoque"]'
             ).forEach(function (input) {
-                input.disabled = false;
+                input.disabled = !exibirVariacoes;
                 input.required = false;
             });
 
-            if (addVariationBtn) addVariationBtn.disabled = false;
+            if (addVariationBtn) addVariationBtn.disabled = !exibirVariacoes;
+
+            if (estoqueTotalInput) estoqueTotalInput.readOnly = exibirVariacoes;
+            if (estoqueHelp) {
+                estoqueHelp.textContent = exibirVariacoes
+                    ? 'Total calculado automaticamente com base nas variações.'
+                    : 'Informe a quantidade total disponível para este produto.';
+            }
         }
 
         function atualizarEstoqueTotal() {
+            if (!categoriaEhVestuario()) return;
+
             var total = 0;
             document.querySelectorAll('.variation-stock').forEach(function (input) {
                 var valor = parseInt(input.value, 10);
@@ -521,8 +554,15 @@
             input.addEventListener('input', atualizarEstoqueTotal);
         });
 
-        atualizarEstoqueTotal();
+        if (categoriaSelect) {
+            categoriaSelect.addEventListener('change', function () {
+                atualizarDisponibilidadeVariacoes();
+                atualizarEstoqueTotal();
+            });
+        }
+
         atualizarDisponibilidadeVariacoes();
+        atualizarEstoqueTotal();
 
         imageInput.addEventListener('change', function () {
             if (!this.files || !this.files.length) return;
