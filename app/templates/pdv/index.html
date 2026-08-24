@@ -143,7 +143,7 @@
 
     .produtos-grid.compacto {
         grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-        grid-auto-rows: 188px;
+        grid-auto-rows: minmax(188px, auto);
         align-content: start;
         gap: 10px;
     }
@@ -243,6 +243,42 @@
         color: var(--text-muted);
         margin-top: 2px;
     }
+
+    .variacoes-dados { display: none; }
+
+    .modal-variacao {
+        align-items: center;
+        background: rgba(2, 6, 23, 0.78);
+        display: none;
+        inset: 0;
+        justify-content: center;
+        padding: 20px;
+        position: fixed;
+        z-index: 1000;
+    }
+
+    .modal-variacao.aberto { display: flex; }
+
+    .modal-variacao-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-hover);
+        border-radius: 16px;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+        max-width: 430px;
+        padding: 24px;
+        width: 100%;
+    }
+
+    .modal-variacao-topo { align-items: flex-start; display: flex; gap: 16px; justify-content: space-between; }
+    .modal-variacao-topo h3 { color: var(--text-primary); font: 700 20px 'Syne', sans-serif; margin: 0; }
+    .modal-variacao-topo p { color: var(--text-muted); font-size: 12px; margin: 5px 0 0; }
+    .modal-fechar { background: transparent; border: 0; color: var(--text-muted); cursor: pointer; font-size: 20px; }
+    .modal-campos { display: grid; gap: 14px; grid-template-columns: 1fr 1fr; margin-top: 22px; }
+    .modal-campo label { color: var(--text-secondary); display: block; font-size: 11px; font-weight: 700; margin-bottom: 6px; text-transform: uppercase; }
+    .modal-campo select, .modal-campo input { background: var(--bg-card); border: 1px solid var(--border); border-radius: 9px; color: var(--text-primary); padding: 10px 11px; width: 100%; }
+    .modal-estoque { color: #6ee7b7; font-size: 12px; margin-top: 14px; }
+    .modal-adicionar { background: var(--accent); border: 0; border-radius: 9px; color: white; cursor: pointer; font-weight: 700; margin-top: 20px; padding: 11px 16px; width: 100%; }
+    .modal-adicionar:hover { background: var(--accent-light); }
 
     .badge-critico {
         position: absolute;
@@ -646,8 +682,9 @@
             {% for p in produtos %}
             <div class="produto-card {% if p.estoque_total == 0 %}sem-estoque{% endif %}" data-id="{{ p.id }}"
                 data-nome="{{ p.nome }}" data-preco="{{ p.preco }}" data-estoque="{{ p.estoque_total }}"
-                data-imagem="{{ p.imagem_url }}"
-                onclick="adicionarAoCarrinho(this)">
+                data-imagem="{{ p.imagem_url }}" role="button" tabindex="0"
+                onclick="abrirSeletorVariacao(this)"
+                onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); abrirSeletorVariacao(this); }">
                 {% if p.estoque_total > 0 and p.estoque_total <= 5 %} <span class="badge-critico">Baixo</span>
                     {% endif %}
                     <div class="produto-imagem {% if not p.imagem_path %}sem-imagem{% endif %}">
@@ -668,6 +705,12 @@
                         {{ p.estoque_total }} em estoque
                         {% endif %}
                     </span>
+                    <div class="variacoes-dados">
+                        {% for v in p.variacoes if v.estoque_atual > 0 %}
+                        <span class="variacao-dado" data-id="{{ v.id }}" data-tamanho="{{ v.tamanho }}"
+                            data-cor="{{ v.cor }}" data-estoque="{{ v.estoque_atual }}"></span>
+                        {% endfor %}
+                    </div>
                     </div>
             </div>
             {% endfor %}
@@ -747,8 +790,40 @@
     </aside>
 </div>
 
+<div class="modal-variacao" id="modal-variacao" role="dialog" aria-modal="true" aria-labelledby="modal-produto-nome"
+    onclick="if (event.target === this) fecharSeletorVariacao();">
+    <div class="modal-variacao-card">
+        <div class="modal-variacao-topo">
+            <div>
+                <h3 id="modal-produto-nome">Selecionar variação</h3>
+                <p>Escolha a combinação e a quantidade desejada.</p>
+            </div>
+            <button type="button" class="modal-fechar" onclick="fecharSeletorVariacao()" aria-label="Fechar">&times;</button>
+        </div>
+        <div class="modal-campos">
+            <div class="modal-campo">
+                <label for="modal-tamanho">Tamanho</label>
+                <select id="modal-tamanho" onchange="atualizarCoresVariacao()"></select>
+            </div>
+            <div class="modal-campo">
+                <label for="modal-cor">Cor</label>
+                <select id="modal-cor" onchange="atualizarEstoqueVariacao()"></select>
+            </div>
+            <div class="modal-campo">
+                <label for="modal-quantidade">Quantidade</label>
+                <input id="modal-quantidade" type="number" min="1" value="1">
+            </div>
+        </div>
+        <div class="modal-estoque" id="modal-estoque"></div>
+        <button type="button" class="modal-adicionar" onclick="confirmarVariacao()">
+            <i class="fas fa-cart-plus"></i> Adicionar ao carrinho
+        </button>
+    </div>
+</div>
+
 <script>
-let carrinho = JSON.parse(sessionStorage.getItem('pdv-carrinho') || '[]');
+let carrinho = JSON.parse(sessionStorage.getItem('pdv-carrinho') || '[]')
+    .filter(item => Number.isInteger(item.variacao_id));
 let isAssociado = false;
 
 // Captura o valor do desconto vindo do Jinja2 com segurança
@@ -763,38 +838,124 @@ document.getElementById('busca-produto').addEventListener('input', function () {
     });
 });
 
-// ── Adicionar ao carrinho ──────────────────────
-window.adicionarAoCarrinho = function (el) {
-    const id = parseInt(el.dataset.id);
-    const nome = el.dataset.nome;
-    const preco = parseFloat(el.dataset.preco);
-    const estMax = parseInt(el.dataset.estoque);
-    const imagem = el.dataset.imagem || '/static/img/produto-placeholder.png';
+// ── Seleção de variação ────────────────────────
+let produtoSelecionado = null;
+let variacoesSelecionadas = [];
 
-    let item = carrinho.find(i => i.produto_id === id);
-    if (item) {
-        if (item.quantidade >= estMax) { mostrarErro('Estoque máximo atingido para "' + nome + '".'); return; }
-        item.quantidade++;
-    } else {
-        // Adiciona a propriedade 'imagem' no objeto
-        carrinho.push({ produto_id: id, nome, preco, quantidade: 1, estoque_max: estMax, imagem });
+window.abrirSeletorVariacao = function (card) {
+    produtoSelecionado = card;
+    variacoesSelecionadas = Array.from(card.querySelectorAll('.variacao-dado')).map(el => ({
+        id: parseInt(el.dataset.id),
+        tamanho: el.dataset.tamanho,
+        cor: el.dataset.cor,
+        estoque: parseInt(el.dataset.estoque)
+    }));
+
+    if (!variacoesSelecionadas.length) {
+        mostrarErro('Este produto não possui variações com estoque.');
+        return;
     }
-    renderCarrinho();
-    limparErro();
+
+    if (variacoesSelecionadas.length === 1) {
+        adicionarVariacaoSelecionada(variacoesSelecionadas[0], 1);
+        return;
+    }
+
+    document.getElementById('modal-produto-nome').textContent = card.dataset.nome;
+    const tamanhoSelect = document.getElementById('modal-tamanho');
+    const tamanhos = [...new Set(variacoesSelecionadas.map(v => v.tamanho))];
+    tamanhoSelect.innerHTML = tamanhos.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+    document.getElementById('modal-quantidade').value = 1;
+    atualizarCoresVariacao();
+    document.getElementById('modal-variacao').classList.add('aberto');
+    tamanhoSelect.focus();
 };
 
+window.fecharSeletorVariacao = function () {
+    document.getElementById('modal-variacao').classList.remove('aberto');
+    produtoSelecionado = null;
+    variacoesSelecionadas = [];
+};
+
+window.atualizarCoresVariacao = function () {
+    const tamanho = document.getElementById('modal-tamanho').value;
+    const cores = [...new Set(variacoesSelecionadas.filter(v => v.tamanho === tamanho).map(v => v.cor))];
+    document.getElementById('modal-cor').innerHTML = cores.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+    atualizarEstoqueVariacao();
+};
+
+window.atualizarEstoqueVariacao = function () {
+    const variacao = obterVariacaoSelecionada();
+    const quantidade = document.getElementById('modal-quantidade');
+    if (!variacao) return;
+    quantidade.max = variacao.estoque;
+    if (parseInt(quantidade.value) > variacao.estoque) quantidade.value = variacao.estoque;
+    document.getElementById('modal-estoque').textContent = variacao.estoque + ' ' + (variacao.estoque === 1 ? 'unidade disponível' : 'unidades disponíveis');
+};
+
+function obterVariacaoSelecionada() {
+    const tamanho = document.getElementById('modal-tamanho').value;
+    const cor = document.getElementById('modal-cor').value;
+    return variacoesSelecionadas.find(v => v.tamanho === tamanho && v.cor === cor);
+}
+
+window.confirmarVariacao = function () {
+    const variacao = obterVariacaoSelecionada();
+    const quantidade = parseInt(document.getElementById('modal-quantidade').value);
+    if (!produtoSelecionado || !variacao || !Number.isInteger(quantidade) || quantidade <= 0) {
+        mostrarErro('Selecione uma variação e uma quantidade válida.');
+        return;
+    }
+
+    adicionarVariacaoSelecionada(variacao, quantidade);
+};
+
+function adicionarVariacaoSelecionada(variacao, quantidade) {
+    const existente = carrinho.find(i => i.variacao_id === variacao.id);
+    const quantidadeFinal = quantidade + (existente ? existente.quantidade : 0);
+    if (quantidadeFinal > variacao.estoque) {
+        mostrarErro('A quantidade informada ultrapassa o estoque disponível.');
+        return;
+    }
+
+    if (existente) {
+        existente.quantidade = quantidadeFinal;
+        existente.estoque_max = variacao.estoque;
+    } else {
+        carrinho.push({
+            produto_id: parseInt(produtoSelecionado.dataset.id),
+            variacao_id: variacao.id,
+            nome: produtoSelecionado.dataset.nome,
+            tamanho: variacao.tamanho,
+            cor: variacao.cor,
+            preco: parseFloat(produtoSelecionado.dataset.preco),
+            quantidade,
+            estoque_max: variacao.estoque,
+            imagem: produtoSelecionado.dataset.imagem || '/static/img/produto-placeholder.png'
+        });
+    }
+
+    renderCarrinho();
+    limparErro();
+    fecharSeletorVariacao();
+}
+
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') fecharSeletorVariacao();
+});
+
 // ── Alterar quantidade ─────────────────────────
-window.alterarQtd = function (id, delta) {
-    let item = carrinho.find(i => i.produto_id === id);
+window.alterarQtd = function (variacaoId, delta) {
+    let item = carrinho.find(i => i.variacao_id === variacaoId);
     if (!item) return;
     item.quantidade += delta;
-    if (item.quantidade <= 0) carrinho = carrinho.filter(i => i.produto_id !== id);
+    if (item.quantidade <= 0) carrinho = carrinho.filter(i => i.variacao_id !== variacaoId);
     else if (item.quantidade > item.estoque_max) { item.quantidade = item.estoque_max; mostrarErro('Limite de estoque atingido.'); }
     renderCarrinho();
 };
 
-window.removerItem = function (id) {
-    carrinho = carrinho.filter(i => i.produto_id !== id);
+window.removerItem = function (variacaoId) {
+    carrinho = carrinho.filter(i => i.variacao_id !== variacaoId);
     renderCarrinho();
 };
 
@@ -855,15 +1016,15 @@ function renderCarrinho() {
         div.innerHTML = `
     <div class="item-info-wrap">
         <img src="${item.imagem}" alt="${esc(item.nome)}" class="item-img-miniatura">
-        <div class="item-nome">${esc(item.nome)}</div>
+        <div class="item-nome">${esc(item.nome)}<br><small>${esc(item.tamanho)} / ${esc(item.cor)}</small></div>
     </div>
     <div class="qty-ctrl">
-        <button class="qty-btn" onclick="alterarQtd(${item.produto_id}, -1)">−</button>
+        <button class="qty-btn" onclick="alterarQtd(${item.variacao_id}, -1)">−</button>
         <span class="qty-num">${item.quantidade}</span>
-        <button class="qty-btn" onclick="alterarQtd(${item.produto_id}, 1)">+</button>
+        <button class="qty-btn" onclick="alterarQtd(${item.variacao_id}, 1)">+</button>
     </div>
     <div class="item-subtotal">${fmtBRL(subtotal)}</div>
-    <button class="btn-remover" onclick="removerItem(${item.produto_id})" title="Remover">
+    <button class="btn-remover" onclick="removerItem(${item.variacao_id})" title="Remover">
         <i class="fas fa-times"></i>
     </button>`;
         wrapper.appendChild(div);
@@ -880,8 +1041,7 @@ function renderCarrinho() {
     // Monta hidden inputs para o form
     const itensParaForm = carrinho.map(i => ({
         produto_id: i.produto_id,
-        nome: i.nome,
-        preco: i.preco,
+        variacao_id: i.variacao_id,
         quantidade: i.quantidade
     }));
     document.getElementById('carrinho-json-input').value = JSON.stringify(itensParaForm);
@@ -922,6 +1082,7 @@ const erros = {
     json: 'Erro ao processar o carrinho. Tente novamente.',
     vazio: 'O carrinho está vazio.',
     produto_inexistente: 'Produto não encontrado. Atualize a página.',
+    variacao_inexistente: 'Variação não encontrada. Atualize a página e tente novamente.',
     quantidade: 'Quantidade inválida.',
     estoque: 'Estoque insuficiente para: ' + (params.get('produto') || ''),
 };
