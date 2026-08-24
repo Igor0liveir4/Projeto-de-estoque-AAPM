@@ -10,13 +10,13 @@
       <input type="hidden" name="{{ chave }}" value="{{ valor }}">
       {% endif %}
     {% endfor %}
-    <label for="por-pagina">Itens por página</label>
+    <label for="por-pagina">Exibir</label>
     <select id="por-pagina" name="por_pagina" aria-label="Itens por página" onchange="this.form.submit()">
       {% for tamanho in (16, 40, 64) %}
       <option value="{{ tamanho }}" {% if por_pagina == tamanho %}selected{% endif %}>{{ tamanho }}</option>
       {% endfor %}
     </select>
-    <button type="submit" class="server-pagination__apply">Aplicar</button>
+    <span>por página</span>
   </form>
 
   <span class="server-pagination__summary" aria-live="polite">
@@ -25,6 +25,7 @@
 
   {% if total_paginas > 1 %}
   <nav class="server-pagination__controls" aria-label="Paginação">
+    <span class="server-pagination__page">Página {{ pagina }} de {{ total_paginas }}</span>
     <a class="server-pagination__button {% if pagina == 1 %}is-disabled{% endif %}"
        {% if pagina > 1 %}href="{{ request.url.include_query_params(pagina=pagina - 1, por_pagina=por_pagina) }}"{% else %}aria-disabled="true"{% endif %}
        aria-label="Página anterior">‹</a>
