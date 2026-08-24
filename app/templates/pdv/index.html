@@ -78,14 +78,44 @@
         background: var(--bg-card);
         border: 1px solid var(--border);
         border-radius: 12px;
-        padding: 16px 14px;
+        padding: 0;
         cursor: pointer;
         transition: all var(--transition);
         display: flex;
         flex-direction: column;
-        gap: 6px;
         position: relative;
         overflow: hidden;
+    }
+
+    .produto-imagem {
+        height: 132px;
+        background: rgba(255, 255, 255, 0.03);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .produto-imagem img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 10px;
+    }
+
+    .produto-imagem i {
+        color: var(--text-muted);
+        font-size: 36px;
+    }
+
+    .produto-conteudo {
+        padding: 12px 14px 14px;
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 6px;
     }
 
     .produto-card::before {
@@ -542,6 +572,14 @@
                 onclick="adicionarAoCarrinho(this)">
                 {% if p.estoque_total > 0 and p.estoque_total <= 5 %} <span class="badge-critico">Baixo</span>
                     {% endif %}
+                    <div class="produto-imagem">
+                        {% if p.imagem_path %}
+                        <img src="{{ p.imagem_url }}" alt="{{ p.nome }}" loading="lazy">
+                        {% else %}
+                        <i class="fas fa-box-open" aria-hidden="true"></i>
+                        {% endif %}
+                    </div>
+                    <div class="produto-conteudo">
                     <span class="produto-nome">{{ p.nome }}</span>
                     <span class="produto-preco">R$ {{ "%.2f"|format(p.preco) }}</span>
                     <span class="produto-estoque">
@@ -551,6 +589,7 @@
                         {{ p.estoque_total }} em estoque
                         {% endif %}
                     </span>
+                    </div>
             </div>
             {% endfor %}
         </div>

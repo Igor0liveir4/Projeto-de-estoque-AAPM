@@ -31,7 +31,7 @@ def tela_pdv(
     request: Request,
     busca: str = "",
     pagina: int = 1,
-    por_pagina: int = 10,
+    por_pagina: int = 16,
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado)
 ):
@@ -210,7 +210,7 @@ def detalhe_venda(
 def historico_vendas(
     request: Request,
     pagina: int = 1,
-    por_pagina: int = 10,
+    por_pagina: int = 16,
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado)
 ):
