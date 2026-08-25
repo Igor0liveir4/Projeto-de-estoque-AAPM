@@ -49,7 +49,7 @@
     </div>
 
     <div class="armarios-card">
-        <form method="get" action="/armarios" class="filters-form">
+        <form method="get" action="/armarios" class="filters-form" id="armarios-filters">
             <div class="field">
                 <label for="status">Status</label>
                 <select id="status" name="status">
@@ -70,9 +70,9 @@
             </div>
             {% endif %}
             <div class="filter-actions">
-                <button type="submit" class="button"><i class="fas fa-filter"></i> Filtrar</button>
                 {% if status or localizacao %}<a href="/armarios" class="button-secondary"><i
                         class="fas fa-rotate-left"></i> Limpar</a>{% endif %}
+                <noscript><button type="submit" class="button"><i class="fas fa-filter"></i> Filtrar</button></noscript>
             </div>
         </form>
     </div>
@@ -113,4 +113,15 @@
     </div>
     {% endif %}
 </section>
+
+<script>
+    (function () {
+        const filtersForm = document.getElementById('armarios-filters');
+        if (!filtersForm) return;
+
+        filtersForm.querySelectorAll('select').forEach((select) => {
+            select.addEventListener('change', () => filtersForm.requestSubmit());
+        });
+    })();
+</script>
 {% endblock %}

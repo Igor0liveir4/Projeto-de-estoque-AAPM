@@ -186,22 +186,24 @@
 
     /* ACTIONS & BUTTONS */
     .btn-add {
-        background: #f8fafc;
-        color: #090d16;
-        padding: 10px 16px;
+        background: var(--accent);
+        color: white;
+        padding: 11px 20px;
         text-decoration: none;
-        border-radius: 8px;
-        font-size: 13px;
-        font-weight: 600;
+        border-radius: var(--radius);
+        font-size: 14px;
+        font-weight: 700;
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        transition: all 0.2s ease;
+        transition: all var(--transition);
+        box-shadow: 0 4px 14px var(--accent-glow);
     }
 
     .btn-add:hover {
-        background: #ffffff;
-        transform: translateY(-1px);
+        background: var(--accent-light);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px var(--accent-glow);
     }
 
     .btn-action-edit {
@@ -402,7 +404,8 @@
                     </thead>
                     <tbody>
                         {% for produto in produtos %}
-                        <tr class="prod-row" onclick="window.location.href='/produtos/{{ produto.id }}/editar'">
+                        <tr class="prod-row" data-nome="{{ produto.nome }}"
+                            onclick="window.location.href='/produtos/{{ produto.id }}/editar'">
 
                             <td>
                                 <img src="{{ produto.imagem_url }}" alt="{{ produto.nome }}"
@@ -510,8 +513,8 @@
         const searchValue = this.value.toLowerCase();
         const rows = document.querySelectorAll('#productsTable tbody .prod-row');
         rows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            if (text.includes(searchValue)) {
+            const nomeProduto = row.dataset.nome.toLowerCase();
+            if (nomeProduto.includes(searchValue)) {
                 row.style.display = '';
             } else {
                 row.style.display = 'none';
@@ -537,7 +540,7 @@
 
         function getFilteredRows() {
             const searchValue = tableSearch.value.trim().toLowerCase();
-            return productRows.filter((row) => row.textContent.toLowerCase().includes(searchValue));
+            return productRows.filter((row) => row.dataset.nome.toLowerCase().includes(searchValue));
         }
 
         function createButton(label, targetPage, options = {}) {

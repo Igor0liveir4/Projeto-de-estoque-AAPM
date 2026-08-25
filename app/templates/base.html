@@ -46,6 +46,8 @@
 
         html {
             scroll-behavior: smooth;
+            max-width: 100%;
+            overflow-x: hidden;
         }
 
         body {
@@ -56,6 +58,9 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
             /* subtle grid texture */
             background-image:
                 linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
@@ -213,6 +218,14 @@
         main {
             padding: 0;
             flex-grow: 1;
+            width: 100%;
+            min-width: 0;
+        }
+
+        /* Impede que grids, tabelas e conteúdos flexíveis alarguem a página. */
+        main>* {
+            min-width: 0;
+            max-width: 100%;
         }
 
         /* ── SENAI FRANCISCO MATARAZZO FOOTER ───────────── */
