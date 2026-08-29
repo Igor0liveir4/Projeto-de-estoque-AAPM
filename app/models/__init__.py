@@ -9,6 +9,7 @@ from app.models import movimentacao
 from app.models import cliente
 from app.models import venda
 from app.models import variacoes
+from app.models import armario
 
 # ...existing code...
 from fastapi import FastAPI, Request

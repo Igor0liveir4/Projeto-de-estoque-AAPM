@@ -1,16 +1,19 @@
 import os
 import shutil
 import uuid
-from typing import Optional
+from typing import Optional, List
 from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session
+from sqlalchemy import func
+from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
 from app.models.produto import Produto
+from app.models.variacoes import Variacao
 from app.models.categoria import Categoria
 from app.auth import get_usuario_logado, get_admin
+from app.pagination import paginar
 
 router = APIRouter(prefix="/produtos", tags=["Produtos"])
 
@@ -21,6 +24,62 @@ UPLOAD_DIR = "app/static/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)  # cria a pasta se não existir
 
 
+PALAVRAS_ROUPA = {
+    "roupa", "camisa", "camiseta", "blusa", "calca", "calça",
+    "bermuda", "short", "vestido", "jaqueta", "casaco",
+    "tênis", "tenis", "uniforme", "moletom", "calcinha", "cueca"
+}
+
+
+def _parse_item_variacao(
+    tamanho: Optional[str],
+    cor: Optional[str],
+    estoque_raw: Optional[str]
+) -> tuple[Optional[Variacao], Optional[str]]:
+    t, c, e = (tamanho or "").strip().upper(), (cor or "").strip(), (estoque_raw or "").strip()
+
+    if not (t or c or e):
+        return None, None  # Linha em branco ignorada
+
+    if not (t and c):
+        return None, "Cada variação precisa ter tamanho e cor preenchidos."
+
+    if not e:
+        return None, "Cada variação precisa ter quantidade de estoque."
+
+    try:
+        qtd = int(e)
+        if qtd < 0:
+            return None, "A quantidade de estoque não pode ser negativa."
+    except ValueError:
+        return None, "A quantidade de estoque deve ser um número inteiro."
+
+    return Variacao(tamanho=t, cor=c, estoque_atual=qtd), None
+
+
+def _parse_variacoes(
+    tamanhos: Optional[List[str]],
+    cores: Optional[List[str]],
+    estoques: Optional[List[str]],
+) -> tuple[list[Variacao], Optional[str]]:
+    if not (tamanhos and cores and estoques):
+        return [], None
+
+    variacoes: list[Variacao] = []
+    combinacoes = set()
+    for t, c, e in zip(tamanhos, cores, estoques):
+        variacao, erro = _parse_item_variacao(t, c, e)
+        if erro:
+            return [], erro
+        if variacao:
+            # A comparação é sem diferença de maiúsculas/minúsculas e espaços.
+            chave = (variacao.tamanho, " ".join(variacao.cor.split()).casefold())
+            if chave in combinacoes:
+                return [], "Cada combinação de tamanho e cor deve ser informada apenas uma vez."
+            combinacoes.add(chave)
+            variacoes.append(variacao)
+
+    return variacoes, None
 # ============================================================
 # LISTAGEM
 # ============================================================
@@ -29,7 +88,9 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)  # cria a pasta se não existir
 def listar_produtos(
     request: Request,
     busca: str = "",
-    categoria_id: int = 0,       # 0 = todas as categorias
+    categoria_id: int = 0,
+    pagina: int = 1,
+    por_pagina: int = 10,
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado)
 ):
@@ -41,8 +102,26 @@ def listar_produtos(
     if categoria_id:
         query = query.filter(Produto.categoria_id == categoria_id)
 
-    produtos    = query.order_by(Produto.nome).all()
-    categorias  = db.query(Categoria).filter(Categoria.ativa == True).all()
+    resultado = paginar(query.order_by(Produto.nome), pagina, por_pagina)
+
+    # Os cards resumem todo o estoque ativo, e não somente os produtos
+    # carregados na página atual da listagem.
+    total_estoque = (
+        db.query(func.coalesce(func.sum(Variacao.estoque_atual), 0))
+        .join(Produto, Variacao.produto_id == Produto.id)
+        .filter(Produto.ativo == True)
+        .scalar()
+    )
+    total_esgotados = (
+        db.query(Produto.id)
+        .outerjoin(Variacao)
+        .filter(Produto.ativo == True)
+        .group_by(Produto.id)
+        .having(func.coalesce(func.sum(Variacao.estoque_atual), 0) == 0)
+        .count()
+    )
+
+    categorias = db.query(Categoria).filter(Categoria.ativa == True).all()
 
     return templates.TemplateResponse(
         request,
@@ -50,10 +129,16 @@ def listar_produtos(
         {
             "request":      request,
             "usuario":      usuario,
-            "produtos":     produtos,
+            "produtos":     resultado.itens,
             "categorias":   categorias,
             "busca":        busca,
             "categoria_id": categoria_id,
+            "pagina":       resultado.atual,
+            "por_pagina":   resultado.por_pagina,
+            "total_paginas": resultado.total_paginas,
+            "total_produtos": resultado.total_itens,
+            "total_estoque": int(total_estoque),
+            "total_esgotados": total_esgotados,
         }
     )
 
@@ -85,14 +170,17 @@ def form_novo_produto(
 @router.post("/novo")
 async def criar_produto(
     request: Request,
-    nome: str          = Form(...),
-    preco: float       = Form(...),
-    estoque_atual: int = Form(...),
-    categoria_id: int  = Form(0),   # 0 = sem categoria
-    imagem: UploadFile = File(None), # None = campo opcional
-    ativo: Optional[str] = Form(None),
-    db: Session        = Depends(get_db),
-    admin              = Depends(get_admin)
+    nome: str                     = Form(...),
+    preco: float                  = Form(...),
+    estoque_atual: int            = Form(...),
+    categoria_id: int             = Form(0),   # 0 = sem categoria
+    imagem: UploadFile            = File(None), # None = campo opcional
+    ativo: Optional[str]          = Form(None),
+    variacoes_tamanho: Optional[List[str]] = Form(None),
+    variacoes_cor: Optional[List[str]]    = Form(None),
+    variacoes_estoque: Optional[List[str]] = Form(None),
+    db: Session                   = Depends(get_db),
+    admin: object                 = Depends(get_admin)
 ):
     categorias = db.query(Categoria).filter(Categoria.ativa == True).all()
 
@@ -116,17 +204,52 @@ async def criar_produto(
             status_code=400
         )
 
+    variacoes, variacoes_erro = _parse_variacoes(
+        variacoes_tamanho, variacoes_cor, variacoes_estoque
+    )
+
+    if variacoes_erro:
+        return templates.TemplateResponse(
+            request,
+            "produtos/form.html",
+            {
+                "request": request,
+                "usuario": admin,
+                "editando": None,
+                "categorias": categorias,
+                "erro": variacoes_erro,
+                "valores": {
+                    "nome": nome,
+                    "preco": preco,
+                    "categoria_id": categoria_id,
+                    "ativo": ativo is not None,
+                },
+                "variacoes_valores": [{
+                    "tamanho": (variacoes_tamanho or [""])[i] if i < len(variacoes_tamanho or []) else "",
+                    "cor": (variacoes_cor or [""])[i] if i < len(variacoes_cor or []) else "",
+                    "estoque": (variacoes_estoque or [""])[i] if i < len(variacoes_estoque or []) else "",
+                } for i in range(max(len(variacoes_tamanho or []), len(variacoes_cor or []), len(variacoes_estoque or [])))],
+            },
+            status_code=400,
+        )
+
     # Processa o upload da imagem
     imagem_path = await _salvar_imagem(imagem)
 
     produto = Produto(
         nome          = nome,
         preco         = preco,
-        estoque_atual = estoque_atual,
         categoria_id  = categoria_id or None,  # 0 vira NULL no banco
         imagem_path   = imagem_path,
         ativo         = ativo is not None,
     )
+
+    if variacoes:
+        produto.variacoes.extend(variacoes)
+    else:
+        produto.variacoes.append(
+            Variacao(tamanho="Único", cor="Padrão", estoque_atual=estoque_atual)
+        )
 
     db.add(produto)
     db.commit()
@@ -142,7 +265,7 @@ def detalhe_produto(
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado)
 ):
-    produto = db.query(Produto).filter(
+    produto = db.query(Produto).options(joinedload(Produto.variacoes)).filter(
         Produto.id == produto_id,
         Produto.ativo == True
     ).first()
@@ -188,15 +311,18 @@ def form_editar_produto(
 async def editar_produto(
     produto_id: int,
     request: Request,
-    nome: str              = Form(...),
-    preco: float           = Form(...),
+    nome: str                        = Form(...),
+    preco: float                     = Form(...),
     # 1. Permitimos que o campo venha vazio (None)
-    estoque_atual: Optional[int] = Form(None),
-    categoria_id: int      = Form(0),
-    imagem: UploadFile     = File(None),
-    ativo: Optional[str]   = Form(None),
-    db: Session            = Depends(get_db),
-    admin                  = Depends(get_admin)
+    estoque_atual: Optional[int]     = Form(None),
+    categoria_id: int                = Form(0),
+    imagem: UploadFile               = File(None),
+    ativo: Optional[str]             = Form(None),
+    variacoes_tamanho: Optional[List[str]] = Form(None),
+    variacoes_cor: Optional[List[str]]    = Form(None),
+    variacoes_estoque: Optional[List[str]] = Form(None),
+    db: Session                      = Depends(get_db),
+    admin: object                    = Depends(get_admin)
 ):
     editando   = db.query(Produto).filter(Produto.id == produto_id).first()
     categorias = db.query(Categoria).filter(Categoria.ativa == True).all()
@@ -230,10 +356,45 @@ async def editar_produto(
         _remover_imagem(editando.imagem_path)
         editando.imagem_path = nova_imagem_path
 
-    # 2. A MÁGICA AQUI: Se o estoque_atual veio preenchido, usamos o novo valor.
-    # Se veio em branco (None), mantemos o valor que já estava salvo antes (editando.estoque_atual).
-    if estoque_atual is not None:
-        editando.estoque_atual = estoque_atual
+    variacoes, variacoes_erro = _parse_variacoes(
+        variacoes_tamanho, variacoes_cor, variacoes_estoque
+    )
+
+    if variacoes_erro:
+        return templates.TemplateResponse(
+            request,
+            "produtos/form.html",
+            {
+                "request": request,
+                "usuario": admin,
+                "editando": editando,
+                "categorias": categorias,
+                "erro": variacoes_erro,
+                "valores": {
+                    "nome": nome,
+                    "preco": preco,
+                    "categoria_id": categoria_id,
+                    "ativo": ativo is not None,
+                },
+                "variacoes_valores": [{
+                    "tamanho": (variacoes_tamanho or [""])[i] if i < len(variacoes_tamanho or []) else "",
+                    "cor": (variacoes_cor or [""])[i] if i < len(variacoes_cor or []) else "",
+                    "estoque": (variacoes_estoque or [""])[i] if i < len(variacoes_estoque or []) else "",
+                } for i in range(max(len(variacoes_tamanho or []), len(variacoes_cor or []), len(variacoes_estoque or [])))],
+            },
+            status_code=400,
+        )
+
+    if variacoes:
+        editando.variacoes[:] = []
+        editando.variacoes.extend(variacoes)
+    elif estoque_atual is not None:
+        # Ajusta o total quando não há variações explícitas
+        diferenca = estoque_atual - editando.estoque_total
+        if diferenca > 0:
+            editando.adicionar_estoque(diferenca)
+        elif diferenca < 0:
+            editando.retirar_estoque(-diferenca)
 
     editando.nome          = nome
     editando.preco         = preco

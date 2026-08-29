@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -9,8 +9,14 @@ import json
 import httpx
 
 from app.controllers import (
-    auth_controller, admin_controller, categoria_controller,
-    produto_controller, movimentacao_controller, pdv_controller, cliente_controller
+    auth_controller, 
+    admin_controller, 
+    categoria_controller,
+    produto_controller,
+    movimentacao_controller, 
+    pdv_controller, 
+    cliente_controller,
+    armario_controller,
 )
 from app.auth import get_usuario_opcional
 from app.database import get_db
@@ -21,11 +27,32 @@ from app.models.cliente import Cliente
 from app.models.venda import Venda
 from app.models.movimentacao import Movimentacao
 from app.models.variacoes import Variacao
+from app.models.armario import Armario, StatusArmario
 
 app = FastAPI(title="Gestão de Estoque - AAPM")
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
+
+ROTAS_PROTEGIDAS = (
+    "/armarios",
+    "/categorias",
+    "/cliente",
+    "/movimentacoes",
+    "/pdv",
+    "/produtos",
+    "/usuarios",
+)
+
+
+@app.middleware("http")
+async def redirecionar_visitante_para_inicio(request: Request, call_next):
+    """Redireciona visitantes sem sessao ao acessar paginas restritas."""
+    if request.url.path.startswith(ROTAS_PROTEGIDAS):
+        if get_usuario_opcional(request) is None:
+            return RedirectResponse(url="/", status_code=302)
+
+    return await call_next(request)
 
 # ── API de carro para o 404 ─────────────────────────────────────────────────
 @app.get("/api/get-carro")
@@ -63,7 +90,7 @@ async def erro_404_customizado(request: Request, exc: StarletteHTTPException):
     return HTMLResponse(str(exc.detail), status_code=exc.status_code)
 
 
-# ── Routers ──────────────────────────────────────────────────────────────────
+# ── Routers ────────────────────────────────────────────────────
 app.include_router(auth_controller.router)
 app.include_router(admin_controller.router)
 app.include_router(categoria_controller.router)
@@ -71,9 +98,10 @@ app.include_router(produto_controller.router)
 app.include_router(movimentacao_controller.router)
 app.include_router(pdv_controller.router)
 app.include_router(cliente_controller.router)
+app.include_router(armario_controller.router)
 
 
-# ── Rota principal ───────────────────────────────────────────────────────────
+# ── Rota principal ──────────────────────────────────────────────
 @app.get("/")
 def tela_home(
     request: Request,
@@ -95,7 +123,9 @@ def tela_home(
                 "preco_venda": p.preco,
                 "quantidade":  sum(v.estoque_atual for v in p.variacoes),
                 "categoria":   p.categoria,
-                "imagem_url":  p.imagem_path if p.imagem_path else None,
+                # imagem_path Ã© relativo Ã pasta /static (ex.: uploads/foto.jpg).
+                # A propriedade monta a URL que o navegador consegue acessar.
+                "imagem_url":  p.imagem_url if p.imagem_path else None,
             }
             for p in produtos_db
         ]
@@ -108,10 +138,21 @@ def tela_home(
     total_produtos      = db.query(Produto).count()
     total_categorias    = db.query(Categoria).count()
     total_usuarios      = db.query(Usuario).count()
+    total_armarios      = db.query(Armario).count()
     total_clientes      = db.query(Cliente).count()
     total_vendas        = db.query(Venda).count()
+    todos_armarios   = db.query(Armario).filter(Armario.ativo == True).all()
+    armarios_disponiveis = sum(
+        1 for a in todos_armarios
+        if a.status == StatusArmario.DISPONIVEL
+    )
+    armarios_alugados = sum(
+        1 for a in todos_armarios
+        if a.status == StatusArmario.ALUGADO
+    )
     total_movimentacoes = db.query(Movimentacao).count()
     total_estoque       = int(db.query(func.coalesce(func.sum(Variacao.estoque_atual), 0)).scalar())
+    
 
     # ── Gráfico 1 — Doughnut: produtos por categoria ─────────────────────────
     cats = (
@@ -166,6 +207,7 @@ def tela_home(
             "usuario":             usuario,
             "total_produtos":      total_produtos,
             "total_categorias":    total_categorias,
+            "total_armarios":      total_armarios,
             "total_usuarios":      total_usuarios,
             "total_clientes":      total_clientes,
             "total_vendas":        total_vendas,
@@ -178,7 +220,7 @@ def tela_home(
     )
 
 
-# ── Contato ──────────────────────────────────────────────────────────────────
+# ── Contato ────────────────────────────────────────────────────
 @app.get("/contato", response_class=HTMLResponse)
 def tela_contato(request: Request):
     return templates.TemplateResponse(
