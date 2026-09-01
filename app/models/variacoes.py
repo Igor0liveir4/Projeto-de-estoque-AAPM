@@ -19,9 +19,19 @@ class Variacao(Base):
     
     # O estoque sai do Produto e vem para cá!
     estoque_atual = Column(Integer, nullable=False, default=0)
+    
+    # Imagem específica da variação (opcional)
+    imagem_path = Column(String(255), nullable=True)
 
     # Relacionamento de volta para o Produto
     produto = relationship("Produto", back_populates="variacoes")
+
+    @property
+    def imagem_url(self):
+        if self.imagem_path:
+            return f"/static/{self.imagem_path}"
+        else:
+            return "/static/img/produto-placeholder.png"
 
     @validates("tamanho")
     def normalizar_tamanho(self, _chave, tamanho: str) -> str:

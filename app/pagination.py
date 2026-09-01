@@ -14,9 +14,9 @@ class Pagina:
     total_paginas: int
 
 
-def paginar(query, pagina: int = 1, por_pagina: int = 16) -> Pagina:
+def paginar(query, pagina: int = 1, por_pagina: int = 40) -> Pagina:
     """Aplica uma paginação segura e padronizada a uma query SQLAlchemy."""
-    por_pagina = por_pagina if por_pagina in TAMANHOS_DE_PAGINA else 16
+    por_pagina = por_pagina if por_pagina in TAMANHOS_DE_PAGINA else 40
     total_itens = query.order_by(None).count()
     total_paginas = max(ceil(total_itens / por_pagina), 1)
     atual = min(max(pagina, 1), total_paginas)

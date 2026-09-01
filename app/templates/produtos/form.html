@@ -359,6 +359,13 @@
                                         <label>Quantidade</label>
                                         <input type="number" name="variacoes_estoque" min="0" step="1" value="{{ variacao.estoque_atual }}" class="variation-stock">
                                     </div>
+                                    <div class="field">
+                                        <label>Foto da variação (opcional)</label>
+                                        <input type="file" name="variacoes_imagem" accept=".jpg,.jpeg,.png,.webp" class="variation-image-input">
+                                        {% if variacao.imagem_path %}
+                                            <small style="color: #60a5fa; margin-top: 5px;">✓ Foto: {{ variacao.imagem_path.split('/')[-1] }}</small>
+                                        {% endif %}
+                                    </div>
                                     <button type="button" class="variation-remove">Remover</button>
                                 </div>
                                 {% endfor %}
@@ -377,6 +384,10 @@
                                         <label>Quantidade</label>
                                         <input type="number" name="variacoes_estoque" min="0" step="1" value="{{ variacao.estoque }}" class="variation-stock">
                                     </div>
+                                    <div class="field">
+                                        <label>Foto da variação (opcional)</label>
+                                        <input type="file" name="variacoes_imagem" accept=".jpg,.jpeg,.png,.webp" class="variation-image-input">
+                                    </div>
                                     <button type="button" class="variation-remove">Remover</button>
                                 </div>
                                 {% endfor %}
@@ -393,6 +404,10 @@
                                     <div class="field">
                                         <label>Quantidade</label>
                                         <input type="number" name="variacoes_estoque" min="0" step="1" value="0" class="variation-stock">
+                                    </div>
+                                    <div class="field">
+                                        <label>Foto da variação (opcional)</label>
+                                        <input type="file" name="variacoes_imagem" accept=".jpg,.jpeg,.png,.webp" class="variation-image-input">
                                     </div>
                                     <button type="button" class="variation-remove">Remover</button>
                                 </div>
@@ -520,6 +535,10 @@
                 <div class="field">
                     <label>Quantidade</label>
                     <input type="number" name="variacoes_estoque" min="0" step="1" value="${estoque ?? 0}" class="variation-stock">
+                </div>
+                <div class="field">
+                    <label>Foto da variação (opcional)</label>
+                    <input type="file" name="variacoes_imagem" accept=".jpg,.jpeg,.png,.webp" class="variation-image-input">
                 </div>
                 <button type="button" class="variation-remove">Remover</button>
             `;
