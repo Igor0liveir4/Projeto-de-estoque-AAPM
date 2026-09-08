@@ -8,25 +8,30 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-    /* VARIÁVEIS DE COR BASEADAS NO SEU DESIGN SYSTEM */
+    /* VARIÁVEIS DE COR PADRONIZADAS (Baseadas no Design System) */
     :root {
-        --bg-main: #0b1120;
-        --bg-card: #111827;
-        --bg-input: #0f172a;
-        --border: #1e293b;
-        --border-hover: #334155;
-        --accent: #3b82f6;
-        --accent-light: #60a5fa;
-        --accent-glow: rgba(59, 130, 246, 0.2);
+        --bg-main: #0a0f18; /* Fundo geral mais escuro */
+        --bg-card: #111622; /* Fundo dos cards/formulários */
+        --bg-input: #080c13; /* Fundo dos inputs e buscas */
+        --border: #1e2638; /* Bordas sutis */
+        --border-hover: #2d3748;
+        --accent: #4a72ff; /* Azul vibrante dos botões */
+        --accent-light: #6b8cff; /* Azul hover */
+        --accent-glow: rgba(74, 114, 255, 0.2);
         --text-main: #f8fafc;
-        --text-muted: #94a3b8;
+        --text-muted: #8b9bb4;
         --radius: 12px;
         --transition: 0.2s ease;
+        
+        /* Cores de Status */
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
     }
 
     .page-wrapper {
         min-height: 90vh;
-        background: transparent;
+        background: var(--bg-main);
         font-family: 'Plus Jakarta Sans', sans-serif;
         padding: 40px 20px;
         display: flex;
@@ -101,7 +106,7 @@
         color: var(--text-main);
         width: 100%;
         box-sizing: border-box;
-        transition: all 0.2s;
+        transition: all var(--transition);
     }
 
     .search-input:focus {
@@ -145,11 +150,11 @@
     }
 
     .prod-row:hover {
-        background: #172133 !important; /* Um pouco mais claro que o bg-card */
+        background: var(--border) !important;
     }
 
     .prod-row:active {
-        background: #1e293b !important;
+        background: var(--border-hover) !important;
     }
 
     .prod-row td {
@@ -177,19 +182,19 @@
 
     .badge-success {
         background: rgba(16, 185, 129, 0.08);
-        color: #10b981;
+        color: var(--success);
         border: 1px solid rgba(16, 185, 129, 0.15);
     }
 
     .badge-warning {
         background: rgba(245, 158, 11, 0.08);
-        color: #f59e0b;
+        color: var(--warning);
         border: 1px solid rgba(245, 158, 11, 0.15);
     }
 
     .badge-danger {
         background: rgba(239, 68, 68, 0.08);
-        color: #ef4444;
+        color: var(--danger);
         border: 1px solid rgba(239, 68, 68, 0.15);
     }
 
@@ -202,26 +207,31 @@
     /* ACTIONS & BUTTONS */
     .btn-add {
         background: var(--accent);
-        color: white;
+        color: #ffffff;
+        border: none;
         padding: 11px 20px;
         text-decoration: none;
-        border-radius: 8px;
+        border-radius: 12px;
         font-size: 14px;
         font-weight: 700;
         display: inline-flex;
         align-items: center;
         gap: 8px;
         transition: all var(--transition);
+        box-shadow: 0 4px 14px var(--accent-glow);
+        font-family: 'DM Sans', sans-serif;
+        white-space: nowrap;
     }
 
     .btn-add:hover {
         background: var(--accent-light);
         transform: translateY(-2px);
+        box-shadow: 0 8px 20px var(--accent-glow);
     }
 
     .btn-action-edit {
         background: var(--accent);
-        color: white;
+        color: #ffffff;
         padding: 10px 16px;
         text-decoration: none;
         border-radius: 8px;
@@ -229,7 +239,7 @@
         font-weight: 600;
         border: none;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all var(--transition);
     }
 
     .btn-action-edit:hover {
@@ -245,12 +255,12 @@
         border: 1px solid var(--border);
         cursor: pointer;
         font-family: inherit;
-        transition: all 0.2s;
+        transition: all var(--transition);
     }
 
     .btn-action-disable:hover {
         background: rgba(239, 68, 68, 0.05);
-        color: #ef4444;
+        color: var(--danger);
         border-color: rgba(239, 68, 68, 0.3);
     }
 
@@ -285,11 +295,6 @@
         cursor: pointer;
     }
 
-    .pagination-controls {
-        justify-content: flex-end;
-        flex-wrap: wrap;
-    }
-
     .page-button {
         min-width: 30px;
         height: 30px;
@@ -301,7 +306,7 @@
         font: inherit;
         font-size: 12px;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all var(--transition);
     }
 
     .page-button:hover:not(:disabled) {
@@ -347,7 +352,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
             <div>
                 <h1 style="font-family: 'Syne', sans-serif; font-size: 34px; font-weight: 800; letter-spacing: -1px; color: var(--text-main); margin: 0 0 10px 0; line-height: 1;">
-                    Gerenciar <span style="color: var(--accent-light);">Produtos</span>
+                    Gerenciar <span style="color: var(--accent);">Produtos</span>
                 </h1>
                 <p style="color: var(--text-muted); font-size: 14px; margin: 0;">
                     Visão geral de inventário ativo e balanço patrimonial.
@@ -355,34 +360,27 @@
             </div>
             <a href="/produtos/novo" class="btn-add">
                 <i class="fas fa-plus" style="font-size: 11px;"></i>
-                <span>Novo item</span>
+                <span>NOVO ITEM</span>
             </a>
         </div>
 
-<<<<<<< HEAD
-        {% set total_itens = produtos|length %}
-        {% set de_fora = namespace(qtd=0) %}
-        {% for p in produtos %}{% if p.estoque_total == 0 %}{% set de_fora.qtd = de_fora.qtd + 1 %}{% endif %}{% endfor %}
-
-=======
->>>>>>> 8f3fc1d2b5be0f90385cce6970753947a354e54a
         <div class="metrics-grid">
             <div class="metric-card">
-                <div class="metric-icon" style="background: rgba(59, 130, 246, 0.08); color: var(--accent);"><i class="fas fa-boxes-stacked"></i></div>
+                <div class="metric-icon" style="background: rgba(74, 114, 255, 0.08); color: var(--accent);"><i class="fas fa-boxes-stacked"></i></div>
                 <div>
                     <span style="display: block; color: var(--text-muted); font-size: 11px; text-transform: uppercase; font-weight: 500;">Registrados</span>
                     <strong style="color: var(--text-main); font-size: 18px; font-weight: 600;">{{ total_produtos }} ativos</strong>
                 </div>
             </div>
             <div class="metric-card">
-                <div class="metric-icon" style="background: rgba(16, 185, 129, 0.08); color: #10b981;"><i class="fas fa-circle-check"></i></div>
+                <div class="metric-icon" style="background: rgba(16, 185, 129, 0.08); color: var(--success);"><i class="fas fa-circle-check"></i></div>
                 <div>
                     <span style="display: block; color: var(--text-muted); font-size: 11px; text-transform: uppercase; font-weight: 500;">Em Estoque</span>
                     <strong style="color: var(--text-main); font-size: 18px; font-weight: 600;">{{ total_estoque }} unidades</strong>
                 </div>
             </div>
             <div class="metric-card">
-                <div class="metric-icon" style="background: rgba(239, 68, 68, 0.08); color: #ef4444;"><i class="fas fa-triangle-exclamation"></i></div>
+                <div class="metric-icon" style="background: rgba(239, 68, 68, 0.08); color: var(--danger);"><i class="fas fa-triangle-exclamation"></i></div>
                 <div>
                     <span style="display: block; color: var(--text-muted); font-size: 11px; text-transform: uppercase; font-weight: 500;">Esgotados</span>
                     <strong style="color: var(--text-main); font-size: 18px; font-weight: 600;">{{ total_esgotados }} sem saldo</strong>
@@ -449,7 +447,7 @@
 
                             <td style="text-align: center;">
                                 {% if produto.ativo %}
-                                <span style="color: #10b981; font-size: 12px;"><i class="fas fa-circle" style="font-size: 8px; margin-right: 5px;"></i> Ativo</span>
+                                <span style="color: var(--success); font-size: 12px;"><i class="fas fa-circle" style="font-size: 8px; margin-right: 5px;"></i> Ativo</span>
                                 {% else %}
                                 <span style="color: var(--text-muted); font-size: 12px;"><i class="fas fa-circle" style="font-size: 8px; margin-right: 5px;"></i> Inativo</span>
                                 {% endif %}
@@ -476,6 +474,7 @@
     </div>
 </div>
 
+<!-- (Mantive os scripts inalterados abaixo, pois cuidam apenas da lógica) -->
 <script>
     // Mecanismo de Busca Dinâmica em Tempo Real
     (function () {
