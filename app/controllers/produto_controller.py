@@ -327,13 +327,21 @@ async def criar_produto(
         imagem_path   = imagem_path,
         ativo         = ativo is not None,
     )
-    produto.variacoes.append(
-        Variacao(tamanho="Único", cor="Padrão", estoque_atual=estoque_atual)
-    )
 
     if variacoes:
         produto.variacoes.extend(variacoes)
     else:
+        produto.variacoes.append(
+            Variacao(tamanho="Único", cor="Padrão", estoque_atual=estoque_atual)
+        )
+
+    # A variação padrão sempre usa a mesma chave de identificação e a mesma
+    # normalização da model (`tamanho` em maiúsculas), então não pode ser
+    # duplicada mesmo quando o formulário vier com "Único" ou "ÚNICO".
+    if variacoes and not any(
+        (v.tamanho or "").strip().upper() == "ÚNICO" and (v.cor or "").strip() == "Padrão"
+        for v in variacoes
+    ):
         produto.variacoes.append(
             Variacao(tamanho="Único", cor="Padrão", estoque_atual=estoque_atual)
         )
