@@ -70,8 +70,10 @@
 
         /* ── HEADER  */
         header {
-            position: sticky;
+            position: fixed;
             top: 0;
+            left: 0;
+            right: 0;
             z-index: 100;
             height: var(--header-h);
             background: rgba(8, 12, 20, 0.85);
@@ -216,7 +218,8 @@
 
         /* ── MAIN ───────────────────────────────────────── */
         main {
-            padding: 0;
+            /* Compensa o header fixo para o conteúdo não ficar encoberto. */
+            padding: var(--header-h) 0 0;
             flex-grow: 1;
             width: 100%;
             min-width: 0;
@@ -456,6 +459,11 @@
         }
 
         @media (max-width: 768px) {
+            :root {
+                /* O menu móvel ocupa mais de uma linha. */
+                --header-h: 156px;
+            }
+
             .header-top {
                 flex-direction: column;
                 gap: 12px;

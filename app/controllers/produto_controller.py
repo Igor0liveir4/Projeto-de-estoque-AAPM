@@ -53,7 +53,6 @@ async def _salvar_imagem_variacao(imagem: UploadFile | None):
     conteudo = await imagem.read()
     with open(caminho_completo, "wb") as f:
         f.write(conteudo)
-    
     return f"uploads/{nome_unico}"
 
 
@@ -465,6 +464,7 @@ async def editar_produto(
         _remover_imagem(editando.imagem_path)
         editando.imagem_path = nova_imagem_path
 
+<<<<<<< HEAD
     # Processa imagens das variações
     imagens_variacoes = form_data.getlist("variacoes_imagem")
     imagens_paths = []
@@ -517,6 +517,11 @@ async def editar_produto(
             editando.adicionar_estoque(diferenca)
         elif diferenca < 0:
             editando.retirar_estoque(-diferenca)
+=======
+    # O formulário informa o saldo total; ele é salvo na variação padrão.
+    if estoque_atual is not None:
+        editando.estoque_total = estoque_atual
+>>>>>>> a79842e84ae54bf3070f7b444486d2d5c8aa5faa
 
     editando.nome          = nome
     editando.preco         = preco
