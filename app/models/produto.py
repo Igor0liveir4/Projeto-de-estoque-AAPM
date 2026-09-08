@@ -29,7 +29,29 @@ class Produto(Base):
         else:
             return "/static/img/produto-placeholder.png"
         
-    # @property
-    # def estoque_total(self):
-    #     return sum(variacao for variacao in self.variacoes)
-        
+    @property
+    def estoque_total(self):
+        """Quantidade disponível, calculada a partir das variações do produto."""
+        return sum(variacao.estoque_atual or 0 for variacao in self.variacoes)
+
+    @estoque_total.setter
+    def estoque_total(self, novo_total):
+        """Ajusta o saldo pela variação padrão usada nos produtos sem opções."""
+        novo_total = int(novo_total)
+        if novo_total < 0:
+            raise ValueError("O estoque não pode ser negativo.")
+
+        variacao_padrao = next(
+            (
+                variacao for variacao in self.variacoes
+                if variacao.tamanho == "Único" and variacao.cor == "Padrão"
+            ),
+            None,
+        )
+
+        if variacao_padrao is None:
+            from app.models.variacoes import Variacao
+            variacao_padrao = Variacao(tamanho="Único", cor="Padrão", estoque_atual=0)
+            self.variacoes.append(variacao_padrao)
+
+        variacao_padrao.estoque_atual += novo_total - self.estoque_total

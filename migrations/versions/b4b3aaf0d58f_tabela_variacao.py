@@ -31,6 +31,14 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_variacoes_id'), 'variacoes', ['id'], unique=False)
+    # Preserva o saldo existente criando uma variação padrão para cada produto.
+    op.execute(
+        """
+        INSERT INTO variacoes (produto_id, tamanho, cor, estoque_atual)
+        SELECT id, 'Único', 'Padrão', estoque_atual
+        FROM produtos
+        """
+    )
     op.drop_column('produtos', 'estoque_atual')
     # ### end Alembic commands ###
 

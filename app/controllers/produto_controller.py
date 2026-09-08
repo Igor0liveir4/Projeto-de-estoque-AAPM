@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.produto import Produto
 from app.models.categoria import Categoria
+from app.models.variacoes import Variacao
 from app.auth import get_usuario_logado, get_admin
 
 router = APIRouter(prefix="/produtos", tags=["Produtos"])
@@ -122,10 +123,12 @@ async def criar_produto(
     produto = Produto(
         nome          = nome,
         preco         = preco,
-        estoque_atual = estoque_atual,
         categoria_id  = categoria_id or None,  # 0 vira NULL no banco
         imagem_path   = imagem_path,
         ativo         = ativo is not None,
+    )
+    produto.variacoes.append(
+        Variacao(tamanho="Único", cor="Padrão", estoque_atual=estoque_atual)
     )
 
     db.add(produto)
@@ -230,10 +233,9 @@ async def editar_produto(
         _remover_imagem(editando.imagem_path)
         editando.imagem_path = nova_imagem_path
 
-    # 2. A MÁGICA AQUI: Se o estoque_atual veio preenchido, usamos o novo valor.
-    # Se veio em branco (None), mantemos o valor que já estava salvo antes (editando.estoque_atual).
+    # O formulário informa o saldo total; ele é salvo na variação padrão.
     if estoque_atual is not None:
-        editando.estoque_atual = estoque_atual
+        editando.estoque_total = estoque_atual
 
     editando.nome          = nome
     editando.preco         = preco
