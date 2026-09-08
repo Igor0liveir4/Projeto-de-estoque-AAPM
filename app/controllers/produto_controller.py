@@ -53,7 +53,6 @@ async def _salvar_imagem_variacao(imagem: UploadFile | None):
     conteudo = await imagem.read()
     with open(caminho_completo, "wb") as f:
         f.write(conteudo)
-    
     return f"uploads/{nome_unico}"
 
 
@@ -465,64 +464,9 @@ async def editar_produto(
         _remover_imagem(editando.imagem_path)
         editando.imagem_path = nova_imagem_path
 
-<<<<<<< HEAD
     # O formulário informa o saldo total; ele é salvo na variação padrão.
     if estoque_atual is not None:
         editando.estoque_total = estoque_atual
-=======
-    # Processa imagens das variações
-    imagens_variacoes = form_data.getlist("variacoes_imagem")
-    imagens_paths = []
-    for imagem in imagens_variacoes:
-        if imagem and imagem.filename:
-            path = await _salvar_imagem_variacao(imagem)
-            imagens_paths.append(path)
-        else:
-            imagens_paths.append(None)
-
-    # Parse das variações com suporte a imagens
-    variacoes, variacoes_erro = _parse_variacoes(
-        variacoes_tamanho, variacoes_cor, variacoes_estoque, imagens_paths
-    )
-
-    if variacoes_erro:
-        return templates.TemplateResponse(
-            request,
-            "produtos/form.html",
-            {
-                "request": request,
-                "usuario": admin,
-                "editando": editando,
-                "categorias": categorias,
-                "erro": variacoes_erro,
-                "valores": {
-                    "nome": nome,
-                    "preco": preco,
-                    "categoria_id": categoria_id,
-                    "ativo": ativo is not None,
-                },
-                "variacoes_valores": [{
-                    "tamanho": variacoes_tamanho[i] if i < len(variacoes_tamanho) else "",
-                    "cor": variacoes_cor[i] if i < len(variacoes_cor) else "",
-                    "estoque": variacoes_estoque[i] if i < len(variacoes_estoque) else "",
-                } for i in range(max(len(variacoes_tamanho), len(variacoes_cor), len(variacoes_estoque)))],
-            },
-            status_code=400,
-        )
-
-    if variacoes:
-        # Remove explicitamente as variações antigas do banco
-        db.query(Variacao).filter(Variacao.produto_id == produto_id).delete()
-        db.flush()  # Força a remoção antes de adicionar novos
-        editando.variacoes.extend(variacoes)
-    elif estoque_atual is not None:
-        # Ajusta o total quando não há variações explícitas
-        diferenca = estoque_atual - editando.estoque_total
-        if diferenca > 0:
-            editando.adicionar_estoque(diferenca)
-        elif diferenca < 0:
-            editando.retirar_estoque(-diferenca)
->>>>>>> 45f451c1f9b801eacd73fe1855ac9f811759d0d6
 
     editando.nome          = nome
     editando.preco         = preco
