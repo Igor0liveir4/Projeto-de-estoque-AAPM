@@ -62,7 +62,6 @@ class Produto(Base):
             if restante == 0:
                 break
         
-
     @property
     def estoque_total(self):
         """Quantidade disponível, calculada a partir das variações do produto."""
