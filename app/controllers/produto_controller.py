@@ -465,11 +465,6 @@ async def editar_produto(
         _remover_imagem(editando.imagem_path)
         editando.imagem_path = nova_imagem_path
 
-<<<<<<< HEAD
-    # O formulário informa o saldo total; ele é salvo na variação padrão.
-    if estoque_atual is not None:
-        editando.estoque_total = estoque_atual
-=======
     # Processa imagens das variações
     imagens_variacoes = form_data.getlist("variacoes_imagem")
     imagens_paths = []
@@ -522,7 +517,6 @@ async def editar_produto(
             editando.adicionar_estoque(diferenca)
         elif diferenca < 0:
             editando.retirar_estoque(-diferenca)
->>>>>>> 45f451c1f9b801eacd73fe1855ac9f811759d0d6
 
     editando.nome          = nome
     editando.preco         = preco
