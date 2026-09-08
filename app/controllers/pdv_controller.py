@@ -41,19 +41,10 @@ def tela_pdv(
     """
     query_produtos = (
         db.query(Produto)
-<<<<<<< HEAD
-        .outerjoin(Produto.variacoes)
-        .filter(Produto.ativo == True)
-        .group_by(Produto.id)
-        .having(func.coalesce(func.sum(Variacao.estoque_atual), 0) > 0)
-        .order_by(Produto.nome)
-        .all()
-=======
         .join(Produto.variacoes)
         .filter(Produto.ativo == True)
         .group_by(Produto.id)
         .having(func.sum(Variacao.estoque_atual) > 0)
->>>>>>> 8f3fc1d2b5be0f90385cce6970753947a354e54a
     )
     if busca:
         query_produtos = query_produtos.filter(Produto.nome.ilike(f"%{busca}%"))
@@ -251,9 +242,6 @@ def historico_vendas(
     return templates.TemplateResponse(
         request,
         "pdv/historico.html",
-<<<<<<< HEAD
-        {"request": request, "usuario": usuario, "vendas": resultado.itens, "pagina": resultado.atual, "por_pagina": resultado.por_pagina, "total_paginas": resultado.total_paginas, "total_vendas": resultado.total_itens}
-=======
         {
             "request": request,
             "usuario": usuario,
@@ -263,5 +251,4 @@ def historico_vendas(
             "total_paginas": resultado.total_paginas,
             "total_vendas": resultado.total_itens,
         }
->>>>>>> 8f3fc1d2b5be0f90385cce6970753947a354e54a
     )
