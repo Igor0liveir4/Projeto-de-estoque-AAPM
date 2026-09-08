@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Movimentações de Estoque - AAPM{% endblock %}
+{% from "components/pagination.html" import render as render_pagination with context %}
 
 {% block head %}
 <style>
@@ -282,6 +283,7 @@
         {% endfor %}
       </tbody>
     </table>
+    {{ render_pagination(pagina, por_pagina, total_movimentacoes, total_paginas, 'movimentações') }}
   </div>
 
 </div>

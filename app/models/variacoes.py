@@ -1,9 +1,12 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint
+from sqlalchemy.orm import relationship, validates
 from app.database import Base
 
 class Variacao(Base):
     __tablename__ = "variacoes"
+    __table_args__ = (
+        UniqueConstraint("produto_id", "tamanho", "cor", name="uq_variacao_produto_tamanho_cor"),
+    )
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     
@@ -16,6 +19,21 @@ class Variacao(Base):
     
     # O estoque sai do Produto e vem para cá!
     estoque_atual = Column(Integer, nullable=False, default=0)
+    
+    # Imagem específica da variação (opcional)
+    imagem_path = Column(String(255), nullable=True)
 
     # Relacionamento de volta para o Produto
     produto = relationship("Produto", back_populates="variacoes")
+
+    @property
+    def imagem_url(self):
+        if self.imagem_path:
+            return f"/static/{self.imagem_path}"
+        else:
+            return "/static/img/produto-placeholder.png"
+
+    @validates("tamanho")
+    def normalizar_tamanho(self, _chave, tamanho: str) -> str:
+        # Impede que "m" e "M" virem opções diferentes no PDV.
+        return tamanho.strip().upper()

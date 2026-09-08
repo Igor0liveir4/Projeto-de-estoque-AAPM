@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Clientes - Estoque AAPM{% endblock %}
+{% from "components/pagination.html" import render as render_pagination with context %}
 
 {% block head %}
 <style>
@@ -455,6 +456,7 @@
         {% endfor %}
       </tbody>
     </table>
+    {{ render_pagination(pagina, por_pagina, total_clientes, total_paginas, 'clientes') }}
     {% else %}
     <div class="empty">
       <i class="fas fa-users-slash"></i>

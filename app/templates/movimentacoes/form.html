@@ -8,19 +8,20 @@
         max-width: 600px;
         margin: 40px auto;
         padding: 30px;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        background-color: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: 0 12px 32px rgba(0,0,0,0.28);
     }
 
     .form-header {
-        border-bottom: 2px solid #f0f2f5;
+        border-bottom: 1px solid var(--border);
         padding-bottom: 15px;
         margin-bottom: 25px;
     }
 
     .form-title {
-        color: #333;
+        color: var(--text-primary);
         font-size: 22px;
         display: flex;
         align-items: center;
@@ -35,7 +36,7 @@
         display: block;
         font-weight: 600;
         margin-bottom: 8px;
-        color: #444;
+        color: var(--text-secondary);
     }
 
     .radio-group {
@@ -50,9 +51,9 @@
         gap: 8px;
         cursor: pointer;
         font-weight: 500 !important;
-        background: #f8f9fa;
+        background: var(--bg-surface);
         padding: 10px 20px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border);
         border-radius: 6px;
         width: 100%;
         justify-content: center;
@@ -65,9 +66,9 @@
     }
 
     input[type="radio"]:checked + .radio-label {
-        border-color: #667eea;
-        background-color: #f0f4ff;
-        color: #667eea;
+        border-color: var(--accent);
+        background-color: rgba(59,130,246,0.12);
+        color: var(--accent-light);
     }
 
     .actions-bar {
@@ -99,6 +100,15 @@
     .btn-cancelar:hover {
         background-color: #5a6268;
     }
+
+    .form-container select,
+    .form-container input,
+    .form-container textarea {
+        background: var(--bg-surface);
+        border-color: var(--border);
+        color: var(--text-primary);
+    }
+
 </style>
 {% endblock %}
 
@@ -173,14 +183,14 @@
     const radios = document.querySelectorAll('input[type="radio"]');
     radios.forEach(radio => {
         radio.addEventListener('change', function() {
-            radios.forEach(r => r.nextElementSibling.style.borderColor = '#ddd');
-            radios.forEach(r => r.nextElementSibling.style.background = '#f8f9fa');
-            radios.forEach(r => r.nextElementSibling.style.color = '#333');
+            radios.forEach(r => r.nextElementSibling.style.borderColor = 'var(--border)');
+            radios.forEach(r => r.nextElementSibling.style.background = 'var(--bg-surface)');
+            radios.forEach(r => r.nextElementSibling.style.color = 'var(--text-secondary)');
             
             if(this.checked) {
-                this.nextElementSibling.style.borderColor = '#667eea';
-                this.nextElementSibling.style.background = '#f0f4ff';
-                this.nextElementSibling.style.color = '#667eea';
+                this.nextElementSibling.style.borderColor = 'var(--accent)';
+                this.nextElementSibling.style.background = 'rgba(59,130,246,0.12)';
+                this.nextElementSibling.style.color = 'var(--accent-light)';
             }
         });
     });
@@ -188,7 +198,6 @@
     // ✅ Preenche o preço automaticamente ao selecionar o produto
     const selectProduto = document.getElementById('produto_id');
     const inputPreco    = document.getElementById('preco_unitario');
-
     selectProduto.addEventListener('change', function() {
         const preco = this.options[this.selectedIndex].dataset.preco;
         inputPreco.value = preco ? parseFloat(preco).toFixed(2) : '';
