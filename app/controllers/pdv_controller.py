@@ -41,19 +41,12 @@ def tela_pdv(
     """
     query_produtos = (
         db.query(Produto)
-<<<<<<< HEAD
         .outerjoin(Produto.variacoes)
         .filter(Produto.ativo == True)
         .group_by(Produto.id)
         .having(func.coalesce(func.sum(Variacao.estoque_atual), 0) > 0)
         .order_by(Produto.nome)
         .all()
-=======
-        .join(Produto.variacoes)
-        .filter(Produto.ativo == True)
-        .group_by(Produto.id)
-        .having(func.sum(Variacao.estoque_atual) > 0)
->>>>>>> 45f451c1f9b801eacd73fe1855ac9f811759d0d6
     )
     if busca:
         query_produtos = query_produtos.filter(Produto.nome.ilike(f"%{busca}%"))
@@ -251,17 +244,5 @@ def historico_vendas(
     return templates.TemplateResponse(
         request,
         "pdv/historico.html",
-<<<<<<< HEAD
-        {"request": request, "usuario": usuario, "vendas": vendas}
-=======
-        {
-            "request": request,
-            "usuario": usuario,
-            "vendas": resultado.itens,
-            "pagina": resultado.atual,
-            "por_pagina": resultado.por_pagina,
-            "total_paginas": resultado.total_paginas,
-            "total_vendas": resultado.total_itens,
-        }
->>>>>>> 45f451c1f9b801eacd73fe1855ac9f811759d0d6
+        {"request": request, "usuario": usuario, "vendas": resultado.itens, "pagina": resultado.atual, "por_pagina": resultado.por_pagina, "total_paginas": resultado.total_paginas, "total_vendas": resultado.total_itens}
     )
