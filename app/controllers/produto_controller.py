@@ -116,7 +116,7 @@ def _parse_variacoes(
             variacoes.append(variacao)
 
     return variacoes, None
-# ============================================================
+# ===============b=============================================
 # LISTAGEM
 # ============================================================
 
@@ -156,22 +156,39 @@ def listar_produtos(
         # Sem filtro, aplica paginação normal
         resultado = paginar(ordered_query, pagina, por_pagina)
 
-    # Os cards resumem todo o estoque ativo, e não somente os produtos
-    # carregados na página atual da listagem.
-    total_estoque = (
-        db.query(func.coalesce(func.sum(Variacao.estoque_atual), 0))
-        .join(Produto, Variacao.produto_id == Produto.id)
-        .filter(Produto.ativo == True)
-        .scalar()
-    )
-    total_esgotados = (
-        db.query(Produto.id)
-        .outerjoin(Variacao)
-        .filter(Produto.ativo == True)
-        .group_by(Produto.id)
-        .having(func.coalesce(func.sum(Variacao.estoque_atual), 0) == 0)
-        .count()
-    )
+    # Os cards resumem o resultado atual da busca/categoria quando houver filtro,
+    # e o estoque global quando a listagem não estiver filtrada.
+    filtered_query = query
+    if busca or categoria_id:
+        total_estoque = (
+            db.query(func.coalesce(func.sum(Variacao.estoque_atual), 0))
+            .join(Produto, Variacao.produto_id == Produto.id)
+            .filter(Produto.id.in_([p.id for p in filtered_query.all()]))
+            .scalar()
+        )
+        total_esgotados = (
+            db.query(Produto.id)
+            .outerjoin(Variacao)
+            .filter(Produto.id.in_([p.id for p in filtered_query.all()]))
+            .group_by(Produto.id)
+            .having(func.coalesce(func.sum(Variacao.estoque_atual), 0) == 0)
+            .count()
+        )
+    else:
+        total_estoque = (
+            db.query(func.coalesce(func.sum(Variacao.estoque_atual), 0))
+            .join(Produto, Variacao.produto_id == Produto.id)
+            .filter(Produto.ativo == True)
+            .scalar()
+        )
+        total_esgotados = (
+            db.query(Produto.id)
+            .outerjoin(Variacao)
+            .filter(Produto.ativo == True)
+            .group_by(Produto.id)
+            .having(func.coalesce(func.sum(Variacao.estoque_atual), 0) == 0)
+            .count()
+        )
 
     categorias = db.query(Categoria).filter(Categoria.ativa == True).all()
 
@@ -327,13 +344,21 @@ async def criar_produto(
         imagem_path   = imagem_path,
         ativo         = ativo is not None,
     )
-    produto.variacoes.append(
-        Variacao(tamanho="Único", cor="Padrão", estoque_atual=estoque_atual)
-    )
 
     if variacoes:
         produto.variacoes.extend(variacoes)
     else:
+        produto.variacoes.append(
+            Variacao(tamanho="Único", cor="Padrão", estoque_atual=estoque_atual)
+        )
+
+    # A variação padrão sempre usa a mesma chave de identificação e a mesma
+    # normalização da model (`tamanho` em maiúsculas), então não pode ser
+    # duplicada mesmo quando o formulário vier com "Único" ou "ÚNICO".
+    if variacoes and not any(
+        (v.tamanho or "").strip().upper() == "ÚNICO" and (v.cor or "").strip() == "Padrão"
+        for v in variacoes
+    ):
         produto.variacoes.append(
             Variacao(tamanho="Único", cor="Padrão", estoque_atual=estoque_atual)
         )

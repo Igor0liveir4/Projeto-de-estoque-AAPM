@@ -298,8 +298,8 @@
             <div
                 style="padding: 0 32px 32px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.03); padding-top: 24px;">
                 <form method="POST" action="/produtos/{{ produto.id }}/desativar" style="display: inline;">
-                    <button type="submit" class="btn-delete" title="Remover produto"
-                        onclick="return confirm('Tem certeza que deseja remover este produto da lista? Ele será desativado, mas o registro será mantido.');">
+                    <button type="button" class="btn-delete" title="Remover produto"
+                        onclick="abrirModalConfirmacao(null, '/produtos/{{ produto.id }}/desativar', '{{ produto.nome }}');">
                         <i class="fas fa-trash-can"></i>
                     </button>
                 </form>
@@ -321,4 +321,10 @@
         container.classList.toggle('show');
     }
 </script>
+<<<<<<< HEAD
 {% endblock %}
+=======
+
+{% include "components/modal_confirmacao.html" %}
+{% endblock %}
+>>>>>>> 67afd5def4de94cfb1ddfb7d09dfbccc2220c754

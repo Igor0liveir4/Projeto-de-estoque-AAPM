@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Categorias - Estoque AAPM{% endblock %}
+{% from "components/pagination.html" import render as render_pagination with context %}
 
 {% block head %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -238,7 +239,7 @@
     <div>
       <h1 class="page-title">Gerenciar <span>Categorias</span></h1>
       <p class="page-subtitle">
-        <span>{{ categorias|length }}</span> categoria{{ 's' if categorias|length != 1 }} cadastrada{{ 's' if categorias|length != 1 }}
+        <span>{{ total_categorias if total_categorias is defined else categorias|length }}</span> categoria{{ 's' if (total_categorias if total_categorias is defined else categorias|length) != 1 }} cadastrada{{ 's' if (total_categorias if total_categorias is defined else categorias|length) != 1 }}
       </p>
     </div>
     <a href="/categorias/nova" class="btn-novo">
@@ -293,15 +294,16 @@
           <i class="fas fa-pen"></i>
         </a>
         <form action="/categorias/{{ cat.id }}/toggle-ativo" method="post" style="margin:0;">
-          <button type="submit"
+          <button type="button"
             class="btn-action btn-toggle {{ 'ativar' if not cat.ativa else '' }}"
-            title="{{ 'Desativar' if cat.ativa else 'Ativar' }}">
+            title="{{ 'Desativar' if cat.ativa else 'Ativar' }}"
+            onclick="abrirModalConfirmacao('/categorias/{{ cat.id }}/toggle-ativo', null, '{{ cat.nome }}', '{{ 'ativar' if not cat.ativa else 'desativar' }}');">
             <i class="fas fa-{{ 'toggle-on' if cat.ativa else 'toggle-off' }}"></i>
           </button>
         </form>
-        <form action="/categorias/{{ cat.id }}/excluir" method="post" style="margin:0;"
-          onsubmit="return confirm('Deseja realmente excluir esta categoria?');">
-          <button type="submit" class="btn-action btn-delete" title="Excluir">
+        <form action="/categorias/{{ cat.id }}/excluir" method="post" style="margin:0;">
+          <button type="button" class="btn-action btn-delete" title="Excluir"
+            onclick="abrirModalConfirmacao(null, '/categorias/{{ cat.id }}/excluir', '{{ cat.nome }}');">
             <i class="fas fa-trash"></i>
           </button>
         </form>
@@ -309,6 +311,8 @@
     </div>
     {% endfor %}
   </div>
+
+  {{ render_pagination(pagina, por_pagina, total_categorias if total_categorias is defined else categorias|length, total_paginas if total_paginas is defined else 1, 'categorias') }}
 
   {% else %}
   <div class="empty-state">
@@ -321,4 +325,6 @@
   {% endif %}
 
 </div>
+
+{% include "components/modal_confirmacao.html" %}
 {% endblock %}

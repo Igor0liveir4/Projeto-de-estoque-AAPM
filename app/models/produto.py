@@ -3,6 +3,14 @@ from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
 
+
+def _is_variacao_padrao(variacao) -> bool:
+    """Identifica a variação padrão independente de maiúsculas/minúsculas."""
+    tamanho = (variacao.tamanho or "").strip().upper()
+    cor = (variacao.cor or "").strip()
+    return tamanho == "ÚNICO" and cor == "Padrão"
+
+
 class Produto(Base):
     __tablename__ = "produtos"
 
@@ -40,7 +48,7 @@ class Produto(Base):
             raise ValueError("A quantidade deve ser maior que zero.")
 
         variacao_padrao = next(
-            (v for v in self.variacoes if v.tamanho == "Único" and v.cor == "Padrão"),
+            (v for v in self.variacoes if _is_variacao_padrao(v)),
             None,
         )
         if variacao_padrao is None:
@@ -61,7 +69,7 @@ class Produto(Base):
             restante -= baixa
             if restante == 0:
                 break
-        
+
     @property
     def estoque_total(self):
         """Quantidade disponível, calculada a partir das variações do produto."""
@@ -77,7 +85,7 @@ class Produto(Base):
         variacao_padrao = next(
             (
                 variacao for variacao in self.variacoes
-                if variacao.tamanho == "Único" and variacao.cor == "Padrão"
+                if _is_variacao_padrao(variacao)
             ),
             None,
         )

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from math import ceil
 
 
-TAMANHOS_DE_PAGINA = (16, 40, 64)
+TAMANHOS_DE_PAGINA = (2, 16, 30, 40, 50, 64, 100)
 
 
 @dataclass(frozen=True)

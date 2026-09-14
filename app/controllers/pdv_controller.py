@@ -46,6 +46,7 @@ def tela_pdv(
         .group_by(Produto.id)
         .having(func.sum(Variacao.estoque_atual) > 0)
     )
+
     if busca:
         query_produtos = query_produtos.filter(Produto.nome.ilike(f"%{busca}%"))
 

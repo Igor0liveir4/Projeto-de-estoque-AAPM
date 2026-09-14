@@ -1,0 +1,157 @@
+<!-- app/templates/components/modal_confirmacao.html -->
+<div id="modalConfirmacao" class="modal" style="display: none;">
+  <div class="modal-content">
+    <h3 id="modalTitulo">Escolha uma ação</h3>
+    <p id="modalMensagem">O que deseja fazer com este item?</p>
+    
+    <div class="modal-actions">
+      <form id="formDesativar" action="" method="POST">
+        <button type="submit" id="btnConfirmarPrincipal" class="btn-desativar">Desativar</button>
+      </form>
+
+      <form id="formDeletar" action="" method="POST">
+        <button type="submit" id="btnDeletar" class="btn-deletar">Deletar</button>
+      </form>
+
+      <button type="button" class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(3, 7, 18, 0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .modal-content {
+    width: min(92vw, 560px);
+    background: rgba(9, 14, 25, 0.98);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+    padding: 28px 22px 18px;
+    color: #f8fafc;
+  }
+
+  .modal-content h3 {
+    margin: 0 0 12px; 
+    font-size: 2rem;
+    font-weight: 800;
+    color: #eef2ff;
+  }
+
+  .modal-content p {
+    margin: 0 0 20px;
+    font-size: 1.05rem;
+    color: #cbd5e1;
+  }
+
+  .modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .modal-actions form {
+    margin: 0;
+  }
+
+  .modal-actions button {
+    width: 100%;
+    border: none;
+    border-radius: 12px;
+    padding: 16px 18px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+
+  .modal-actions button:hover {
+    transform: translateY(-1px);
+    opacity: 0.96;
+  }
+
+  .btn-desativar {
+    background: linear-gradient(180deg, #f59e0b, #d97706);
+    color: white;
+  }
+
+  .btn-ativar {
+    background: linear-gradient(180deg, #22c55e, #16a34a);
+    color: white;
+  }
+
+  .btn-deletar {
+    background: linear-gradient(180deg, #ef4444, #dc2626);
+    color: white;
+  }
+
+  .btn-cancelar {
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(96, 165, 250, 0.25);
+    color: #dbeafe;
+  }
+
+  .icon {
+    font-size: 0.9rem;
+  }
+</style>
+
+<script>
+  function abrirModalConfirmacao(urlAcao, urlDeletar, nomeItem, tipoAcao = 'desativar') {
+    const nome = nomeItem || 'este item';
+    const acaoLabel = tipoAcao === 'ativar' ? 'Ativar' : 'Desativar';
+    
+    const formDesativar = document.getElementById('formDesativar');
+    const formDeletar = document.getElementById('formDeletar');
+    
+    // Determina qual ação mostrar (nunca mostra ambas)
+    const isToggle = urlAcao && urlAcao !== null;
+    const isDelete = urlDeletar && urlDeletar !== null;
+    
+    if (isToggle) {
+      // Modo toggle (Ativar/Desativar)
+      document.getElementById('modalTitulo').innerText = `${acaoLabel} "${nome}"`;
+      document.getElementById('modalMensagem').innerText = `Tem certeza que deseja ${tipoAcao} este item?`;
+      
+      formDesativar.action = urlAcao;
+      formDesativar.style.display = 'block';
+      formDeletar.style.display = 'none';
+      
+      const btnPrincipal = document.getElementById('btnConfirmarPrincipal');
+      btnPrincipal.innerText = acaoLabel;
+      btnPrincipal.className = tipoAcao === 'ativar' ? 'btn-ativar' : 'btn-desativar';
+    } else if (isDelete) {
+      // Modo deletar puro
+      document.getElementById('modalTitulo').innerText = 'Excluir item';
+      document.getElementById('modalMensagem').innerText = `Tem certeza que deseja excluir "${nome}"? Esta ação não pode ser desfeita.`;
+      
+      formDesativar.style.display = 'none';
+      formDeletar.action = urlDeletar;
+      formDeletar.style.display = 'block';
+    }
+    
+    document.getElementById('modalConfirmacao').style.display = 'block';
+  }
+
+  function fecharModal() {
+    document.getElementById('modalConfirmacao').style.display = 'none';
+  }
+
+  // Fecha clicando fora do modal
+  document.getElementById('modalConfirmacao').addEventListener('click', function (e) {
+    if (e.target === this) fecharModal();
+  });
+
+  // Fecha com a tecla Esc
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') fecharModal();
+  });
+</script>

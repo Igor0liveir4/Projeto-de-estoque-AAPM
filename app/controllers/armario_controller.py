@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.armario import Armario, StatusArmario
 from app.auth import get_usuario_logado, get_admin
+from app.pagination import paginar
 
 router = APIRouter(prefix="/armarios", tags=["Armários"])
 
@@ -29,6 +30,8 @@ def listar_armarios(
     request: Request,
     status: str = "",           # filtra por status
     localizacao: str = "",      # filtra por localização
+    pagina: int = 1,
+    por_pagina: int = 10,
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado)
 ):
@@ -56,7 +59,8 @@ def listar_armarios(
     if localizacao:
         query = query.filter(Armario.localizacao.ilike(f"%{localizacao}%"))
 
-    armarios = query.order_by(Armario.numero).all()
+    resultado = paginar(query.order_by(Armario.numero), pagina, por_pagina)
+    armarios = resultado.itens
 
     # Contadores para o resumo no topo da página
     todos     = db.query(Armario).filter(Armario.ativo == True).all()
@@ -82,6 +86,10 @@ def listar_armarios(
             "localizacao":  localizacao,
             "localizacoes": localizacoes,
             "StatusArmario": StatusArmario,
+            "pagina":       resultado.atual,
+            "por_pagina":   resultado.por_pagina,
+            "total_paginas": resultado.total_paginas,
+            "total_armarios": resultado.total_itens,
         }
     )
 
