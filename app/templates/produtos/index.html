@@ -390,9 +390,11 @@
 
         <form class="search-bar-container" method="get" action="/produtos">
             <div class="search-wrapper">
-                <i class="fas fa-magnifying-glass"></i>
-                <input id="tableSearch" type="search" name="busca" value="{{ busca }}" class="search-input" placeholder="Pesquisar por nome...">
-            </div>
+                    <i class="fas fa-magnifying-glass"></i>
+                    <input id="tableSearch" type="search" name="busca" value="{{ busca }}" class="search-input" placeholder="Pesquisar por nome...">
+                </div>
+                <input type="hidden" name="por_pagina" value="{{ por_pagina }}">
+                <input type="hidden" name="pagina" value="1">
             {% if categoria_id %}<input type="hidden" name="categoria_id" value="{{ categoria_id }}">{% endif %}
             <button type="submit" class="btn-action-edit">Buscar</button>
         </form>
@@ -494,30 +496,118 @@
         }
     });
 
-    // Filtro local em tempo real (uso permitido somente se autenticado)
-    tableSearch.addEventListener('input', function () {
-        const searchValue = this.value.toLowerCase();
-        const rows = document.querySelectorAll('#productsTable tbody .prod-row');
-        rows.forEach(row => {
-            const nomeProduto = row.dataset.nome.toLowerCase();
-            if (nomeProduto.includes(searchValue)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
+    // Em vez de recarregar toda a página, usamos fetch para atualizar apenas
+    // o corpo da tabela e o bloco de paginação. Mantemos o foco e posição
+    // do cursor no input de busca.
+    (function () {
+        let debounceTimer = null;
+        const searchForm = tableSearch.closest('form');
+
+        async function fetchAndReplace() {
+            if (!searchForm) return;
+
+            // preserva posição do cursor
+            const selStart = tableSearch.selectionStart;
+            const selEnd = tableSearch.selectionEnd;
+
+            // força página 1 ao buscar
+            const paginaInput = searchForm.querySelector('input[name="pagina"]');
+            if (paginaInput) paginaInput.value = '1';
+
+            const params = new URLSearchParams(new FormData(searchForm));
+            const url = `${searchForm.action || window.location.pathname}?${params.toString()}`;
+
+            try {
+                const res = await fetch(url, { credentials: 'same-origin' });
+                if (!res.ok) return;
+                const text = await res.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+
+                const newTbody = doc.querySelector('#productsTable tbody');
+                const newPagination = doc.querySelector('.server-pagination');
+
+                // substitui o tbody
+                const currentTbody = document.querySelector('#productsTable tbody');
+                if (newTbody && currentTbody) {
+                    currentTbody.innerHTML = newTbody.innerHTML;
+                }
+
+                // substitui o bloco de paginação completo (pode conter select, summary, controls)
+                const currentPagination = document.querySelector('.server-pagination');
+                if (currentPagination) {
+                    if (newPagination) currentPagination.replaceWith(newPagination.cloneNode(true));
+                    else currentPagination.remove();
+                } else if (newPagination) {
+                    // insere após a tabela-card (fallback)
+                    const tableCard = document.querySelector('.table-card');
+                    if (tableCard) tableCard.insertAdjacentElement('beforeend', newPagination.cloneNode(true));
+                }
+
+                // re-liga referências usadas pelo script de paginação
+                // (requery elementos dinâmicos)
+                tableBody = document.querySelector('#productsTable tbody');
+                productRows.length = 0;
+                Array.from(document.querySelectorAll('#productsTable tbody .prod-row')).forEach(r => productRows.push(r));
+
+                // atualiza referências aos controles de paginação
+                pageSize = document.getElementById('pageSize');
+                paginationSummary = document.getElementById('paginationSummary');
+                paginationControls = document.getElementById('paginationControls');
+                if (pageSize) {
+                    pageSize.removeAttribute('onchange');
+                    pageSize.addEventListener('change', function () {
+                        itemsPerPage = Number(this.value);
+                        // sincroniza o hidden do formulário de busca para AJAX
+                        const hidden = searchForm.querySelector('input[name="por_pagina"]');
+                        if (hidden) hidden.value = this.value;
+                        currentPage = 1;
+                        renderPage();
+                    });
+                }
+
+                // restaura foco e seleção
+                tableSearch.focus();
+                try { tableSearch.setSelectionRange(selStart, selEnd); } catch (e) { /* ignore */ }
+
+                // renderiza a paginação cliente com os novos dados
+                currentPage = 1;
+                itemsPerPage = Number(pageSize?.value || itemsPerPage);
+                renderPage();
+
+            } catch (err) {
+                console.error('Busca AJAX falhou', err);
+            }
+        }
+
+        tableSearch.addEventListener('input', function () {
+            clearTimeout(debounceTimer);
+            // se vazio: atualiza para limpar filtro (mantém página atual)
+            debounceTimer = setTimeout(fetchAndReplace, 400);
+        });
+
+        // também submeter imediatamente ao pressionar Enter sem recarregar
+        tableSearch.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                clearTimeout(debounceTimer);
+                fetchAndReplace();
             }
         });
-    });
+    })();
     })();
 </script>
 <script>
     /* Paginação no navegador */
     (function () {
         const tableSearch = document.getElementById('tableSearch');
-        const tableBody = document.querySelector('#productsTable tbody');
-        const productRows = Array.from(document.querySelectorAll('#productsTable tbody .prod-row'));
-        const pageSize = document.getElementById('pageSize');
-        const paginationSummary = document.getElementById('paginationSummary');
-        const paginationControls = document.getElementById('paginationControls');
+        let tableBody = document.querySelector('#productsTable tbody');
+        let productRows = Array.from(document.querySelectorAll('#productsTable tbody .prod-row'));
+        let pageSize = document.getElementById('pageSize');
+        let paginationSummary = document.getElementById('paginationSummary');
+        let paginationControls = document.getElementById('paginationControls');
+
+        if (pageSize) pageSize.removeAttribute('onchange');
 
         if (!tableSearch || !tableBody || !pageSize || !paginationSummary || !paginationControls) return;
 
@@ -613,16 +703,15 @@
             renderControls(totalPages);
         }
 
-        tableSearch.addEventListener('input', () => {
-            currentPage = 1;
-            renderPage();
-        });
-
-        tableSearch.addEventListener('keyup', renderPage);
+        // o listener de input/keyup do search é gerenciado pela busca AJAX acima
 
         if (pageSize) {
             pageSize.addEventListener('change', function () {
                 itemsPerPage = Number(this.value);
+                // sincroniza o hidden do formulário de busca para AJAX
+                const searchForm = document.getElementById('tableSearch')?.closest('form');
+                const hidden = searchForm?.querySelector('input[name="por_pagina"]');
+                if (hidden) hidden.value = this.value;
                 currentPage = 1;
                 renderPage();
             });

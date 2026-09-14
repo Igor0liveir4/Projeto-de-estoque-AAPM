@@ -26,22 +26,31 @@ templates = Jinja2Templates(directory="app/templates")
 def listar_categorias(
     request: Request,
     db: Session = Depends(get_db),
-    admin = Depends(get_admin)
+    admin = Depends(get_admin),
+    pagina: int = 1,
+    por_pagina: int = 10,
 ):
     """
     Lista todas as categorias ordenadas por nome.
     Inclui a contagem de produtos de cada categoria
     para dar contexto ao admin antes de desativar.
     """
-    categorias = db.query(Categoria).order_by(Categoria.nome).all()
+    query = db.query(Categoria).order_by(Categoria.nome)
+    from app.pagination import paginar
+
+    resultado = paginar(query, pagina, por_pagina)
 
     return templates.TemplateResponse(
         request,
         "categorias/index.html",
         {
-            "request":    request,
-            "usuario":    admin,
-            "categorias": categorias,
+            "request":          request,
+            "usuario":          admin,
+            "categorias":       resultado.itens,
+            "pagina":           resultado.atual,
+            "por_pagina":       resultado.por_pagina,
+            "total_paginas":    resultado.total_paginas,
+            "total_categorias": resultado.total_itens,
         }
     )
 

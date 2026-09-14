@@ -139,4 +139,4 @@ def toggle_ativo(
     if cliente:
         cliente.ativo = not cliente.ativo
         db.commit()
-    return RedirectResponse(url="/clientes", status_code=302)
+    return RedirectResponse(url="/cliente", status_code=302)

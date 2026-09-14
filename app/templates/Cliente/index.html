@@ -383,6 +383,8 @@
           autocomplete="off"
         >
       </div>
+      <input type="hidden" name="por_pagina" value="{{ por_pagina if por_pagina is defined else 10 }}">
+      <input type="hidden" name="pagina" value="1">
       <label class="checkbox-label">
         <input
           type="checkbox"

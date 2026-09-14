@@ -5,6 +5,7 @@
 {% block head %}
 <link rel="stylesheet" href="/static/armarios.css">
 {% endblock %}
+{% from "components/pagination.html" import render as render_pagination with context %}
 
 {% block content %}
 <section class="armarios-page">
@@ -107,6 +108,8 @@
         </article>
         {% endfor %}
     </div>
+    {{ render_pagination(pagina, por_pagina, total_armarios if total_armarios is defined else total, total_paginas if total_paginas is defined else 1, 'armários') }}
+
     {% else %}
     <div class="armarios-empty"><i class="fas fa-door-closed"></i><strong>Nenhum armário encontrado</strong>
         <p>Altere os filtros ou cadastre um novo armário.</p>
