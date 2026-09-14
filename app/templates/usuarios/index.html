@@ -405,15 +405,10 @@
                 <i class="fas fa-pen"></i> Editar
               </a>
               <form action="/usuarios/{{ u.id }}/toggle-ativo" method="post" style="margin:0;">
-<<<<<<< HEAD
-                <button type="submit" class="btn-action btn-toggle {{ 'ativar' if not u.ativo else '' }}"
-                  title="{{ 'Ativar usuário' if not u.ativo else 'Desativar usuário' }}">
-=======
                 <button type="button"
                   class="btn-action btn-toggle {{ 'ativar' if not u.ativo else '' }}"
                   title="{{ 'Ativar usuário' if not u.ativo else 'Desativar usuário' }}"
                   onclick="abrirModalConfirmacao('/usuarios/{{ u.id }}/toggle-ativo', null, '{{ u.nome }}', '{{ 'ativar' if not u.ativo else 'desativar' }}');">
->>>>>>> 67afd5def4de94cfb1ddfb7d09dfbccc2220c754
                   <i class="fas fa-{{ 'toggle-on' if u.ativo else 'toggle-off' }}"></i>
                   {{ 'Desativar' if u.ativo else 'Ativar' }}
                 </button>
@@ -444,9 +439,5 @@
   </div>
 
 </div>
-<<<<<<< HEAD
-{% endblock %}
-=======
 {% include "components/modal_confirmacao.html" %}
 {% endblock %}
->>>>>>> 67afd5def4de94cfb1ddfb7d09dfbccc2220c754
