@@ -100,9 +100,9 @@
                 {% if usuario.role == 'admin' %}
                 {% if a.ativo and a.status.value == 'disponivel' %}<a href="/armarios/{{ a.id }}/alugar"
                     class="mini-action">Alugar</a>
-                {% elif a.status.value == 'alugado' %}<form action="/armarios/{{ a.id }}/liberar" method="post"
-                    onsubmit="return confirm('Liberar armário {{ a.numero }}?')"><button type="submit"
-                        class="mini-action">Liberar</button></form>{% endif %}
+                {% elif a.status.value == 'alugado' %}
+                <button type="button" class="mini-action" onclick="abrirModalConfirmacao(null, '/armarios/{{ a.id }}/liberar', 'armário {{ a.numero }}');">Liberar</button>
+                {% endif %}
                 {% endif %}
             </div>
         </article>
@@ -127,4 +127,5 @@
         });
     })();
 </script>
+{% include "components/modal_confirmacao.html" %}
 {% endblock %}

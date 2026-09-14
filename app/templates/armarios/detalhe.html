@@ -73,20 +73,71 @@
             <div class="detail-actions">
                 {% if armario.ativo and armario.status.value == 'disponivel' %}<a href="/armarios/{{ armario.id }}/alugar"
                     class="button"><i class="fas fa-key"></i> Alugar</a>{% endif %}
-                {% if armario.status.value == 'alugado' %}<form action="/armarios/{{ armario.id }}/liberar"
-                    method="post" onsubmit="return confirm('Liberar este armário?')"><button type="submit"
-                        class="button"><i class="fas fa-unlock"></i> Liberar</button></form>{% endif %}
+                {% if armario.status.value == 'alugado' %}
+                <button type="button" class="button" onclick="abrirModalConfirmacao(null, '/armarios/{{ armario.id }}/liberar', 'armário {{ armario.numero }}');"><i class="fas fa-unlock"></i> Liberar</button>
+                {% endif %}
                 {% if armario.status.value == 'alugado' %}<a href="/armarios/{{ armario.id }}/editar-locacao" class="button-secondary"><i class="fas fa-user-pen"></i> Editar cliente</a>{% endif %}
                 <a href="/armarios/{{ armario.id }}/editar" class="button-secondary"><i class="fas fa-pen"></i>
                     Editar</a>
-                <form action="/armarios/{{ armario.id }}/toggle-ativo" method="post"><button type="submit"
-                        class="button-danger" {% if armario.status.value=='alugado' %}disabled
-                        title="Libere o armário antes de desativá-lo" {% endif %}><i
-                            class="fas fa-{{ 'ban' if armario.ativo else 'rotate-left' }}"></i> {{ "Desativar" if
-                        armario.ativo else "Reativar" }}</button></form>
+                <button type="button" class="button-danger" {% if armario.status.value=='alugado' %}disabled title="Libere o armário antes de desativá-lo" {% endif %} onclick="abrirModalConfirmacao('/armarios/{{ armario.id }}/toggle-ativo', null, 'armário {{ armario.numero }}', '{{ 'ativar' if not armario.ativo else 'desativar' }}');"><i class="fas fa-{{ 'ban' if armario.ativo else 'rotate-left' }}"></i> {{ "Desativar" if armario.ativo else "Reativar" }}</button>
             </div>
         </aside>
         {% endif %}
     </div>
+    {% include "components/modal_confirmacao.html" %}
 </section>
+{% endblock %}
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const forms = document.querySelectorAll('form[action*="/liberar"], form[action*="/toggle-ativo"]');
+        forms.forEach(form => {
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                const action = this.getAttribute('action');
+                const method = this.getAttribute('method') || 'POST';
+                const formData = new FormData(this);
+
+                fetch(action, {
+                    method: method,
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Atualiza a interface com base na ação realizada
+                        if (action.includes('/liberar')) {
+                            // Se foi a ação de liberar, atualiza o texto e a classe do botão
+                            const button = this.querySelector('button');
+                            button.innerHTML = '<i class="fas fa-ban"></i> Desativar';
+                            button.classList.remove('button');
+                            button.classList.add('button-danger');
+                            // Atualiza o status do armário para inativo
+                            const statusBadge = document.querySelector('.status-badge');
+                            if (statusBadge) {
+                                statusBadge.innerHTML = '<i class="fas fa-ban"></i> Inativo';
+                                statusBadge.classList.remove('available', 'rented');
+                                statusBadge.classList.add('inactive');
+                            }
+                        } else if (action.includes('/toggle-ativo')) {
+                            // Se foi a ação de desativar/reativar, recarrega a página para atualizar o status
+                            location.reload();
+                        }
+                    } else {
+                        // Tratar erro, exibir mensagem para o usuário, etc.
+                        alert('Ocorreu um erro ao processar a solicitação. Tente novamente.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Ocorreu um erro ao processar a solicitação. Tente novamente.');
+                });
+            });
+        });
+    });
+</script>
 {% endblock %}

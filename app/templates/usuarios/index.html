@@ -308,16 +308,17 @@
                 <i class="fas fa-pen"></i> Editar
               </a>
               <form action="/usuarios/{{ u.id }}/toggle-ativo" method="post" style="margin:0;">
-                <button type="submit"
+                <button type="button"
                   class="btn-action btn-toggle {{ 'ativar' if not u.ativo else '' }}"
-                  title="{{ 'Ativar usuário' if not u.ativo else 'Desativar usuário' }}">
+                  title="{{ 'Ativar usuário' if not u.ativo else 'Desativar usuário' }}"
+                  onclick="abrirModalConfirmacao('/usuarios/{{ u.id }}/toggle-ativo', null, '{{ u.nome }}', '{{ 'ativar' if not u.ativo else 'desativar' }}');">
                   <i class="fas fa-{{ 'toggle-on' if u.ativo else 'toggle-off' }}"></i>
                   {{ 'Desativar' if u.ativo else 'Ativar' }}
                 </button>
               </form>
-              <form action="/usuarios/{{ u.id }}/excluir" method="post" style="margin:0;"
-                onsubmit="return confirm('Deseja realmente excluir este usuário?');">
-                <button type="submit" class="btn-action btn-delete" title="Excluir usuário">
+              <form action="/usuarios/{{ u.id }}/excluir" method="post" style="margin:0;">
+                <button type="button" class="btn-action btn-delete" title="Excluir usuário"
+                  onclick="abrirModalConfirmacao(null, '/usuarios/{{ u.id }}/excluir', '{{ u.nome }}');">
                   <i class="fas fa-trash"></i> Excluir
                 </button>
               </form>
@@ -341,4 +342,5 @@
   </div>
 
 </div>
+{% include "components/modal_confirmacao.html" %}
 {% endblock %}

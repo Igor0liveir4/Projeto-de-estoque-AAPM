@@ -458,7 +458,7 @@
                             <td style="text-align: center;" onclick="event.stopPropagation();">
                                 <div style="display: inline-flex; gap: 6px;">
                                     <form method="POST" action="/produtos/{{ produto.id }}/desativar" style="display: inline;">
-                                        <button type="submit" class="btn-action-disable" title="Remover item" onclick="return confirm('Tem certeza que deseja remover este produto da lista? Ele será desativado, mas o registro será mantido.');">
+                                        <button type="button" class="btn-action-disable" title="Remover item" onclick="abrirModalConfirmacao(null, '/produtos/{{ produto.id }}/desativar', '{{ produto.nome }}');">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -526,11 +526,23 @@
 
                 const newTbody = doc.querySelector('#productsTable tbody');
                 const newPagination = doc.querySelector('.server-pagination');
+                const newMetricsGrid = doc.querySelector('.metrics-grid');
 
                 // substitui o tbody
                 const currentTbody = document.querySelector('#productsTable tbody');
                 if (newTbody && currentTbody) {
                     currentTbody.innerHTML = newTbody.innerHTML;
+                }
+
+                // atualiza os cards de métricas para refletirem a busca atual
+                const currentMetricsGrid = document.querySelector('.metrics-grid');
+                if (currentMetricsGrid && newMetricsGrid) {
+                    currentMetricsGrid.replaceWith(newMetricsGrid.cloneNode(true));
+                } else if (newMetricsGrid) {
+                    const catalogContainer = document.querySelector('.catalog-container');
+                    if (catalogContainer) {
+                        catalogContainer.insertBefore(newMetricsGrid.cloneNode(true), document.querySelector('.search-bar-container'));
+                    }
                 }
 
                 // substitui o bloco de paginação completo (pode conter select, summary, controls)
@@ -720,4 +732,6 @@
         renderPage();
     })();
 </script>
+
+{% include "components/modal_confirmacao.html" %}
 {% endblock %}

@@ -294,15 +294,16 @@
           <i class="fas fa-pen"></i>
         </a>
         <form action="/categorias/{{ cat.id }}/toggle-ativo" method="post" style="margin:0;">
-          <button type="submit"
+          <button type="button"
             class="btn-action btn-toggle {{ 'ativar' if not cat.ativa else '' }}"
-            title="{{ 'Desativar' if cat.ativa else 'Ativar' }}">
+            title="{{ 'Desativar' if cat.ativa else 'Ativar' }}"
+            onclick="abrirModalConfirmacao('/categorias/{{ cat.id }}/toggle-ativo', null, '{{ cat.nome }}', '{{ 'ativar' if not cat.ativa else 'desativar' }}');">
             <i class="fas fa-{{ 'toggle-on' if cat.ativa else 'toggle-off' }}"></i>
           </button>
         </form>
-        <form action="/categorias/{{ cat.id }}/excluir" method="post" style="margin:0;"
-          onsubmit="return confirm('Deseja realmente excluir esta categoria?');">
-          <button type="submit" class="btn-action btn-delete" title="Excluir">
+        <form action="/categorias/{{ cat.id }}/excluir" method="post" style="margin:0;">
+          <button type="button" class="btn-action btn-delete" title="Excluir"
+            onclick="abrirModalConfirmacao(null, '/categorias/{{ cat.id }}/excluir', '{{ cat.nome }}');">
             <i class="fas fa-trash"></i>
           </button>
         </form>
@@ -324,4 +325,6 @@
   {% endif %}
 
 </div>
+
+{% include "components/modal_confirmacao.html" %}
 {% endblock %}

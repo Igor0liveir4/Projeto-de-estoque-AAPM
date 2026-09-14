@@ -448,7 +448,8 @@
                 <i class="fas fa-pen" style="font-size:13px;"></i>
               </a>
               <form class="toggle-form" method="post" action="/cliente/{{ c.id }}/toggle-ativo">
-                <button type="submit" title="{{ 'Desativar' if c.ativo else 'Ativar' }}">
+                <button type="button" title="{{ 'Desativar' if c.ativo else 'Ativar' }}" 
+                  onclick="abrirModalConfirmacao('/cliente/{{ c.id }}/toggle-ativo', null, '{{ c.nome }}', '{{ 'ativar' if not c.ativo else 'desativar' }}');">
                   <i class="fas fa-{{ 'toggle-on' if c.ativo else 'toggle-off' }}" style="font-size:14px;"></i>
                 </button>
               </form>
@@ -468,4 +469,5 @@
   </div>
 
 </div>
+{% include "components/modal_confirmacao.html" %}
 {% endblock %}
