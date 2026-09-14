@@ -22,7 +22,7 @@
   }
 
   .page-title {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Sora', sans-serif;
     font-size: 34px;
     font-weight: 800;
     letter-spacing: -1px;
@@ -31,7 +31,9 @@
     line-height: 1;
   }
 
-  .page-title span { color: #60a5fa; }
+  .page-title span {
+    color: #60a5fa;
+  }
 
   .page-subtitle {
     color: #64748b;
@@ -40,7 +42,10 @@
     font-family: 'DM Sans', sans-serif;
   }
 
-  .page-subtitle span { color: #60a5fa; font-weight: 600; }
+  .page-subtitle span {
+    color: #60a5fa;
+    font-weight: 600;
+  }
 
   /* ── Botão primário ── */
   .btn-novo {
@@ -81,8 +86,18 @@
     gap: 10px;
     font-family: 'DM Sans', sans-serif;
   }
-  .alert-success { background: rgba(16,185,129,0.1); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.2); }
-  .alert-error   { background: rgba(239,68,68,0.1);  color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
+
+  .alert-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #6ee7b7;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+  }
+
+  .alert-error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
 
   /* ── Tabela ── */
   .table-wrap {
@@ -106,7 +121,7 @@
   }
 
   .mov-table thead th {
-    background: rgba(59,130,246,0.07);
+    background: rgba(59, 130, 246, 0.07);
     color: var(--accent-light);
     padding: 14px 18px;
     font-size: 10.5px;
@@ -118,17 +133,21 @@
     white-space: nowrap;
   }
 
-  .mov-table thead th.text-right { text-align: right; }
+  .mov-table thead th.text-right {
+    text-align: right;
+  }
 
   .mov-table tbody tr {
-    border-bottom: 1px solid rgba(99,179,237,0.05);
+    border-bottom: 1px solid rgba(99, 179, 237, 0.05);
     transition: background var(--transition);
   }
 
-  .mov-table tbody tr:last-child { border-bottom: none; }
+  .mov-table tbody tr:last-child {
+    border-bottom: none;
+  }
 
   .mov-table tbody tr:hover td {
-    background: rgba(59,130,246,0.04);
+    background: rgba(59, 130, 246, 0.04);
     color: var(--text-primary);
   }
 
@@ -141,7 +160,9 @@
     font-family: 'DM Sans', sans-serif;
   }
 
-  .mov-table td.text-right { text-align: right; }
+  .mov-table td.text-right {
+    text-align: right;
+  }
 
   /* ── Badges de tipo ── */
   .badge {
@@ -158,20 +179,20 @@
   }
 
   .badge-entrada {
-    background: rgba(74,222,128,0.1);
+    background: rgba(74, 222, 128, 0.1);
     color: #4ade80;
-    border: 1px solid rgba(74,222,128,0.2);
+    border: 1px solid rgba(74, 222, 128, 0.2);
   }
 
   .badge-saida {
-    background: rgba(239,68,68,0.1);
+    background: rgba(239, 68, 68, 0.1);
     color: #fca5a5;
-    border: 1px solid rgba(239,68,68,0.2);
+    border: 1px solid rgba(239, 68, 68, 0.2);
   }
 
   /* valor em destaque */
   .valor-cell {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Sora', sans-serif;
     font-weight: 700;
     color: var(--text-primary) !important;
   }
@@ -195,7 +216,12 @@
     font-family: 'DM Sans', sans-serif;
   }
 
-  .empty-state i { font-size: 40px; display: block; margin-bottom: 14px; opacity: 0.35; }
+  .empty-state i {
+    font-size: 40px;
+    display: block;
+    margin-bottom: 14px;
+    opacity: 0.35;
+  }
 </style>
 {% endblock %}
 
@@ -246,13 +272,13 @@
           </td>
           <td>
             {% if mov.tipo.value == 'entrada' %}
-              <span class="badge badge-entrada">
-                <i class="fas fa-arrow-down" style="font-size:9px;"></i> Entrada
-              </span>
+            <span class="badge badge-entrada">
+              <i class="fas fa-arrow-down" style="font-size:9px;"></i> Entrada
+            </span>
             {% else %}
-              <span class="badge badge-saida">
-                <i class="fas fa-arrow-up" style="font-size:9px;"></i> Saída
-              </span>
+            <span class="badge badge-saida">
+              <i class="fas fa-arrow-up" style="font-size:9px;"></i> Saída
+            </span>
             {% endif %}
           </td>
           <td style="font-weight:600; color:var(--text-primary);">{{ mov.produto.nome }}</td>

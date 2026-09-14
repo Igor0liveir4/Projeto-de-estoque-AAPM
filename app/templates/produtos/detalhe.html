@@ -4,7 +4,8 @@
 
 {% block content %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
 
 <style>
     .page-wrapper {
@@ -13,7 +14,8 @@
         align-items: center;
         justify-content: center;
         font-family: 'Plus Jakarta Sans', sans-serif;
-        background-color: #000000; /* Mesmo fundo escuro das telas anteriores */
+        background-color: #000000;
+        /* Mesmo fundo escuro das telas anteriores */
         padding: 40px 20px;
     }
 
@@ -21,9 +23,10 @@
         width: 100%;
         max-width: 700px;
     }
-    
+
     .detail-card {
-        background: #050505; /* Mesma superfície interna */
+        background: #050505;
+        /* Mesma superfície interna */
         border: 1px solid rgba(255, 255, 255, 0.05);
         border-radius: 24px;
         box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
@@ -42,6 +45,7 @@
         font-weight: 500;
         transition: color 0.2s ease;
     }
+
     .btn-back:hover {
         color: #f8fafc;
     }
@@ -124,6 +128,7 @@
         gap: 6px;
         transition: all 0.2s ease;
     }
+
     .btn-edit:hover {
         background: #ffffff;
         transform: translateY(-1px);
@@ -142,6 +147,7 @@
         border: 1px solid rgba(255, 255, 255, 0.08);
         transition: all 0.2s ease;
     }
+
     .btn-delete:hover {
         background: rgba(239, 68, 68, 0.08);
         color: #ef4444;
@@ -197,30 +203,34 @@
 
 <div class="page-wrapper">
     <div class="detail-container">
-        
+
         <a href="/produtos" class="btn-back">
             <i class="fas fa-arrow-left" style="font-size: 11px;"></i>
             <span>Voltar para a lista</span>
         </a>
 
         <div class="detail-card">
-            
-            <div style="padding: 32px 32px 16px 32px; display: flex; align-items: center; gap: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.03);">
-                <div style="background: rgba(255, 255, 255, 0.03); width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.05);">
+
+            <div
+                style="padding: 32px 32px 16px 32px; display: flex; align-items: center; gap: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.03);">
+                <div
+                    style="background: rgba(255, 255, 255, 0.03); width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.05);">
                     <i class="fas fa-cube"></i>
                 </div>
                 <div>
-                    <span style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid rgba(59, 130, 246, 0.15);">
+                    <span
+                        style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid rgba(59, 130, 246, 0.15);">
                         {% if produto.categoria %}{{ produto.categoria.nome }}{% else %}Sem categoria{% endif %}
                     </span>
-                    <h2 style="color: #f8fafc; font-size: 22px; font-weight: 600; margin: 6px 0 0 0; letter-spacing: -0.5px;">
+                    <h2
+                        style="color: #f8fafc; font-size: 22px; font-weight: 600; margin: 6px 0 0 0; letter-spacing: -0.5px;">
                         {{ produto.nome }}
                     </h2>
                 </div>
             </div>
 
             <div class="info-grid">
-                
+
                 <div class="info-block">
                     <div class="info-label">ID do Produto</div>
                     <p class="info-value" style="color: #64748b;">#{{ produto.id }}</p>
@@ -234,21 +244,23 @@
                 <div class="info-block">
                     <div class="info-label">Estoque Atual</div>
                     <p class="info-value">
-                        {{ produto.estoque_total }} <span style="font-size: 12px; color: #64748b; font-weight: 400;">unidades</span>
+                        {{ produto.estoque_total }} <span
+                            style="font-size: 12px; color: #64748b; font-weight: 400;">unidades</span>
                     </p>
                 </div>
 
                 <div class="info-block">
                     <div class="info-label">Status da Operação</div>
-                    {% if produto.estoque_total < 10 %}
-                        <p class="info-value" style="color: #f59e0b; font-size: 14px; display: flex; align-items: center; gap: 6px;">
-                            <i class="fas fa-triangle-exclamation" style="font-size: 12px;"></i> Reposição necessária
+                    {% if produto.estoque_total < 10 %} <p class="info-value"
+                        style="color: #f59e0b; font-size: 14px; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-triangle-exclamation" style="font-size: 12px;"></i> Reposição necessária
                         </p>
-                    {% else %}
-                        <p class="info-value" style="color: #10b981; font-size: 14px; display: flex; align-items: center; gap: 6px;">
+                        {% else %}
+                        <p class="info-value"
+                            style="color: #10b981; font-size: 14px; display: flex; align-items: center; gap: 6px;">
                             <i class="fas fa-circle-check" style="font-size: 12px;"></i> Operação estável
                         </p>
-                    {% endif %}
+                        {% endif %}
                 </div>
 
             </div>
@@ -283,14 +295,15 @@
             </div>
             {% endif %}
 
-            <div style="padding: 0 32px 32px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.03); padding-top: 24px;">
+            <div
+                style="padding: 0 32px 32px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.03); padding-top: 24px;">
                 <form method="POST" action="/produtos/{{ produto.id }}/desativar" style="display: inline;">
                     <button type="submit" class="btn-delete" title="Remover produto"
                         onclick="return confirm('Tem certeza que deseja remover este produto da lista? Ele será desativado, mas o registro será mantido.');">
                         <i class="fas fa-trash-can"></i>
                     </button>
                 </form>
-                
+
                 <a href="/produtos/{{ produto.id }}/editar" class="btn-edit">
                     <i class="fas fa-pen" style="font-size: 11px;"></i>
                     <span>Editar item</span>
