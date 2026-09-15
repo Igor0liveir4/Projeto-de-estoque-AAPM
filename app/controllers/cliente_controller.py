@@ -105,7 +105,6 @@ def form_editar(
         {"request": request, "usuario": admin, "editando": editando}
     )
 
-
 @router.post("/{cliente_id}/editar")
 def editar(
     cliente_id: int,
