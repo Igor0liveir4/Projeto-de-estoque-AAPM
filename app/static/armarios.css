@@ -48,7 +48,7 @@
 }
 
 .armarios-title {
-    font: 800 clamp(25px, 4vw, 34px)/1.15 'Syne', sans-serif;
+    font: 800 clamp(25px, 4vw, 34px)/1.15 'Sora', sans-serif;
     margin: 3px 0 5px;
 }
 
@@ -160,7 +160,7 @@
 
 .metric-value {
     color: var(--text-primary);
-    font: 800 24px/1.2 'Sona', sans-serif;
+    font: 800 24px/1.2 'Sora', sans-serif;
 }
 
 .armarios-card {
