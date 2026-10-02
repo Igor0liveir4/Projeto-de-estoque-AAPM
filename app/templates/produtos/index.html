@@ -489,8 +489,14 @@
     tableSearch.addEventListener('input', function () {
         if (this.value && this.value.length > 0) {
             if (!isAuthenticated) {
-                const goLogin = confirm('Você precisa estar logado para usar a busca. Ir para Login? (OK = Login, Cancelar = Cadastro)');
-                window.location.href = goLogin ? '/auth/login' : '/auth/cadastro';
+                window.openStyledConfirmation({
+                    title: 'Acesso necessario',
+                    message: 'Voce precisa estar logado para usar a busca. Deseja ir para a tela de login?',
+                    confirmLabel: 'Ir para login',
+                    cancelLabel: 'Criar conta',
+                    onConfirm: function () { window.location.href = '/auth/login'; },
+                    onCancel: function () { window.location.href = '/auth/cadastro'; }
+                });
                 return;
             }
         }

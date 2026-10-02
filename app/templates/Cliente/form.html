@@ -307,6 +307,7 @@
     <form
       method="post"
       action="{{ '/cliente/' ~ editando.id ~ '/editar' if editando else '/cliente/novo' }}"
+      data-confirm-message="{{ 'Confirma as alteracoes deste cliente?' if editando else 'Confirma o cadastro deste cliente?' }}"
     >
       <!-- Nome -->
       <div class="field">

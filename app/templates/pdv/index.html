@@ -839,7 +839,7 @@
                 <textarea id="obs-input" placeholder="Opcional…"></textarea>
             </div>
 
-            <form id="form-venda" method="POST" action="/pdv/finalizar">
+            <form id="form-venda" method="POST" action="/pdv/finalizar" data-confirm-message="Confirma a finalizacao desta venda?">
                 <input type="hidden" name="carrinho_json" id="carrinho-json-input">
                 <input type="hidden" name="cliente_id" id="cliente-id-input" value="0">
                 <input type="hidden" name="observacao" id="obs-hidden-input">
