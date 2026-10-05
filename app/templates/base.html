@@ -14,10 +14,10 @@
         rel="stylesheet">
     <style>
         :root {
-            --bg-base: #080c14;
-            --bg-surface: #0d1320;
-            --bg-card: #111827;
-            --bg-card-hover: #161f30;
+            --bg-base: #0d1422;
+            --bg-surface: #121c2d;
+            --bg-card: #172235;
+            --bg-card-hover: #1d2a40;
             --border: rgba(99, 179, 237, 0.1);
             --border-hover: rgba(99, 179, 237, 0.28);
             --accent: #3b82f6;
@@ -78,7 +78,7 @@
             right: 0;
             z-index: 100;
             height: var(--header-h);
-            background: rgba(8, 12, 20, 0.85);
+            background: rgba(13, 20, 34, 0.88);
             backdrop-filter: blur(20px) saturate(160%);
             -webkit-backdrop-filter: blur(20px) saturate(160%);
             border-bottom: 1px solid var(--border);
@@ -528,7 +528,7 @@
 
         .server-pagination {
             display: grid;
-            grid-template-columns: auto 1fr auto;
+            grid-template-columns: 1fr auto;
             align-items: center;
             gap: 14px;
             padding: 14px 18px;
@@ -537,34 +537,14 @@
             font-size: 12px;
         }
 
-        .server-pagination__size,
         .server-pagination__controls {
             display: flex;
             align-items: center;
             gap: 7px;
         }
 
-        .server-pagination__size {
-            flex: 0 0 auto;
-            flex-wrap: nowrap;
-            white-space: nowrap;
-        }
-
         .server-pagination__summary {
             text-align: center;
-        }
-
-        .server-pagination select {
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text-primary);
-            flex: 0 0 72px;
-            font: inherit;
-            margin: 0;
-            min-width: 72px;
-            padding: 5px 7px;
-            width: 72px;
         }
 
         .server-pagination__controls { flex-wrap: wrap; }
@@ -891,7 +871,6 @@
             <div class="header-top">
                 <div class="header-content">
                     <img src="/static/logo/logoAAPM-transparent.png" alt="Logo AAPM" class="logo-header">
-                    <h1>Gestão de Estoque <span>AAPM</span></h1>
                 </div>
                 {% if usuario %}
                 <button class="sidebar-toggle" type="button" aria-label="Abrir menu" aria-controls="sidebar" aria-expanded="false">
