@@ -42,7 +42,7 @@ def listar_clientes(
 
     return templates.TemplateResponse(
         request,
-        "cliente/index.html",
+        "Cliente/index.html",
         {
             "request":           request,
             "usuario":           admin,
@@ -62,7 +62,7 @@ def listar_clientes(
 def form_novo(request: Request, admin = Depends(get_admin)):
     return templates.TemplateResponse(
         request,
-        "cliente/form.html",
+        "Cliente/form.html",
         {"request": request, "usuario": admin, "editando": None}
     )
 
@@ -101,7 +101,7 @@ def form_editar(
 
     return templates.TemplateResponse(
         request,
-        "cliente/form.html",
+        "Cliente/form.html",
         {"request": request, "usuario": admin, "editando": editando}
     )
 
