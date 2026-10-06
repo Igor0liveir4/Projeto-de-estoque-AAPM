@@ -28,7 +28,7 @@ def listar_categorias(
     db: Session = Depends(get_db),
     admin = Depends(get_admin),
     pagina: int = 1,
-    por_pagina: int = 10,
+    por_pagina: int = 16,
 ):
     """
     Lista todas as categorias ordenadas por nome.

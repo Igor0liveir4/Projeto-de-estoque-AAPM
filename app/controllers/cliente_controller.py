@@ -18,7 +18,7 @@ def listar_clientes(
     busca: str = "",
     apenas_associados: bool = False,
     pagina: int = 1,
-    por_pagina: int = 10,
+    por_pagina: int = 16,
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):

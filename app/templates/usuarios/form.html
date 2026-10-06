@@ -257,7 +257,7 @@
     <div class="alert-error"><i class="fas fa-circle-exclamation"></i> {{ erro }}</div>
     {% endif %}
 
-    <form action="/usuarios/{{ editando.id ~ '/editar' if editando else 'novo' }}" method="post">
+    <form action="/usuarios/{{ editando.id ~ '/editar' if editando else 'novo' }}" method="post" data-confirm-message="{{ 'Confirma as alteracoes deste usuario?' if editando else 'Confirma o cadastro deste usuario?' }}">
 
       <div class="field">
         <label>Nome Completo</label>

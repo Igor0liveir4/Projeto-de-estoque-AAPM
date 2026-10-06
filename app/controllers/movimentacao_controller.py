@@ -30,7 +30,7 @@ def listar_movimentacoes(
     produto_id: int = 0,     # filtra por produto específico
     tipo: str = "",          # "entrada" ou "saida"
     pagina: int = 1,
-    por_pagina: int = 10,
+    por_pagina: int = 16,
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
