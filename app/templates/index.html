@@ -9,10 +9,10 @@
     rel="stylesheet">
 
 <style>
-    /* ── RESET / BASE ─────────────────────────────────── */
+    /* ── RESET / BASE ─────────────────────── */
     .home-wrapper {
         font-family: 'DM Sans', sans-serif;
-        padding: 0 0 80px;
+        padding: 0 0 120px;
         position: relative;
         overflow: hidden;
     }
@@ -44,7 +44,7 @@
         right: -80px;
     }
 
-    /* ── HERO GRID ───────────────────────────────────── */
+    /* ── HERO GRID ─────────────── */
     .hero {
         position: relative;
         z-index: 1;
@@ -92,6 +92,28 @@
         border-radius: 50%;
         box-shadow: 0 0 6px #10b981;
         animation: pulse 2.2s ease infinite;
+    }
+
+    /* BOTÃO DE TEMA TEMA */
+    .btn-theme-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        padding: 5px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #e2e8f0;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+    .btn-theme-toggle:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(99, 179, 237, 0.4);
+        color: #60a5fa;
     }
 
     /* BOTÃO PARA TELA DE LOGIN ISOLADA */
@@ -241,7 +263,7 @@
         box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
     }
 
-    /* ── SECTIONS GENERAL ─────────────────────────────── */
+    /* ── SECTIONS GENERAL ─────────────────── */
     .section-title {
         font-family: 'Sora', sans-serif;
         font-size: 24px;
@@ -257,7 +279,7 @@
         color: #3b82f6;
     }
 
-    /* ── VITRINE DE PRODUTOS ──────────────────────────── */
+    /* ── VITRINE DE PRODUTOS ──────────────── */
     .produtos-section {
         position: relative;
         z-index: 1;
@@ -339,7 +361,6 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
         min-height: 2.6em;
-        /* ← reserva sempre 2 linhas de altura */
     }
 
     .produto-footer {
@@ -470,7 +491,7 @@
         transform: translateY(-2px);
     }
 
-    /*POLITICA SENAI (TERMOS)*/
+    /* POLITICA SENAI (TERMOS) */
     .politica-section {
         position: relative;
         z-index: 1;
@@ -505,7 +526,44 @@
         text-align: justify;
     }
 
-    /*RESPONSIVE*/
+    /* ── FAIXA / LETREIRO DE ANÚNCIOS (GSAP) ────────────────── */
+    .faixa-anuncios-rodape {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: rgba(15, 23, 42, 0.95);
+        border-top: 1px solid rgba(59, 130, 246, 0.2);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: #f8fafc;
+        overflow: hidden;
+        padding: 12px 0;
+        z-index: 999;
+        white-space: nowrap;
+    }
+
+    .faixa-anuncios-conteudo {
+        display: inline-flex;
+    }
+
+    .item-anuncio {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 40px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #93c5fd;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .item-anuncio i {
+        color: #a78bfa;
+    }
+
+    /* RESPONSIVIDADE */
     @media (max-width: 992px) {
         .hero {
             grid-template-columns: 1fr;
@@ -539,12 +597,20 @@
 
     <div class="hero">
         <div class="hero-info">
+            <!-- AQUI ESTÁ A ALTERAÇÃO DO HTML -->
             <div class="hero-header-actions">
                 <div class="hero-eyebrow">
                     <span class="pulse-dot"></span>
                     Vitrine da Associação
                 </div>
+
+                <!-- BOTÃO DE ALTERNAR TEMA ADICIONADO NO HTML -->
+                <button type="button" class="btn-theme-toggle" onclick="toggleTema()" title="Alternar Modo Claro / Escuro">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                    <span id="theme-text">Modo Escuro</span>
+                </button>
             </div>
+
             <h1>Seja Bem-Vindo à<br><span>AAPM SENAI</span></h1>
             <p style="margin-bottom: 28px;">
                 Explore o catálogo de materiais escolares, uniformes e produtos oficiais da nossa associação.
@@ -664,4 +730,65 @@
         </div>
     </div>
 </div>
+
+<!-- ── FAIXA DE ANÚNCIOS NO RODAPÉ ────────────────── -->
+<div class="faixa-anuncios-rodape">
+    <div class="faixa-anuncios-conteudo">
+        <span class="item-anuncio"><i class="fas fa-bullhorn"></i> Seja um associado AAPM e garanta descontos exclusivos!</span>
+        <span class="item-anuncio"><i class="fas fa-tshirt"></i> Novos uniformes oficiais disponíveis na loja</span>
+        <span class="item-anuncio"><i class="fas fa-calendar-check"></i> Fique atento aos prazos de rematrícula e eventos</span>
+        <span class="item-anuncio"><i class="fas fa-bullhorn"></i> Seja um associado AAPM e garanta descontos exclusivos!</span>
+        <span class="item-anuncio"><i class="fas fa-tshirt"></i> Novos uniformes oficiais disponíveis na loja</span>
+        <span class="item-anuncio"><i class="fas fa-calendar-check"></i> Fique atento aos prazos de rematrícula e eventos</span>
+    </div>
+</div>
+
+<!-- CDN GSAP + Script da Animação + Função do Botão de Tema -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+    // Animação GSAP da Faixa de Anúncios
+    document.addEventListener("DOMContentLoaded", function () {
+        const marqueeAnimation = gsap.to(".faixa-anuncios-conteudo", {
+            xPercent: -50,
+            repeat: -1,
+            duration: 18,
+            ease: "none"
+        });
+
+        const faixa = document.querySelector(".faixa-anuncios-rodape");
+        if (faixa) {
+            faixa.addEventListener("mouseenter", () => marqueeAnimation.pause());
+            faixa.addEventListener("mouseleave", () => marqueeAnimation.play());
+        }
+    });
+
+    // Função do Botão de Alternar Tema
+    function toggleTema() {
+        const body = document.body;
+        const icon = document.getElementById("theme-icon");
+        const text = document.getElementById("theme-text");
+
+        body.classList.toggle("light-mode");
+        const isLight = body.classList.contains("light-mode");
+
+        if (isLight) {
+            icon.className = "fas fa-sun";
+            text.textContent = "Modo Claro";
+            localStorage.setItem("tema-aapm", "light");
+        } else {
+            icon.className = "fas fa-moon";
+            text.textContent = "Modo Escuro";
+            localStorage.setItem("tema-aapm", "dark");
+        }
+    }
+
+    // Restaura a preferência salva ao carregar a página
+    document.addEventListener("DOMContentLoaded", function () {
+        const temaSalvo = localStorage.getItem("tema-aapm");
+        if (temaSalvo === "light") {
+            toggleTema();
+        }
+    });
+</script>
+
 {% endblock %}
