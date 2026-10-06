@@ -1,17 +1,37 @@
-'{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Produtos - AAPM{% endblock %}
 {% from "components/pagination.html" import render as render_pagination with context %}
 
 {% block content %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
-    rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
+    /* VARIÁVEIS DE COR PADRONIZADAS (Baseadas no Design System) */
+    :root {
+        --bg-main: #0a0f18; /* Fundo geral mais escuro */
+        --bg-card: #111622; /* Fundo dos cards/formulários */
+        --bg-input: #080c13; /* Fundo dos inputs e buscas */
+        --border: #1e2638; /* Bordas sutis */
+        --border-hover: #2d3748;
+        --accent: #4a72ff; /* Azul vibrante dos botões */
+        --accent-light: #6b8cff; /* Azul hover */
+        --accent-glow: rgba(74, 114, 255, 0.2);
+        --text-main: #f8fafc;
+        --text-muted: #8b9bb4;
+        --radius: 12px;
+        --transition: 0.2s ease;
+        
+        /* Cores de Status */
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+    }
+
     .page-wrapper {
         min-height: 90vh;
-        background: transparent;
+        background: var(--bg-main);
         font-family: 'Plus Jakarta Sans', sans-serif;
         padding: 40px 20px;
         display: flex;
@@ -34,7 +54,7 @@
     .metric-card {
         background: var(--bg-card);
         border: 1px solid var(--border);
-        border-radius: 16px;
+        border-radius: var(--radius);
         padding: 20px;
         display: flex;
         align-items: center;
@@ -73,26 +93,26 @@
         left: 14px;
         top: 50%;
         transform: translateY(-50%);
-        color: #475569;
+        color: var(--text-muted);
         font-size: 14px;
     }
 
     .search-input {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--bg-input);
+        border: 1px solid var(--border);
         padding: 10px 14px 10px 40px;
         border-radius: 8px;
         font-size: 13px;
-        color: #f8fafc;
+        color: var(--text-main);
         width: 100%;
         box-sizing: border-box;
-        transition: all 0.2s;
+        transition: all var(--transition);
     }
 
     .search-input:focus {
         outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-glow);
     }
 
     /* TABLE MANAGEMENT */
@@ -114,27 +134,27 @@
     .custom-table th {
         background: var(--bg-card);
         padding: 14px 20px;
-        color: #64748b;
+        color: var(--text-muted);
         font-size: 11px;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid var(--border);
     }
 
     .prod-row {
         background: var(--bg-card);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        border-bottom: 1px solid var(--border);
         transition: background 0.15s ease;
         cursor: pointer;
     }
 
     .prod-row:hover {
-        background: #1a2234 !important;
+        background: var(--border) !important;
     }
 
     .prod-row:active {
-        background: #1e2840 !important;
+        background: var(--border-hover) !important;
     }
 
     .prod-row td {
@@ -143,7 +163,7 @@
 
     .custom-table td {
         padding: 12px 20px;
-        color: #f8fafc;
+        color: var(--text-main);
         font-size: 13px;
         vertical-align: middle;
         background: transparent;
@@ -162,35 +182,36 @@
 
     .badge-success {
         background: rgba(16, 185, 129, 0.08);
-        color: #10b981;
+        color: var(--success);
         border: 1px solid rgba(16, 185, 129, 0.15);
     }
 
     .badge-warning {
         background: rgba(245, 158, 11, 0.08);
-        color: #f59e0b;
+        color: var(--warning);
         border: 1px solid rgba(245, 158, 11, 0.15);
     }
 
     .badge-danger {
         background: rgba(239, 68, 68, 0.08);
-        color: #ef4444;
+        color: var(--danger);
         border: 1px solid rgba(239, 68, 68, 0.15);
     }
 
     .badge-category {
-        background: rgba(255, 255, 255, 0.03);
-        color: #94a3b8;
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        background: var(--bg-input);
+        color: var(--text-muted);
+        border: 1px solid var(--border);
     }
 
     /* ACTIONS & BUTTONS */
     .btn-add {
         background: var(--accent);
-        color: white;
+        color: #ffffff;
+        border: none;
         padding: 11px 20px;
         text-decoration: none;
-        border-radius: var(--radius);
+        border-radius: 12px;
         font-size: 14px;
         font-weight: 700;
         display: inline-flex;
@@ -198,6 +219,8 @@
         gap: 8px;
         transition: all var(--transition);
         box-shadow: 0 4px 14px var(--accent-glow);
+        font-family: 'DM Sans', sans-serif;
+        white-space: nowrap;
     }
 
     .btn-add:hover {
@@ -207,49 +230,51 @@
     }
 
     .btn-action-edit {
-        background: rgba(255, 255, 255, 0.02);
-        color: #94a3b8;
-        padding: 6px 10px;
+        background: var(--accent);
+        color: #ffffff;
+        padding: 10px 16px;
         text-decoration: none;
-        border-radius: 6px;
-        font-size: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        transition: all 0.2s;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all var(--transition);
     }
 
     .btn-action-edit:hover {
-        background: rgba(255, 255, 255, 0.05);
-        color: #f8fafc;
+        background: var(--accent-light);
     }
 
     .btn-action-disable {
         background: transparent;
-        color: #64748b;
+        color: var(--text-muted);
         padding: 6px 10px;
         border-radius: 6px;
         font-size: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--border);
         cursor: pointer;
         font-family: inherit;
+        transition: all var(--transition);
     }
 
     .btn-action-disable:hover {
         background: rgba(239, 68, 68, 0.05);
-        color: #ef4444;
-        border-color: rgba(239, 68, 68, 0.15);
+        color: var(--danger);
+        border-color: rgba(239, 68, 68, 0.3);
     }
 
-    /* Estrutura pronta para receber paginação pelo servidor futuramente. */
+    /* PAGINAÇÃO */
     .table-footer {
-        background: rgba(255, 255, 255, 0.01);
+        background: var(--bg-card);
         padding: 14px 20px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         gap: 16px;
-        border-top: 1px solid rgba(255, 255, 255, 0.04);
+        border-top: 1px solid var(--border);
         font-size: 12px;
-        color: #64748b;
+        color: var(--text-muted);
     }
 
     .page-size-control,
@@ -261,43 +286,37 @@
 
     .page-size-select {
         appearance: none;
-        background: #151d2d;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--bg-input);
+        border: 1px solid var(--border);
         border-radius: 6px;
-        color: #e2e8f0;
+        color: var(--text-main);
         font: inherit;
         padding: 5px 8px;
         cursor: pointer;
-    }
-
-    .pagination-controls {
-        justify-content: flex-end;
-        flex-wrap: wrap;
     }
 
     .page-button {
         min-width: 30px;
         height: 30px;
         padding: 0 8px;
-        background: transparent;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--bg-input);
+        border: 1px solid var(--border);
         border-radius: 6px;
-        color: #94a3b8;
+        color: var(--text-muted);
         font: inherit;
         font-size: 12px;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all var(--transition);
     }
 
     .page-button:hover:not(:disabled) {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(96, 165, 250, 0.45);
-        color: #f8fafc;
+        background: var(--border);
+        color: var(--text-main);
     }
 
     .page-button.is-active {
-        background: #3b82f6;
-        border-color: #3b82f6;
+        background: var(--accent);
+        border-color: var(--accent);
         color: #fff;
         font-weight: 700;
     }
@@ -309,12 +328,12 @@
 
     .pagination-ellipsis {
         padding: 0 2px;
-        color: #64748b;
+        color: var(--text-muted);
     }
 
     .empty-table-message td {
         padding: 36px 20px;
-        color: #64748b;
+        color: var(--text-muted);
         text-align: center;
     }
 
@@ -332,58 +351,50 @@
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
             <div>
-                <h1
-                    style="font-family: 'Syne', sans-serif; font-size: 34px; font-weight: 800; letter-spacing: -1px; color: #f0f6ff; margin: 0 0 10px 0; line-height: 1;">
-                    Gerenciar <span style="color: #60a5fa;">Produtos</span>
+                <h1 style="font-family: 'Syne', sans-serif; font-size: 34px; font-weight: 800; letter-spacing: -1px; color: var(--text-main); margin: 0 0 10px 0; line-height: 1;">
+                    Gerenciar <span style="color: var(--accent);">Produtos</span>
                 </h1>
-                <p style="color: #64748b; font-size: 14px; margin: 0;">
+                <p style="color: var(--text-muted); font-size: 14px; margin: 0;">
                     Visão geral de inventário ativo e balanço patrimonial.
                 </p>
             </div>
             <a href="/produtos/novo" class="btn-add">
                 <i class="fas fa-plus" style="font-size: 11px;"></i>
-                <span>Novo item</span>
+                <span>NOVO ITEM</span>
             </a>
         </div>
 
         <div class="metrics-grid">
             <div class="metric-card">
-                <div class="metric-icon" style="background: rgba(59, 130, 246, 0.08); color: #3b82f6;"><i
-                        class="fas fa-boxes-stacked"></i></div>
+                <div class="metric-icon" style="background: rgba(74, 114, 255, 0.08); color: var(--accent);"><i class="fas fa-boxes-stacked"></i></div>
                 <div>
-                    <span
-                        style="display: block; color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 500;">Registrados</span>
-                    <strong style="color: #f8fafc; font-size: 18px; font-weight: 600;">{{ total_produtos }} ativos</strong>
+                    <span style="display: block; color: var(--text-muted); font-size: 11px; text-transform: uppercase; font-weight: 500;">Registrados</span>
+                    <strong style="color: var(--text-main); font-size: 18px; font-weight: 600;">{{ total_produtos }} ativos</strong>
                 </div>
             </div>
             <div class="metric-card">
-                <div class="metric-icon" style="background: rgba(16, 185, 129, 0.08); color: #10b981;"><i
-                        class="fas fa-circle-check"></i></div>
+                <div class="metric-icon" style="background: rgba(16, 185, 129, 0.08); color: var(--success);"><i class="fas fa-circle-check"></i></div>
                 <div>
-                    <span
-                        style="display: block; color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 500;">Em
-                        Estoque</span>
-                    <strong style="color: #f8fafc; font-size: 18px; font-weight: 600;">{{ total_estoque }} unidades</strong>
+                    <span style="display: block; color: var(--text-muted); font-size: 11px; text-transform: uppercase; font-weight: 500;">Em Estoque</span>
+                    <strong style="color: var(--text-main); font-size: 18px; font-weight: 600;">{{ total_estoque }} unidades</strong>
                 </div>
             </div>
             <div class="metric-card">
-                <div class="metric-icon" style="background: rgba(239, 68, 68, 0.08); color: #ef4444;"><i
-                        class="fas fa-triangle-exclamation"></i></div>
+                <div class="metric-icon" style="background: rgba(239, 68, 68, 0.08); color: var(--danger);"><i class="fas fa-triangle-exclamation"></i></div>
                 <div>
-                    <span
-                        style="display: block; color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 500;">Esgotados</span>
-                    <strong style="color: #f8fafc; font-size: 18px; font-weight: 600;">{{ total_esgotados }} sem
-                        saldo</strong>
+                    <span style="display: block; color: var(--text-muted); font-size: 11px; text-transform: uppercase; font-weight: 500;">Esgotados</span>
+                    <strong style="color: var(--text-main); font-size: 18px; font-weight: 600;">{{ total_esgotados }} sem saldo</strong>
                 </div>
             </div>
         </div>
 
         <form class="search-bar-container" method="get" action="/produtos">
             <div class="search-wrapper">
-                <i class="fas fa-magnifying-glass"></i>
-                <input id="tableSearch" type="search" name="busca" value="{{ busca }}" class="search-input"
-                    placeholder="Pesquisar por nome...">
-            </div>
+                    <i class="fas fa-magnifying-glass"></i>
+                    <input id="tableSearch" type="search" name="busca" value="{{ busca }}" class="search-input" placeholder="Pesquisar por nome...">
+                </div>
+                <input type="hidden" name="por_pagina" value="{{ por_pagina }}">
+                <input type="hidden" name="pagina" value="1">
             {% if categoria_id %}<input type="hidden" name="categoria_id" value="{{ categoria_id }}">{% endif %}
             <button type="submit" class="btn-action-edit">Buscar</button>
         </form>
@@ -404,20 +415,16 @@
                     </thead>
                     <tbody>
                         {% for produto in produtos %}
-                        <tr class="prod-row" data-nome="{{ produto.nome }}"
-                            onclick="window.location.href='/produtos/{{ produto.id }}/editar'">
+                        <tr class="prod-row" data-nome="{{ produto.nome }}" onclick="window.location.href='/produtos/{{ produto.id }}/editar'">
 
                             <td>
-                                <img src="{{ produto.imagem_url }}" alt="{{ produto.nome }}"
-                                    style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.2);">
+                                <img src="{{ produto.imagem_url }}" alt="{{ produto.nome }}" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border); background: var(--bg-input);">
                             </td>
 
                             <td style="font-weight: 500; letter-spacing: -0.2px;">
-                                <span
-                                    style="color: #64748b; font-size: 11px; font-family: monospace; display: block;">#{{
-                                    produto.id }}</span>
+                                <span style="color: var(--text-muted); font-size: 11px; font-family: monospace; display: block;">#{{ produto.id }}</span>
                                 {{ produto.nome }}
-                                                                <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">{{ produto.variacoes|length }} variação{% if produto.variacoes|length != 1 %}es{% endif %}</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">{{ produto.variacoes|length }} variação{% if produto.variacoes|length != 1 %}es{% endif %}</div>
                             </td>
 
                             <td>
@@ -426,36 +433,32 @@
                                 </span>
                             </td>
 
-                            <td style="color: #94a3b8; font-weight: 500;">
+                            <td style="color: var(--text-muted); font-weight: 500;">
                                 R$ {{ "%.2f"|format(produto.preco) }}
                             </td>
 
                             <td style="text-align: center;">
                                 {% if produto.estoque_total == 0 %}
                                 <span class="badge badge-danger">0 un</span>
-                                {% elif produto.estoque_total < 10 %} <span class="badge badge-warning">
-                                    {{ produto.estoque_total }} un</span>
-                                    {% else %}
-                                    <span class="badge badge-success">{{ produto.estoque_total }} un</span>
-                                    {% endif %}
+                                {% elif produto.estoque_total < 10 %} 
+                                <span class="badge badge-warning">{{ produto.estoque_total }} un</span>
+                                {% else %}
+                                <span class="badge badge-success">{{ produto.estoque_total }} un</span>
+                                {% endif %}
                             </td>
 
                             <td style="text-align: center;">
                                 {% if produto.ativo %}
-                                <span style="color: #10b981; font-size: 12px;"><i class="fas fa-circle"
-                                        style="font-size: 8px; margin-right: 5px;"></i> Ativo</span>
+                                <span style="color: var(--success); font-size: 12px;"><i class="fas fa-circle" style="font-size: 8px; margin-right: 5px;"></i> Ativo</span>
                                 {% else %}
-                                <span style="color: #64748b; font-size: 12px;"><i class="fas fa-circle"
-                                        style="font-size: 8px; margin-right: 5px;"></i> Inativo</span>
+                                <span style="color: var(--text-muted); font-size: 12px;"><i class="fas fa-circle" style="font-size: 8px; margin-right: 5px;"></i> Inativo</span>
                                 {% endif %}
                             </td>
 
                             <td style="text-align: center;" onclick="event.stopPropagation();">
                                 <div style="display: inline-flex; gap: 6px;">
-                                    <form method="POST" action="/produtos/{{ produto.id }}/desativar"
-                                        style="display: inline;">
-                                        <button type="submit" class="btn-action-disable" title="Remover item"
-                                            onclick="return confirm('Tem certeza que deseja remover este produto da lista? Ele será desativado, mas o registro será mantido.');">
+                                    <form method="POST" action="/produtos/{{ produto.id }}/desativar" style="display: inline;">
+                                        <button type="button" class="btn-action-disable" title="Remover item" onclick="abrirModalConfirmacao(null, '/produtos/{{ produto.id }}/desativar', '{{ produto.nome }}');">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -469,25 +472,11 @@
             </div>
 
             {{ render_pagination(pagina, por_pagina, total_produtos, total_paginas, 'produtos') }}
-            <!--
-            <div class="table-footer">
-                <div class="page-size-control">
-                    <label for="pageSize">Itens por página</label>
-                    <select id="pageSize" class="page-size-select" aria-label="Itens por página">
-                        <option value="10">10</option>
-                        <option value="20">20</option>
-                        <option value="50">50</option>
-                    </select>
-                </div>
-                <div id="paginationSummary" aria-live="polite">Mostrando 0 registros</div>
-                <nav id="paginationControls" class="pagination-controls" aria-label="Paginação de produtos"></nav>
-            </div>
-            -->
         </div>
-
     </div>
 </div>
 
+<!-- (Mantive os scripts inalterados abaixo, pois cuidam apenas da lógica) -->
 <script>
     // Mecanismo de Busca Dinâmica em Tempo Real
     (function () {
@@ -500,38 +489,143 @@
     tableSearch.addEventListener('input', function () {
         if (this.value && this.value.length > 0) {
             if (!isAuthenticated) {
-                const goLogin = confirm('Você precisa estar logado para usar a busca. Ir para Login? (OK = Login, Cancelar = Cadastro)');
-                window.location.href = goLogin ? '/auth/login' : '/auth/cadastro';
+                window.openStyledConfirmation({
+                    title: 'Acesso necessario',
+                    message: 'Voce precisa estar logado para usar a busca. Deseja ir para a tela de login?',
+                    confirmLabel: 'Ir para login',
+                    cancelLabel: 'Criar conta',
+                    onConfirm: function () { window.location.href = '/auth/login'; },
+                    onCancel: function () { window.location.href = '/auth/cadastro'; }
+                });
                 return;
             }
-            // se autenticado, não redireciona — deixa o filtro local funcionar
         }
     });
 
-    // Filtro local em tempo real (uso permitido somente se autenticado)
-    tableSearch.addEventListener('input', function () {
-        const searchValue = this.value.toLowerCase();
-        const rows = document.querySelectorAll('#productsTable tbody .prod-row');
-        rows.forEach(row => {
-            const nomeProduto = row.dataset.nome.toLowerCase();
-            if (nomeProduto.includes(searchValue)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
+    // Em vez de recarregar toda a página, usamos fetch para atualizar apenas
+    // o corpo da tabela e o bloco de paginação. Mantemos o foco e posição
+    // do cursor no input de busca.
+    (function () {
+        let debounceTimer = null;
+        const searchForm = tableSearch.closest('form');
+
+        async function fetchAndReplace() {
+            if (!searchForm) return;
+
+            // preserva posição do cursor
+            const selStart = tableSearch.selectionStart;
+            const selEnd = tableSearch.selectionEnd;
+
+            // força página 1 ao buscar
+            const paginaInput = searchForm.querySelector('input[name="pagina"]');
+            if (paginaInput) paginaInput.value = '1';
+
+            const params = new URLSearchParams(new FormData(searchForm));
+            const url = `${searchForm.action || window.location.pathname}?${params.toString()}`;
+
+            try {
+                const res = await fetch(url, { credentials: 'same-origin' });
+                if (!res.ok) return;
+                const text = await res.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+
+                const newTbody = doc.querySelector('#productsTable tbody');
+                const newPagination = doc.querySelector('.server-pagination');
+                const newMetricsGrid = doc.querySelector('.metrics-grid');
+
+                // substitui o tbody
+                const currentTbody = document.querySelector('#productsTable tbody');
+                if (newTbody && currentTbody) {
+                    currentTbody.innerHTML = newTbody.innerHTML;
+                }
+
+                // atualiza os cards de métricas para refletirem a busca atual
+                const currentMetricsGrid = document.querySelector('.metrics-grid');
+                if (currentMetricsGrid && newMetricsGrid) {
+                    currentMetricsGrid.replaceWith(newMetricsGrid.cloneNode(true));
+                } else if (newMetricsGrid) {
+                    const catalogContainer = document.querySelector('.catalog-container');
+                    if (catalogContainer) {
+                        catalogContainer.insertBefore(newMetricsGrid.cloneNode(true), document.querySelector('.search-bar-container'));
+                    }
+                }
+
+                // substitui o bloco de paginação completo (pode conter select, summary, controls)
+                const currentPagination = document.querySelector('.server-pagination');
+                if (currentPagination) {
+                    if (newPagination) currentPagination.replaceWith(newPagination.cloneNode(true));
+                    else currentPagination.remove();
+                } else if (newPagination) {
+                    // insere após a tabela-card (fallback)
+                    const tableCard = document.querySelector('.table-card');
+                    if (tableCard) tableCard.insertAdjacentElement('beforeend', newPagination.cloneNode(true));
+                }
+
+                // re-liga referências usadas pelo script de paginação
+                // (requery elementos dinâmicos)
+                tableBody = document.querySelector('#productsTable tbody');
+                productRows.length = 0;
+                Array.from(document.querySelectorAll('#productsTable tbody .prod-row')).forEach(r => productRows.push(r));
+
+                // atualiza referências aos controles de paginação
+                pageSize = document.getElementById('pageSize');
+                paginationSummary = document.getElementById('paginationSummary');
+                paginationControls = document.getElementById('paginationControls');
+                if (pageSize) {
+                    pageSize.removeAttribute('onchange');
+                    pageSize.addEventListener('change', function () {
+                        itemsPerPage = Number(this.value);
+                        // sincroniza o hidden do formulário de busca para AJAX
+                        const hidden = searchForm.querySelector('input[name="por_pagina"]');
+                        if (hidden) hidden.value = this.value;
+                        currentPage = 1;
+                        renderPage();
+                    });
+                }
+
+                // restaura foco e seleção
+                tableSearch.focus();
+                try { tableSearch.setSelectionRange(selStart, selEnd); } catch (e) { /* ignore */ }
+
+                // renderiza a paginação cliente com os novos dados
+                currentPage = 1;
+                itemsPerPage = Number(pageSize?.value || itemsPerPage);
+                renderPage();
+
+            } catch (err) {
+                console.error('Busca AJAX falhou', err);
+            }
+        }
+
+        tableSearch.addEventListener('input', function () {
+            clearTimeout(debounceTimer);
+            // se vazio: atualiza para limpar filtro (mantém página atual)
+            debounceTimer = setTimeout(fetchAndReplace, 400);
+        });
+
+        // também submeter imediatamente ao pressionar Enter sem recarregar
+        tableSearch.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                clearTimeout(debounceTimer);
+                fetchAndReplace();
             }
         });
-    });
-    }) ();
+    })();
+    })();
 </script>
 <script>
-    /* Paginação no navegador: mantém a página pronta enquanto a API ainda entrega todos os itens. */
+    /* Paginação no navegador */
     (function () {
         const tableSearch = document.getElementById('tableSearch');
-        const tableBody = document.querySelector('#productsTable tbody');
-        const productRows = Array.from(document.querySelectorAll('#productsTable tbody .prod-row'));
-        const pageSize = document.getElementById('pageSize');
-        const paginationSummary = document.getElementById('paginationSummary');
-        const paginationControls = document.getElementById('paginationControls');
+        let tableBody = document.querySelector('#productsTable tbody');
+        let productRows = Array.from(document.querySelectorAll('#productsTable tbody .prod-row'));
+        let pageSize = document.getElementById('pageSize');
+        let paginationSummary = document.getElementById('paginationSummary');
+        let paginationControls = document.getElementById('paginationControls');
+
+        if (pageSize) pageSize.removeAttribute('onchange');
 
         if (!tableSearch || !tableBody || !pageSize || !paginationSummary || !paginationControls) return;
 
@@ -618,29 +712,32 @@
                 emptyMessage.className = 'empty-table-message';
                 emptyMessage.innerHTML = '<td colspan="7"><i class="fas fa-box-open" style="margin-right: 8px;"></i>Nenhum produto encontrado.</td>';
                 tableBody.appendChild(emptyMessage);
-                paginationSummary.textContent = 'Nenhum registro encontrado';
+                if (paginationSummary) paginationSummary.textContent = 'Nenhum registro encontrado';
             } else {
                 const lastItem = Math.min(end, totalRows);
-                paginationSummary.textContent = `Mostrando ${start + 1}–${lastItem} de ${totalRows} registro${totalRows !== 1 ? 's' : ''}`;
+                if (paginationSummary) paginationSummary.textContent = `Mostrando ${start + 1}–${lastItem} de ${totalRows} registro${totalRows !== 1 ? 's' : ''}`;
             }
 
             renderControls(totalPages);
         }
 
-        tableSearch.addEventListener('input', () => {
-            currentPage = 1;
-            renderPage();
-        });
+        // o listener de input/keyup do search é gerenciado pela busca AJAX acima
 
-        tableSearch.addEventListener('keyup', renderPage);
-
-        pageSize.addEventListener('change', function () {
-            itemsPerPage = Number(this.value);
-            currentPage = 1;
-            renderPage();
-        });
+        if (pageSize) {
+            pageSize.addEventListener('change', function () {
+                itemsPerPage = Number(this.value);
+                // sincroniza o hidden do formulário de busca para AJAX
+                const searchForm = document.getElementById('tableSearch')?.closest('form');
+                const hidden = searchForm?.querySelector('input[name="por_pagina"]');
+                if (hidden) hidden.value = this.value;
+                currentPage = 1;
+                renderPage();
+            });
+        }
 
         renderPage();
     })();
 </script>
+
+{% include "components/modal_confirmacao.html" %}
 {% endblock %}

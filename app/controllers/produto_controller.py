@@ -1,7 +1,6 @@
 import os
 import shutil
 import uuid
-from types import SimpleNamespace
 from typing import Optional, List
 from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, status
 from fastapi.responses import RedirectResponse
@@ -13,6 +12,7 @@ from app.database import get_db
 from app.models.produto import Produto
 from app.models.variacoes import Variacao
 from app.models.categoria import Categoria
+from app.models.variacoes import Variacao
 from app.auth import get_usuario_logado, get_admin
 from app.pagination import paginar
 
@@ -52,7 +52,6 @@ async def _salvar_imagem_variacao(imagem: UploadFile | None):
     conteudo = await imagem.read()
     with open(caminho_completo, "wb") as f:
         f.write(conteudo)
-    
     return f"uploads/{nome_unico}"
 
 
@@ -116,7 +115,7 @@ def _parse_variacoes(
             variacoes.append(variacao)
 
     return variacoes, None
-# ============================================================
+# ===============b=============================================
 # LISTAGEM
 # ============================================================
 
@@ -126,7 +125,7 @@ def listar_produtos(
     busca: str = "",
     categoria_id: int = 0,
     pagina: int = 1,
-    por_pagina: int = 40,
+    por_pagina: int = 16,
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado)
 ):
@@ -140,38 +139,41 @@ def listar_produtos(
 
     ordered_query = query.order_by(Produto.nome)
 
-    # Se há filtro ativo (busca ou categoria), mostra TODOS os resultados sem paginação
+    resultado = paginar(ordered_query, pagina, por_pagina)
+
+    # Os cards resumem o resultado atual da busca/categoria quando houver filtro,
+    # e o estoque global quando a listagem não estiver filtrada.
+    filtered_query = query
     if busca or categoria_id:
-        produtos_lista = ordered_query.all()
-        total_itens = len(produtos_lista)
-        # Retorna TODOS os itens em uma única página (ignora por_pagina)
-        resultado = SimpleNamespace(
-            itens=produtos_lista,
-            atual=1,
-            por_pagina=total_itens if total_itens > 0 else 1,  # Mostra todos em uma página
-            total_itens=total_itens,
-            total_paginas=1
+        total_estoque = (
+            db.query(func.coalesce(func.sum(Variacao.estoque_atual), 0))
+            .join(Produto, Variacao.produto_id == Produto.id)
+            .filter(Produto.id.in_([p.id for p in filtered_query.all()]))
+            .scalar()
+        )
+        total_esgotados = (
+            db.query(Produto.id)
+            .outerjoin(Variacao)
+            .filter(Produto.id.in_([p.id for p in filtered_query.all()]))
+            .group_by(Produto.id)
+            .having(func.coalesce(func.sum(Variacao.estoque_atual), 0) == 0)
+            .count()
         )
     else:
-        # Sem filtro, aplica paginação normal
-        resultado = paginar(ordered_query, pagina, por_pagina)
-
-    # Os cards resumem todo o estoque ativo, e não somente os produtos
-    # carregados na página atual da listagem.
-    total_estoque = (
-        db.query(func.coalesce(func.sum(Variacao.estoque_atual), 0))
-        .join(Produto, Variacao.produto_id == Produto.id)
-        .filter(Produto.ativo == True)
-        .scalar()
-    )
-    total_esgotados = (
-        db.query(Produto.id)
-        .outerjoin(Variacao)
-        .filter(Produto.ativo == True)
-        .group_by(Produto.id)
-        .having(func.coalesce(func.sum(Variacao.estoque_atual), 0) == 0)
-        .count()
-    )
+        total_estoque = (
+            db.query(func.coalesce(func.sum(Variacao.estoque_atual), 0))
+            .join(Produto, Variacao.produto_id == Produto.id)
+            .filter(Produto.ativo == True)
+            .scalar()
+        )
+        total_esgotados = (
+            db.query(Produto.id)
+            .outerjoin(Variacao)
+            .filter(Produto.ativo == True)
+            .group_by(Produto.id)
+            .having(func.coalesce(func.sum(Variacao.estoque_atual), 0) == 0)
+            .count()
+        )
 
     categorias = db.query(Categoria).filter(Categoria.ativa == True).all()
 
@@ -335,6 +337,17 @@ async def criar_produto(
             Variacao(tamanho="Único", cor="Padrão", estoque_atual=estoque_atual)
         )
 
+    # A variação padrão sempre usa a mesma chave de identificação e a mesma
+    # normalização da model (`tamanho` em maiúsculas), então não pode ser
+    # duplicada mesmo quando o formulário vier com "Único" ou "ÚNICO".
+    if variacoes and not any(
+        (v.tamanho or "").strip().upper() == "ÚNICO" and (v.cor or "").strip() == "Padrão"
+        for v in variacoes
+    ):
+        produto.variacoes.append(
+            Variacao(tamanho="Único", cor="Padrão", estoque_atual=estoque_atual)
+        )
+
     db.add(produto)
     db.commit()
 
@@ -461,58 +474,9 @@ async def editar_produto(
         _remover_imagem(editando.imagem_path)
         editando.imagem_path = nova_imagem_path
 
-    # Processa imagens das variações
-    imagens_variacoes = form_data.getlist("variacoes_imagem")
-    imagens_paths = []
-    for imagem in imagens_variacoes:
-        if imagem and imagem.filename:
-            path = await _salvar_imagem_variacao(imagem)
-            imagens_paths.append(path)
-        else:
-            imagens_paths.append(None)
-
-    # Parse das variações com suporte a imagens
-    variacoes, variacoes_erro = _parse_variacoes(
-        variacoes_tamanho, variacoes_cor, variacoes_estoque, imagens_paths
-    )
-
-    if variacoes_erro:
-        return templates.TemplateResponse(
-            request,
-            "produtos/form.html",
-            {
-                "request": request,
-                "usuario": admin,
-                "editando": editando,
-                "categorias": categorias,
-                "erro": variacoes_erro,
-                "valores": {
-                    "nome": nome,
-                    "preco": preco,
-                    "categoria_id": categoria_id,
-                    "ativo": ativo is not None,
-                },
-                "variacoes_valores": [{
-                    "tamanho": variacoes_tamanho[i] if i < len(variacoes_tamanho) else "",
-                    "cor": variacoes_cor[i] if i < len(variacoes_cor) else "",
-                    "estoque": variacoes_estoque[i] if i < len(variacoes_estoque) else "",
-                } for i in range(max(len(variacoes_tamanho), len(variacoes_cor), len(variacoes_estoque)))],
-            },
-            status_code=400,
-        )
-
-    if variacoes:
-        # Remove explicitamente as variações antigas do banco
-        db.query(Variacao).filter(Variacao.produto_id == produto_id).delete()
-        db.flush()  # Força a remoção antes de adicionar novos
-        editando.variacoes.extend(variacoes)
-    elif estoque_atual is not None:
-        # Ajusta o total quando não há variações explícitas
-        diferenca = estoque_atual - editando.estoque_total
-        if diferenca > 0:
-            editando.adicionar_estoque(diferenca)
-        elif diferenca < 0:
-            editando.retirar_estoque(-diferenca)
+    # O formulário informa o saldo total; ele é salvo na variação padrão.
+    if estoque_atual is not None:
+        editando.estoque_total = estoque_atual
 
     editando.nome          = nome
     editando.preco         = preco

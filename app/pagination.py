@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from math import ceil
 
 
-TAMANHOS_DE_PAGINA = (16, 40, 64)
+TAMANHOS_DE_PAGINA = (16,)
 
 
 @dataclass(frozen=True)
@@ -14,9 +14,9 @@ class Pagina:
     total_paginas: int
 
 
-def paginar(query, pagina: int = 1, por_pagina: int = 40) -> Pagina:
+def paginar(query, pagina: int = 1, por_pagina: int = 16) -> Pagina:
     """Aplica uma paginação segura e padronizada a uma query SQLAlchemy."""
-    por_pagina = por_pagina if por_pagina in TAMANHOS_DE_PAGINA else 40
+    por_pagina = por_pagina if por_pagina in TAMANHOS_DE_PAGINA else 16
     total_itens = query.order_by(None).count()
     total_paginas = max(ceil(total_itens / por_pagina), 1)
     atual = min(max(pagina, 1), total_paginas)

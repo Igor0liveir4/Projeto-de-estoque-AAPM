@@ -18,7 +18,7 @@ def listar_clientes(
     busca: str = "",
     apenas_associados: bool = False,
     pagina: int = 1,
-    por_pagina: int = 10,
+    por_pagina: int = 16,
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
@@ -105,7 +105,6 @@ def form_editar(
         {"request": request, "usuario": admin, "editando": editando}
     )
 
-
 @router.post("/{cliente_id}/editar")
 def editar(
     cliente_id: int,
@@ -139,4 +138,4 @@ def toggle_ativo(
     if cliente:
         cliente.ativo = not cliente.ativo
         db.commit()
-    return RedirectResponse(url="/clientes", status_code=302)
+    return RedirectResponse(url="/cliente", status_code=302)
