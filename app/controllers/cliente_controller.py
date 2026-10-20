@@ -18,7 +18,7 @@ def listar_clientes(
     busca: str = "",
     apenas_associados: bool = False,
     pagina: int = 1,
-    por_pagina: int = 10,
+    por_pagina: int = 16,
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
@@ -42,7 +42,7 @@ def listar_clientes(
 
     return templates.TemplateResponse(
         request,
-        "cliente/index.html",
+        "Cliente/index.html",
         {
             "request":           request,
             "usuario":           admin,
@@ -62,7 +62,7 @@ def listar_clientes(
 def form_novo(request: Request, admin = Depends(get_admin)):
     return templates.TemplateResponse(
         request,
-        "cliente/form.html",
+        "Cliente/form.html",
         {"request": request, "usuario": admin, "editando": None}
     )
 
@@ -101,10 +101,9 @@ def form_editar(
 
     return templates.TemplateResponse(
         request,
-        "cliente/form.html",
+        "Cliente/form.html",
         {"request": request, "usuario": admin, "editando": editando}
     )
-
 
 @router.post("/{cliente_id}/editar")
 def editar(

@@ -1,7 +1,6 @@
 import os
 import shutil
 import uuid
-from types import SimpleNamespace
 from typing import Optional, List
 from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, status
 from fastapi.responses import RedirectResponse
@@ -126,7 +125,7 @@ def listar_produtos(
     busca: str = "",
     categoria_id: int = 0,
     pagina: int = 1,
-    por_pagina: int = 40,
+    por_pagina: int = 16,
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado)
 ):
@@ -140,21 +139,7 @@ def listar_produtos(
 
     ordered_query = query.order_by(Produto.nome)
 
-    # Se há filtro ativo (busca ou categoria), mostra TODOS os resultados sem paginação
-    if busca or categoria_id:
-        produtos_lista = ordered_query.all()
-        total_itens = len(produtos_lista)
-        # Retorna TODOS os itens em uma única página (ignora por_pagina)
-        resultado = SimpleNamespace(
-            itens=produtos_lista,
-            atual=1,
-            por_pagina=total_itens if total_itens > 0 else 1,  # Mostra todos em uma página
-            total_itens=total_itens,
-            total_paginas=1
-        )
-    else:
-        # Sem filtro, aplica paginação normal
-        resultado = paginar(ordered_query, pagina, por_pagina)
+    resultado = paginar(ordered_query, pagina, por_pagina)
 
     # Os cards resumem o resultado atual da busca/categoria quando houver filtro,
     # e o estoque global quando a listagem não estiver filtrada.

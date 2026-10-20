@@ -17,7 +17,7 @@
                 informada' }}</p>
             {% if erro %}<div class="alert error"><i class="fas fa-circle-exclamation"></i> {{ erro }}</div>{% endif %}
 
-            <form action="/armarios/{{ armario.id }}/editar-locacao" method="post">
+            <form action="/armarios/{{ armario.id }}/editar-locacao" method="post" data-confirm-message="Confirma as alteracoes desta locacao?">
                 <div class="field">
                     <label for="locatario_nome">Nome do locatário <span style="color: #ef4444;">*</span></label>
                     <input id="locatario_nome" type="text" name="locatario_nome"
