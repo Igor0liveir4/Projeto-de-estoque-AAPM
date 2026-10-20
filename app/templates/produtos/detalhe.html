@@ -7,13 +7,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
+    .detail-container { --detail-bg: var(--bg-base); --detail-card: var(--bg-card); --detail-text: var(--text-primary); --detail-border: var(--border); }
+    :root[data-theme="light"] .detail-container { --detail-bg: #f1f5f9; --detail-card: #fff; --detail-text: #172033; --detail-border: rgba(15, 23, 42, 0.12); }
     .page-wrapper {
         min-height: 85vh;
         display: flex;
         align-items: center;
         justify-content: center;
         font-family: 'Sora', sans-serif;
-        background-color: #000000;
+        background-color: var(--detail-bg);
         /* Mesmo fundo escuro das telas anteriores */
         padding: 40px 20px;
     }
@@ -24,9 +26,9 @@
     }
 
     .detail-card {
-        background: #050505;
+        background: var(--detail-card);
         /* Mesma superfície interna */
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--detail-border);
         border-radius: 24px;
         box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
         overflow: hidden;
@@ -46,7 +48,7 @@
     }
 
     .btn-back:hover {
-        color: #f8fafc;
+        color: var(--detail-text);
     }
 
     /* Grid de Informações Internas */
@@ -74,7 +76,7 @@
     .variations-table td {
         padding: 12px 14px;
         border: 1px solid rgba(255, 255, 255, 0.08);
-        color: #f8fafc;
+        color: var(--detail-text);
         font-size: 13px;
     }
 
@@ -91,7 +93,7 @@
     }
 
     .variation-heading {
-        color: #f8fafc;
+        color: var(--detail-text);
         font-size: 16px;
         margin: 20px 0 10px;
         font-weight: 600;
@@ -107,11 +109,18 @@
     }
 
     .info-value {
-        color: #f8fafc;
+        color: var(--detail-text);
         font-size: 16px;
         font-weight: 600;
         margin: 0;
     }
+
+    :root[data-theme="light"] .detail-card h2[style] { color: var(--detail-text) !important; }
+    :root[data-theme="light"] .info-block,
+    :root[data-theme="light"] .variations-table tbody tr:nth-child(even) { background: #f8fafc; }
+    :root[data-theme="light"] .variations-table th,
+    :root[data-theme="light"] .variations-table td { border-color: var(--detail-border); }
+    :root[data-theme="light"] .btn-back:hover { color: #1d4ed8; }
 
     /* Botões Pequenos e Alinhados */
     .btn-edit {

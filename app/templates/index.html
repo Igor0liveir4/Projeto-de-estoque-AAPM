@@ -604,12 +604,15 @@
                     Vitrine da Associação
                 </div>
 
+<<<<<<< HEAD
                 <!-- BOTÃO DE ALTERNAR TEMA ADICIONADO NO HTML -->
                 <button type="button" class="btn-theme-toggle" onclick="toggleTema()"
                     title="Alternar Modo Claro / Escuro">
                     <i class="fas fa-moon" id="theme-icon"></i>
                     <span id="theme-text">Modo Escuro</span>
                 </button>
+=======
+>>>>>>> d134bf3836659dfb87573c2990c00d771242dfc5
             </div>
 
             <h1>Seja Bem-Vindo à<br><span>AAPM SENAI</span></h1>
@@ -767,33 +770,6 @@
         }
     });
 
-    // Função do Botão de Alternar Tema
-    function toggleTema() {
-        const body = document.body;
-        const icon = document.getElementById("theme-icon");
-        const text = document.getElementById("theme-text");
-
-        body.classList.toggle("light-mode");
-        const isLight = body.classList.contains("light-mode");
-
-        if (isLight) {
-            icon.className = "fas fa-sun";
-            text.textContent = "Modo Claro";
-            localStorage.setItem("tema-aapm", "light");
-        } else {
-            icon.className = "fas fa-moon";
-            text.textContent = "Modo Escuro";
-            localStorage.setItem("tema-aapm", "dark");
-        }
-    }
-
-    // Restaura a preferência salva ao carregar a página
-    document.addEventListener("DOMContentLoaded", function () {
-        const temaSalvo = localStorage.getItem("tema-aapm");
-        if (temaSalvo === "light") {
-            toggleTema();
-        }
-    });
 </script>
 
 {% endblock %}

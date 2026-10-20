@@ -10,16 +10,16 @@
 <style>
     /* VARIÁVEIS DE COR PADRONIZADAS (Baseadas no Design System) */
     :root {
-        --bg-main: #0a0f18; /* Fundo geral mais escuro */
-        --bg-card: #111622; /* Fundo dos cards/formulários */
-        --bg-input: #080c13; /* Fundo dos inputs e buscas */
-        --border: #1e2638; /* Bordas sutis */
-        --border-hover: #2d3748;
+        --bg-main: var(--bg-base);
+        --bg-card: var(--bg-surface);
+        --bg-input: var(--bg-base);
+        --border: rgba(99, 179, 237, 0.14);
+        --border-hover: rgba(99, 179, 237, 0.28);
         --accent: #4a72ff; /* Azul vibrante dos botões */
         --accent-light: #6b8cff; /* Azul hover */
         --accent-glow: rgba(74, 114, 255, 0.2);
-        --text-main: #f8fafc;
-        --text-muted: #8b9bb4;
+        --text-main: var(--text-primary);
+        --text-muted: var(--text-secondary);
         --radius: 12px;
         --transition: 0.2s ease;
         
@@ -29,9 +29,19 @@
         --danger: #ef4444;
     }
 
+    :root[data-theme="light"] {
+        --bg-main: #f1f5f9;
+        --bg-card: #ffffff;
+        --bg-input: #f8fafc;
+        --border: rgba(15, 23, 42, 0.12);
+        --border-hover: rgba(15, 23, 42, 0.22);
+        --text-main: #172033;
+        --text-muted: #64748b;
+    }
+
     .page-wrapper {
         min-height: 90vh;
-        background: var(--bg-main);
+        background: transparent;
         font-family: 'Plus Jakarta Sans', sans-serif;
         padding: 40px 20px;
         display: flex;
@@ -351,7 +361,7 @@
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
             <div>
-                <h1 style="font-family: 'Syne', sans-serif; font-size: 34px; font-weight: 800; letter-spacing: -1px; color: var(--text-main); margin: 0 0 10px 0; line-height: 1;">
+                <h1 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 34px; font-weight: 800; letter-spacing: -1px; color: var(--text-main); margin: 0 0 10px 0; line-height: 1;">
                     Gerenciar <span style="color: var(--accent);">Produtos</span>
                 </h1>
                 <p style="color: var(--text-muted); font-size: 14px; margin: 0;">

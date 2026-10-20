@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+<script>
+    (function () {
+        try {
+            if (localStorage.getItem('tema-aapm') === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        } catch (e) { }
+    })();
+</script>
 
 <head>
     <meta charset="UTF-8">
@@ -37,6 +46,62 @@
             --senai-blue: #0054a6;
             --senai-yellow: #ffcb05;
         }
+
+        :root[data-theme="light"] {
+            color-scheme: light;
+            --bg-base: #f1f5f9;
+            --bg-surface: #ffffff;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f8fafc;
+            --border: rgba(15, 23, 42, 0.12);
+            --border-hover: rgba(15, 23, 42, 0.24);
+            --text-primary: #172033;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+        }
+
+        :root[data-theme="light"] body {
+            background-image: linear-gradient(rgba(37, 99, 235, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(37, 99, 235, 0.035) 1px, transparent 1px);
+        }
+
+        :root[data-theme="light"] header { background: rgba(255, 255, 255, 0.92); }
+        :root[data-theme="light"] .sidebar { background: #fff; }
+        :root[data-theme="light"] .nav-btn { color: #475569; }
+        :root[data-theme="light"] .nav-btn:hover,
+        :root[data-theme="light"] .nav-btn.active { color: #1d4ed8; background: rgba(37, 99, 235, 0.08); }
+        :root[data-theme="light"] .nav-btn.logout { color: #dc2626; }
+        :root[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]),
+        :root[data-theme="light"] select,
+        :root[data-theme="light"] textarea {
+            color: #172033 !important;
+            background-color: #fff !important;
+            border-color: rgba(15, 23, 42, 0.18) !important;
+        }
+        :root[data-theme="light"] input::placeholder,
+        :root[data-theme="light"] textarea::placeholder { color: #64748b; }
+        :root[data-theme="light"] table { color: #172033; }
+        :root[data-theme="light"] main :is(h1, h2, h3, h4, p, label, td, th, legend) {
+            color: #1e293b !important;
+        }
+        :root[data-theme="light"] main :is(.page-title, .dashboard-title, .info-value, .metric-value, .stat-value, .form-title, .product-name) {
+            color: #1e293b !important;
+        }
+        :root[data-theme="light"] th { color: #475569; }
+        :root[data-theme="light"] td,
+        :root[data-theme="light"] th { border-color: rgba(15, 23, 42, 0.1); }
+        :root[data-theme="light"] .btn-theme-toggle {
+            color: #334155; background: rgba(15, 23, 42, 0.04); border-color: rgba(15, 23, 42, 0.15);
+        }
+        :root[data-theme="light"] .btn-theme-toggle:hover { color: #1d4ed8; background: rgba(37, 99, 235, 0.08); }
+
+        .btn-theme-toggle {
+            display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto;
+            padding: 8px 11px; border: 1px solid var(--border); border-radius: 9px;
+            background: rgba(255,255,255,.05); color: var(--text-primary); cursor: pointer;
+            font: 600 12px 'DM Sans', sans-serif; transition: .2s ease;
+        }
+        .btn-theme-toggle:hover { border-color: var(--accent); }
+        .btn-theme-toggle span { white-space: nowrap; }
 
         *,
         *::before,
@@ -930,6 +995,10 @@
                     </a>
                 </div>
                 {% endif %}
+                <button type="button" class="btn-theme-toggle" id="theme-toggle" onclick="toggleTema()" aria-label="Ativar tema claro" title="Alternar tema">
+                    <i class="fas fa-moon" id="theme-icon" aria-hidden="true"></i>
+                    <span id="theme-text">Tema escuro</span>
+                </button>
             </div>
         </div>
     </header>
@@ -1045,6 +1114,23 @@
         </div>
     </div>
     <script>
+        function atualizarBotaoTema() {
+            var claro = document.documentElement.getAttribute('data-theme') === 'light';
+            var icon = document.getElementById('theme-icon');
+            var text = document.getElementById('theme-text');
+            var button = document.getElementById('theme-toggle');
+            if (icon) icon.className = claro ? 'fas fa-sun' : 'fas fa-moon';
+            if (text) text.textContent = claro ? 'Tema claro' : 'Tema escuro';
+            if (button) button.setAttribute('aria-label', claro ? 'Ativar tema escuro' : 'Ativar tema claro');
+        }
+        function toggleTema() {
+            var claro = document.documentElement.getAttribute('data-theme') !== 'light';
+            document.documentElement.setAttribute('data-theme', claro ? 'light' : 'dark');
+            try { localStorage.setItem('tema-aapm', claro ? 'light' : 'dark'); } catch (e) { }
+            atualizarBotaoTema();
+        }
+        atualizarBotaoTema();
+
         (function () {
             function normalizePath(path) {
                 return path.length > 1 ? path.replace(/\/+$/, '') : path;
