@@ -392,6 +392,21 @@
         box-shadow: 0 8px 18px rgba(37, 99, 235, .23);
     }
 
+    :root[data-theme="light"] .product-heading h1,
+    :root[data-theme="light"] .field label { color: #172033 !important; }
+    :root[data-theme="light"] .field input,
+    :root[data-theme="light"] .field select,
+    :root[data-theme="light"] .field select option {
+        background-color: #fff !important;
+        color: #172033 !important;
+        border-color: rgba(15, 23, 42, .18);
+    }
+    :root[data-theme="light"] .field input:focus,
+    :root[data-theme="light"] .field select:focus { background-color: #fff !important; }
+    :root[data-theme="light"] .field input::placeholder { color: #64748b; }
+    :root[data-theme="light"] .button-secondary { color: #475569; }
+    :root[data-theme="light"] .button-secondary:hover { color: #172033; }
+
     @media (max-width: 720px) {
         .product-page {
             padding: 26px 15px 40px;
