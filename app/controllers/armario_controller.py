@@ -31,7 +31,7 @@ def listar_armarios(
     status: str = "",           # filtra por status
     localizacao: str = "",      # filtra por localização
     pagina: int = 1,
-    por_pagina: int = 10,
+    por_pagina: int = 16,
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado)
 ):

@@ -457,7 +457,7 @@
     <div class="form-alert"><i class="fas fa-circle-exclamation"></i> <span>{{ erro }}</span></div>
     {% endif %}
 
-    <form method="POST" enctype="multipart/form-data" class="product-form">
+    <form method="POST" enctype="multipart/form-data" class="product-form" data-confirm-message="{{ 'Confirma as alteracoes deste produto?' if editando else 'Confirma o cadastro deste produto?' }}">
         <div class="form-layout">
             <section class="form-primary">
                 <h2 class="section-title"><i class="fas fa-pen"></i> Dados do produto</h2>

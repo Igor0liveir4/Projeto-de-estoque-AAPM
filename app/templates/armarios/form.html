@@ -19,7 +19,7 @@
             {% if erro %}<div class="alert error"><i class="fas fa-circle-exclamation"></i> {{ erro }}</div>{% endif %}
 
             <form action="{{ '/armarios/' + editando.id|string + '/editar' if editando else '/armarios/novo' }}"
-                method="post">
+                method="post" data-confirm-message="{{ 'Confirma as alteracoes deste armario?' if editando else 'Confirma o cadastro deste armario?' }}">
                 <div class="field">
                     <label for="numero">Número do armário</label>
                     <input id="numero" type="text" name="numero" placeholder="Ex.: A01, B12, 42"
