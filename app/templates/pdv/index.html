@@ -188,6 +188,7 @@
         font-size: 12px;
         display: -webkit-box;
         -webkit-box-orient: vertical;
+        line-clamp: 2;
         -webkit-line-clamp: 2;
         overflow: hidden;
     }
@@ -237,6 +238,7 @@
         min-height: 2.6em;
         overflow: hidden;
         -webkit-box-orient: vertical;
+        line-clamp: 2;
         -webkit-line-clamp: 2;
     }
 
@@ -321,8 +323,10 @@
         display: flex;
         flex-direction: column;
         background: var(--bg-surface);
+        border-left: 1px solid var(--border);
         overflow: hidden;
         min-width: 0;
+        min-height: 0;
     }
 
     .carrinho-header {
@@ -530,6 +534,9 @@
         border-top: 1px solid var(--border);
         padding: 16px 20px 20px;
         flex-shrink: 0;
+        background: var(--bg-surface);
+        position: relative;
+        z-index: 1;
     }
 
     .total-linha {
@@ -722,6 +729,138 @@
         text-overflow: ellipsis;
         /* Corta o texto com '...' se for muito longo */
     }
+
+    .carrinho-header-inline {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .btn-limpar-carrinho {
+        background: transparent;
+        border: 0;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: color var(--transition);
+    }
+
+    .btn-limpar-carrinho:hover {
+        color: #fca5a5;
+    }
+
+    .pagamentos-wrap {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+    }
+
+    .pagamentos-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .pagamentos-header label {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .btn-add-pagamento {
+        background: var(--accent);
+        color: white;
+        border: 0;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background var(--transition);
+    }
+
+    .btn-add-pagamento:hover {
+        background: var(--accent-light);
+    }
+
+    .pagamentos-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .pagamento-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--bg-card);
+    }
+
+    .pagamento-tipo {
+        flex: 1;
+        min-width: 120px;
+        font-size: 13px;
+        color: var(--text-primary);
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+    }
+
+    .pagamento-valor-wrap {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        color: var(--text-primary);
+    }
+
+    .pagamento-valor {
+        width: 100px;
+        padding: 8px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--bg-card);
+        color: var(--text-primary);
+        font-weight: 500;
+        text-align: right;
+    }
+
+    .btn-remover-pagamento {
+        background: transparent;
+        border: 0;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 4px;
+        transition: color var(--transition), background var(--transition);
+    }
+
+    .btn-remover-pagamento:hover {
+        color: #f87171;
+        background: rgba(239, 68, 68, 0.1);
+    }
+
+    .pagamento-restante {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-top: 8px;
+        text-align: right;
+    }
 </style>
 {% endblock %}
 
@@ -767,7 +906,7 @@
                     <div class="produto-conteudo">
                     <span class="produto-nome">{{ p.nome }}</span>
                     <span class="produto-preco">R$ {{ "%.2f"|format(p.preco) }}</span>
-                    <span class="produto-estoque">
+                    <span class="produto-estoque>
                         {% if p.estoque_total == 0 %}
                         Sem estoque
                         {% else %}
@@ -828,6 +967,12 @@
 
         <!-- Totais + finalizar -->
         <div class="carrinho-footer">
+            <div class="carrinho-header-inline">
+                <button type="button" class="btn-limpar-carrinho" onclick="limparCarrinho()" title="Limpar carrinho">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+
             <div class="total-linha">
                 <span>Subtotal</span>
                 <span id="subtotal-val">R$ 0,00</span>
@@ -841,16 +986,26 @@
                 <span id="total-val">R$ 0,00</span>
             </div>
 
+            <div class="pagamentos-wrap">
+                <div class="pagamentos-header">
+                    <label>Formas de pagamento</label>
+                    <button type="button" id="btn-add-pagamento" class="btn-add-pagamento">+ Outra</button>
+                </div>
+                <div id="pagamentos-list" class="pagamentos-list"></div>
+                <div class="pagamento-restante" id="pagamento-restante">Restante: R$ 0,00</div>
+            </div>
+
             <div class="obs-wrap">
                 <label>Observação</label>
                 <textarea id="obs-input" placeholder="Opcional…"></textarea>
             </div>
 
-            <form id="form-venda" method="POST" action="/pdv/finalizar" data-confirm-message="Confirma a finalizacao desta venda?">
+            <form id="form-venda" method="POST" action="/pdv/finalizar">
                 <input type="hidden" name="carrinho_json" id="carrinho-json-input">
                 <input type="hidden" name="cliente_id" id="cliente-id-input" value="0">
                 <input type="hidden" name="observacao" id="obs-hidden-input">
-                <button id="btn-finalizar" type="submit" disabled>
+                <input type="hidden" name="pagamentos_json" id="pagamentos-json-input" value="[]">
+                <button id="btn-finalizar" type="button" disabled>
                     <i class="fas fa-check-circle"></i>
                     Finalizar Venda
                 </button>
@@ -894,9 +1049,124 @@
 let carrinho = JSON.parse(sessionStorage.getItem('pdv-carrinho') || '[]')
     .filter(item => Number.isInteger(item.variacao_id));
 let isAssociado = false;
+const MAX_PAGAMENTOS = 2;
+const PLACEHOLDER_IMAGEM = '/static/img/produto-placeholder.png';
+let formasPagamento = [{ tipo: '', valor: '' }];
+
+function resolverImagemUrl(url) {
+    if (typeof url !== 'string') return PLACEHOLDER_IMAGEM;
+    const valor = url.trim();
+    if (!valor || valor === 'null' || valor === 'undefined') return PLACEHOLDER_IMAGEM;
+    return valor;
+}
 
 // Captura o valor do desconto vindo do Jinja2 com segurança
 const DESCONTO_PCT = parseFloat("{{ desconto_associado }}") || 0;
+
+function criarLinhaPagamento(index = 0) {
+    const row = document.createElement('div');
+    row.className = 'pagamento-row';
+    row.dataset.index = index;
+    row.innerHTML = `
+        <select class="pagamento-tipo" aria-label="Forma de pagamento">
+            <option value="">Selecione</option>
+            <option value="Cartão">Cartão</option>
+            <option value="Pix">Pix</option>
+            <option value="Dinheiro">Dinheiro</option>
+            <option value="Transferência">Transferência</option>
+        </select>
+        <div class="pagamento-valor-wrap">
+            <span>R$</span>
+            <input type="number" class="pagamento-valor" min="0" step="0.01" placeholder="0,00" aria-label="Valor do pagamento">
+        </div>
+        <button type="button" class="btn-remover-pagamento" title="Remover forma de pagamento" aria-label="Remover forma de pagamento">
+            <i class="fas fa-trash"></i>
+        </button>
+    `;
+
+    row.querySelector('.pagamento-tipo').value = formasPagamento[index]?.tipo || '';
+    row.querySelector('.pagamento-valor').value = formasPagamento[index]?.valor || '';
+
+    row.querySelector('.btn-remover-pagamento').addEventListener('click', () => {
+        const list = document.getElementById('pagamentos-list');
+        const linhas = [...list.querySelectorAll('.pagamento-row')];
+        if (linhas.length <= 1) {
+            formasPagamento[0] = { tipo: '', valor: '' };
+            renderPagamentos();
+            return;
+        }
+
+        formasPagamento.splice(index, 1);
+        renderPagamentos();
+    });
+
+    row.querySelector('.pagamento-tipo').addEventListener('change', (event) => {
+        formasPagamento[index].tipo = event.target.value;
+        atualizarPagamentoResumo();
+        syncPagamentosHidden();
+    });
+
+    row.querySelector('.pagamento-valor').addEventListener('input', (event) => {
+        const valor = parseFloat(event.target.value || 0);
+        formasPagamento[index].valor = Number.isFinite(valor) ? valor : 0;
+        atualizarPagamentoResumo();
+        syncPagamentosHidden();
+    });
+
+    return row;
+}
+
+function renderPagamentos() {
+    const list = document.getElementById('pagamentos-list');
+    list.innerHTML = '';
+
+    formasPagamento.forEach((pagamento, index) => {
+        const row = criarLinhaPagamento(index);
+        list.appendChild(row);
+    });
+
+    const addBtn = document.getElementById('btn-add-pagamento');
+    addBtn.disabled = formasPagamento.length >= MAX_PAGAMENTOS;
+    addBtn.style.opacity = addBtn.disabled ? '0.5' : '1';
+    addBtn.style.cursor = addBtn.disabled ? 'not-allowed' : 'pointer';
+
+    atualizarPagamentoResumo();
+    syncPagamentosHidden();
+}
+
+function adicionarPagamento() {
+    if (formasPagamento.length >= MAX_PAGAMENTOS) return;
+    formasPagamento.push({ tipo: '', valor: '' });
+    renderPagamentos();
+}
+
+function syncPagamentosHidden() {
+    const form = document.getElementById('pagamentos-json-input');
+    const pagamentosValidos = formasPagamento
+        .filter(item => item.tipo && Number(item.valor) > 0)
+        .map(item => ({ tipo: item.tipo, valor: Number(item.valor) }));
+    form.value = JSON.stringify(pagamentosValidos);
+}
+
+function atualizarPagamentoResumo() {
+    const totalAtual = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
+    const valorPago = formasPagamento
+        .filter(item => item.tipo && Number(item.valor) > 0)
+        .reduce((sum, item) => sum + Number(item.valor || 0), 0);
+    const elem = document.getElementById('pagamento-restante');
+
+    const valorFinal = isAssociado ? totalAtual * (1 - DESCONTO_PCT / 100) : totalAtual;
+    const restanteFinal = Math.max(0, valorFinal - valorPago);
+    elem.textContent = 'Restante: ' + fmtBRL(restanteFinal);
+    elem.style.color = restanteFinal > 0 ? '#fbbf24' : '#6ee7b7';
+}
+
+window.limparCarrinho = function () {
+    carrinho = [];
+    sessionStorage.removeItem('pdv-carrinho');
+    renderCarrinho();
+    mostrarErro('Carrinho limpo.');
+};
 
 // ── Busca ──────────────────────────────────────
 const campoBuscaProduto = document.getElementById('busca-produto');
@@ -1023,7 +1293,7 @@ function adicionarVariacaoSelecionada(variacao, quantidade) {
             preco: parseFloat(produtoSelecionado.dataset.preco),
             quantidade,
             estoque_max: variacao.estoque,
-            imagem: produtoSelecionado.dataset.imagem || '/static/img/produto-placeholder.png'
+            imagem: resolverImagemUrl(produtoSelecionado.dataset.imagem || PLACEHOLDER_IMAGEM)
         });
     }
 
@@ -1093,21 +1363,22 @@ function renderCarrinho() {
         wrapper.querySelectorAll('.item-linha').forEach(el => el.remove());
         linDesc.style.display = 'none';
         setTotais(0, 0);
+        atualizarPagamentoResumo();
         return;
     }
 
     vazio.style.display = 'none';
-
     // Rebuild item lines
     wrapper.querySelectorAll('.item-linha').forEach(el => el.remove());
 
     carrinho.forEach(item => {
         const subtotal = item.preco * item.quantidade;
+        const imgUrl = resolverImagemUrl(item.imagem || PLACEHOLDER_IMAGEM);
         const div = document.createElement('div');
         div.className = 'item-linha';
         div.innerHTML = `
     <div class="item-info-wrap">
-        <img src="${item.imagem}" alt="${esc(item.nome)}" class="item-img-miniatura">
+        <img src="${imgUrl}" alt="${esc(item.nome)}" class="item-img-miniatura" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGEM}';">
         <div class="item-nome">${esc(item.nome)}<br><small>${esc(item.tamanho)} / ${esc(item.cor)}</small></div>
     </div>
     <div class="qty-ctrl">
@@ -1129,6 +1400,7 @@ function renderCarrinho() {
     linDesc.style.display = isAssociado ? 'flex' : 'none';
     document.getElementById('desconto-val').textContent = '− ' + fmtBRL(desconto);
     setTotais(bruto, liquido);
+    atualizarPagamentoResumo();
 
     // Monta hidden inputs para o form
     const itensParaForm = carrinho.map(i => ({
@@ -1147,7 +1419,7 @@ function setTotais(bruto, liquido) {
 
 // ── Utilitários ────────────────────────────────
 function fmtBRL(v) {
-    return 'R$ ' + v.toFixed(2).replace('.', ',');
+    return 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',');
 }
 
 function esc(s) {
@@ -1168,6 +1440,46 @@ function limparErro() {
     document.getElementById('erro-bar').style.display = 'none';
 }
 
+const formsBtn = document.getElementById('btn-add-pagamento');
+formsBtn.addEventListener('click', adicionarPagamento);
+
+document.getElementById('btn-finalizar').addEventListener('click', function (event) {
+    const totalAtual = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
+    const valorPago = formasPagamento
+        .filter(item => item.tipo && Number(item.valor) > 0)
+        .reduce((sum, item) => sum + Number(item.valor || 0), 0);
+    const valorFinal = isAssociado ? totalAtual * (1 - DESCONTO_PCT / 100) : totalAtual;
+
+    document.getElementById('obs-hidden-input').value = document.getElementById('obs-input').value;
+    document.getElementById('pagamentos-json-input').value = JSON.stringify(
+        formasPagamento.filter(item => item.tipo && Number(item.valor) > 0).map(item => ({
+            tipo: item.tipo,
+            valor: Number(item.valor)
+        }))
+    );
+
+    if (carrinho.length === 0) {
+        event.preventDefault();
+        mostrarErro('Adicione pelo menos um produto antes de finalizar.');
+        return;
+    }
+
+    if (valorPago < valorFinal) {
+        event.preventDefault();
+        mostrarErro('Pagamento insuficiente para fechar a venda.');
+        return;
+    }
+
+    document.getElementById('form-venda').submit();
+});
+
+document.getElementById('obs-input').addEventListener('input', function () {
+    document.getElementById('obs-hidden-input').value = this.value;
+});
+
+renderPagamentos();
+renderCarrinho();
+
 // ── Erros vindos do servidor via query param ───
 const params = new URLSearchParams(window.location.search);
 const erros = {
@@ -1181,10 +1493,5 @@ const erros = {
 if (params.get('erro') && erros[params.get('erro')]) mostrarErro(erros[params.get('erro')]);
 
 renderCarrinho();
-
-// Sync obs ao submeter
-document.getElementById('form-venda').addEventListener('submit', function () {
-    document.getElementById('obs-hidden-input').value = document.getElementById('obs-input').value;
-});
 </script>
 {% endblock %}
