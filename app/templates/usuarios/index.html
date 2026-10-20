@@ -405,8 +405,7 @@
                 <i class="fas fa-pen"></i> Editar
               </a>
               <form action="/usuarios/{{ u.id }}/toggle-ativo" method="post" style="margin:0;">
-                <button type="button"
-                  class="btn-action btn-toggle {{ 'ativar' if not u.ativo else '' }}"
+                <button type="button" class="btn-action btn-toggle {{ 'ativar' if not u.ativo else '' }}"
                   title="{{ 'Ativar usuário' if not u.ativo else 'Desativar usuário' }}"
                   onclick="abrirModalConfirmacao('/usuarios/{{ u.id }}/toggle-ativo', null, '{{ u.nome }}', '{{ 'ativar' if not u.ativo else 'desativar' }}');">
                   <i class="fas fa-{{ 'toggle-on' if u.ativo else 'toggle-off' }}"></i>

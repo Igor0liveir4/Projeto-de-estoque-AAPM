@@ -6,18 +6,22 @@
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
 
   :root {
-    --bg:      #0f1117;
+    --bg: #0f1117;
     --surface: #181c27;
-    --border:  #252a38;
-    --accent:  #4f8ef7;
+    --border: #252a38;
+    --accent: #4f8ef7;
     --accent2: #6ee7b7;
-    --danger:  #f87171;
-    --text:    #e2e8f0;
-    --muted:   #64748b;
-    --radius:  10px;
+    --danger: #f87171;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --radius: 10px;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
   body {
     background: var(--bg);
@@ -49,9 +53,13 @@
     transition: color .15s;
   }
 
-  .breadcrumb a:hover { color: var(--text); }
+  .breadcrumb a:hover {
+    color: var(--text);
+  }
 
-  .breadcrumb span { color: #3a4155; }
+  .breadcrumb span {
+    color: #3a4155;
+  }
 
   /* ── PAGINA title ── */
   .page-title {
@@ -91,8 +99,15 @@
   }
 
   @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-6px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   /* ── Campos ── */
@@ -138,7 +153,7 @@
   input[type="text"]:focus,
   input[type="tel"]:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(79,142,247,.12);
+    box-shadow: 0 0 0 3px rgba(79, 142, 247, .12);
   }
 
   input[type="text"].has-error,
@@ -195,7 +210,9 @@
     flex-shrink: 0;
   }
 
-  .toggle-switch input { display: none; }
+  .toggle-switch input {
+    display: none;
+  }
 
   .toggle-track {
     position: absolute;
@@ -205,7 +222,7 @@
     transition: background .2s;
   }
 
-  .toggle-switch input:checked + .toggle-track {
+  .toggle-switch input:checked+.toggle-track {
     background: var(--accent2);
   }
 
@@ -221,7 +238,7 @@
     pointer-events: none;
   }
 
-  .toggle-switch input:checked ~ .toggle-thumb {
+  .toggle-switch input:checked~.toggle-thumb {
     transform: translateX(18px);
   }
 
@@ -255,7 +272,9 @@
     transition: opacity .15s, transform .1s;
   }
 
-  .btn:active { transform: scale(.97); }
+  .btn:active {
+    transform: scale(.97);
+  }
 
   .btn-ghost {
     background: transparent;
@@ -263,14 +282,19 @@
     color: var(--muted);
   }
 
-  .btn-ghost:hover { border-color: #3a4155; color: var(--text); }
+  .btn-ghost:hover {
+    border-color: #3a4155;
+    color: var(--text);
+  }
 
   .btn-primary {
     background: var(--accent);
     color: #fff;
   }
 
-  .btn-primary:hover { opacity: .88; }
+  .btn-primary:hover {
+    opacity: .88;
+  }
 </style>
 
 <div class="page-wrap">
@@ -287,9 +311,9 @@
   </h1>
   <p class="page-subtitle">
     {% if editando %}
-      Atualize os dados do cliente abaixo.
+    Atualize os dados do cliente abaixo.
     {% else %}
-      Preencha os dados para cadastrar um novo cliente.
+    Preencha os dados para cadastrar um novo cliente.
     {% endif %}
   </p>
 
@@ -299,89 +323,68 @@
     <!-- Erros -->
     {% if erro %}
     <div class="alert-error">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
       {{ erro }}
     </div>
     {% endif %}
 
-    <form
-      method="post"
-      action="{{ '/cliente/' ~ editando.id ~ '/editar' if editando else '/cliente/novo' }}"
-      data-confirm-message="{{ 'Confirma as alteracoes deste cliente?' if editando else 'Confirma o cadastro deste cliente?' }}"
-    >
+    <form method="post" action="{{ '/cliente/' ~ editando.id ~ '/editar' if editando else '/cliente/novo' }}"
+      data-confirm-message="{{ 'Confirma as alteracoes deste cliente?' if editando else 'Confirma o cadastro deste cliente?' }}">
       <!-- Nome -->
       <div class="field">
         <label for="nome">Nome <span class="required-star">*</span></label>
-        <input
-          type="text"
-          id="nome"
-          name="nome"
-          required
-          maxlength="150"
-          placeholder="Nome completo"
-          value="{{ editando.nome if editando else (valores.nome if valores else '') }}"
-        >
+        <input type="text" id="nome" name="nome" required maxlength="150" placeholder="Nome completo"
+          value="{{ editando.nome if editando else (valores.nome if valores else '') }}">
       </div>
 
       <!-- E-mail -->
       <div class="field">
         <label for="email">E-mail</label>
-        <input
-          type="text"
-          id="email"
-          name="email"
-          maxlength="150"
-          placeholder="exemplo@email.com"
-          value="{{ editando.email or '' if editando else (valores.email if valores else '') }}"
-        >
+        <input type="text" id="email" name="email" maxlength="150" placeholder="exemplo@email.com"
+          value="{{ editando.email or '' if editando else (valores.email if valores else '') }}">
       </div>
 
 
-        <div>
-          <label for="telefone">Telefone</label>
-          <input
-            type="tel"
-            id="telefone"
-            name="telefone"
-            maxlength="20"
-            placeholder="(11) 99999-9999"
-            value="{{ editando.telefone or '' if editando else (valores.telefone if valores else '') }}"
-          >
-        </div>
+      <div>
+        <label for="telefone">Telefone</label>
+        <input type="tel" id="telefone" name="telefone" maxlength="20" placeholder="(11) 99999-9999"
+          value="{{ editando.telefone or '' if editando else (valores.telefone if valores else '') }}">
       </div>
-
-      <!-- Toggle associado -->
-      <label class="toggle-field" for="is_associado">
-        <div class="toggle-field-label">
-          <strong>Associado</strong>
-          <span>Marque se este cliente é um associado ativo</span>
-        </div>
-        <div class="toggle-switch">
-          <input
-            type="checkbox"
-            id="is_associado"
-            name="is_associado"
-            value="true"
-            {% if editando and editando.is_associado %}checked{% elif valores and valores.is_associado %}checked{% endif %}
-          >
-          <div class="toggle-track"></div>
-          <div class="toggle-thumb"></div>
-        </div>
-      </label>
-
-      <div class="divider"></div>
-
-      <!-- Ações -->
-      <div class="form-actions">
-        <a href="/cliente" class="btn btn-ghost">Cancelar</a>
-        <button type="submit" class="btn btn-primary">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          {{ 'Salvar alterações' if editando else 'Cadastrar cliente' }}
-        </button>
-      </div>
-
-    </form>
   </div>
+
+  <!-- Toggle associado -->
+  <label class="toggle-field" for="is_associado">
+    <div class="toggle-field-label">
+      <strong>Associado</strong>
+      <span>Marque se este cliente é um associado ativo</span>
+    </div>
+    <div class="toggle-switch">
+      <input type="checkbox" id="is_associado" name="is_associado" value="true" {% if editando and editando.is_associado
+        %}checked{% elif valores and valores.is_associado %}checked{% endif %}>
+      <div class="toggle-track"></div>
+      <div class="toggle-thumb"></div>
+    </div>
+  </label>
+
+  <div class="divider"></div>
+
+  <!-- Ações -->
+  <div class="form-actions">
+    <a href="/cliente" class="btn btn-ghost">Cancelar</a>
+    <button type="submit" class="btn btn-primary">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+      {{ 'Salvar alterações' if editando else 'Cadastrar cliente' }}
+    </button>
+  </div>
+
+  </form>
+</div>
 
 </div>
 {% endblock %}

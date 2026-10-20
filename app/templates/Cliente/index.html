@@ -31,7 +31,9 @@
     line-height: 1;
   }
 
-  .page-title span { color: #60a5fa; }
+  .page-title span {
+    color: #60a5fa;
+  }
 
   .page-subtitle {
     color: #64748b;
@@ -44,11 +46,14 @@
     flex-wrap: wrap;
   }
 
-  .page-subtitle span { color: #60a5fa; font-weight: 600; }
+  .page-subtitle span {
+    color: #60a5fa;
+    font-weight: 600;
+  }
 
   .stat-pill {
-    background: rgba(59,130,246,0.08);
-    border: 1px solid rgba(59,130,246,0.15);
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.15);
     border-radius: 24px;
     padding: 4px 12px;
     font-size: 12px;
@@ -60,7 +65,9 @@
     letter-spacing: 0.03em;
   }
 
-  .stat-pill b { color: #4ade80; }
+  .stat-pill b {
+    color: #4ade80;
+  }
 
   /* ── Botão primário ── */
   .btn-novo {
@@ -104,8 +111,17 @@
     animation: fadeUp 0.3s ease both;
   }
 
-  .toast-success { background: rgba(16,185,129,0.1);  color: #6ee7b7; border-color: rgba(16,185,129,0.2); }
-  .toast-info    { background: rgba(59,130,246,0.1);   color: #93c5fd; border-color: rgba(59,130,246,0.2); }
+  .toast-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #6ee7b7;
+    border-color: rgba(16, 185, 129, 0.2);
+  }
+
+  .toast-info {
+    background: rgba(59, 130, 246, 0.1);
+    color: #93c5fd;
+    border-color: rgba(59, 130, 246, 0.2);
+  }
 
   /* ── Filtros ── */
   .filters-row {
@@ -148,8 +164,8 @@
   }
 
   .input-search:focus {
-    border-color: rgba(59,130,246,0.5);
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+    border-color: rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 
   .checkbox-label {
@@ -169,12 +185,14 @@
   }
 
   .checkbox-label:has(input:checked) {
-    border-color: rgba(59,130,246,0.4);
+    border-color: rgba(59, 130, 246, 0.4);
     color: var(--accent-light);
-    background: rgba(59,130,246,0.06);
+    background: rgba(59, 130, 246, 0.06);
   }
 
-  .checkbox-label input { display: none; }
+  .checkbox-label input {
+    display: none;
+  }
 
   .btn-buscar {
     padding: 10px 18px;
@@ -220,7 +238,7 @@
   }
 
   .clientes-table thead th {
-    background: rgba(59,130,246,0.07);
+    background: rgba(59, 130, 246, 0.07);
     color: var(--accent-light);
     padding: 14px 18px;
     font-size: 10.5px;
@@ -232,14 +250,16 @@
   }
 
   .clientes-table tbody tr {
-    border-bottom: 1px solid rgba(99,179,237,0.05);
+    border-bottom: 1px solid rgba(99, 179, 237, 0.05);
     transition: background var(--transition);
   }
 
-  .clientes-table tbody tr:last-child { border-bottom: none; }
+  .clientes-table tbody tr:last-child {
+    border-bottom: none;
+  }
 
   .clientes-table tbody tr:hover td {
-    background: rgba(59,130,246,0.04);
+    background: rgba(59, 130, 246, 0.04);
     color: var(--text-primary);
   }
 
@@ -271,13 +291,36 @@
     letter-spacing: 0.03em;
   }
 
-  .badge-assoc   { background: rgba(74,222,128,0.1);   color: #4ade80; border: 1px solid rgba(74,222,128,0.2); }
-  .badge-comum   { background: rgba(99,179,237,0.06);  color: var(--text-muted); border: 1px solid var(--border); }
-  .badge-ativo   { background: rgba(74,222,128,0.1);   color: #4ade80; border: 1px solid rgba(74,222,128,0.2); }
-  .badge-inativo { background: rgba(239,68,68,0.1);    color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
+  .badge-assoc {
+    background: rgba(74, 222, 128, 0.1);
+    color: #4ade80;
+    border: 1px solid rgba(74, 222, 128, 0.2);
+  }
+
+  .badge-comum {
+    background: rgba(99, 179, 237, 0.06);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+
+  .badge-ativo {
+    background: rgba(74, 222, 128, 0.1);
+    color: #4ade80;
+    border: 1px solid rgba(74, 222, 128, 0.2);
+  }
+
+  .badge-inativo {
+    background: rgba(239, 68, 68, 0.1);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
 
   /* ── Ações ── */
-  .actions { display: flex; align-items: center; gap: 8px; }
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
   .btn-icon {
     display: inline-flex;
@@ -302,7 +345,9 @@
     box-shadow: none;
   }
 
-  .toggle-form { display: inline; }
+  .toggle-form {
+    display: inline;
+  }
 
   .toggle-form button {
     all: unset;
@@ -332,8 +377,16 @@
     color: var(--text-muted);
   }
 
-  .empty i { font-size: 40px; display: block; margin-bottom: 14px; opacity: 0.35; }
-  .empty p  { font-size: 14px; }
+  .empty i {
+    font-size: 40px;
+    display: block;
+    margin-bottom: 14px;
+    opacity: 0.35;
+  }
+
+  .empty p {
+    font-size: 14px;
+  }
 </style>
 {% endblock %}
 
@@ -345,7 +398,8 @@
     <div>
       <h1 class="page-title">Clientes <span>&amp;</span> Associados</h1>
       <p class="page-subtitle">
-        <span>{{ total_associados }}</span> associado{{ 's' if total_associados != 1 }} ativo{{ 's' if total_associados != 1 }}
+        <span>{{ total_associados }}</span> associado{{ 's' if total_associados != 1 }} ativo{{ 's' if total_associados
+        != 1 }}
         <span class="stat-pill">
           <i class="fas fa-circle" style="font-size:7px; color:#10b981;"></i>
           <b>{{ total_associados }}</b> com desconto
@@ -374,25 +428,14 @@
     <div class="filters-row">
       <div class="search-wrap">
         <i class="fas fa-search"></i>
-        <input
-          class="input-search"
-          type="text"
-          name="busca"
-          value="{{ busca }}"
-          placeholder="Buscar por nome ou e-mail…"
-          autocomplete="off"
-        >
+        <input class="input-search" type="text" name="busca" value="{{ busca }}"
+          placeholder="Buscar por nome ou e-mail…" autocomplete="off">
       </div>
       <input type="hidden" name="por_pagina" value="{{ por_pagina if por_pagina is defined else 10 }}">
       <input type="hidden" name="pagina" value="1">
       <label class="checkbox-label">
-        <input
-          type="checkbox"
-          name="apenas_associados"
-          value="true"
-          {% if apenas_associados %}checked{% endif %}
-          onchange="this.form.submit()"
-        >
+        <input type="checkbox" name="apenas_associados" value="true" {% if apenas_associados %}checked{% endif %}
+          onchange="this.form.submit()">
         <i class="fas fa-users"></i>
         Apenas associados
       </label>
@@ -424,22 +467,22 @@
           <td>{{ c.telefone or '—' }}</td>
           <td>
             {% if c.is_associado %}
-              <span class="badge badge-assoc">
-                <i class="fas fa-star" style="font-size:9px;"></i> Associado
-              </span>
+            <span class="badge badge-assoc">
+              <i class="fas fa-star" style="font-size:9px;"></i> Associado
+            </span>
             {% else %}
-              <span class="badge badge-comum">Comum</span>
+            <span class="badge badge-comum">Comum</span>
             {% endif %}
           </td>
           <td>
             {% if c.ativo %}
-              <span class="badge badge-ativo">
-                <i class="fas fa-circle" style="font-size:7px;"></i> Ativo
-              </span>
+            <span class="badge badge-ativo">
+              <i class="fas fa-circle" style="font-size:7px;"></i> Ativo
+            </span>
             {% else %}
-              <span class="badge badge-inativo">
-                <i class="fas fa-circle" style="font-size:7px;"></i> Inativo
-              </span>
+            <span class="badge badge-inativo">
+              <i class="fas fa-circle" style="font-size:7px;"></i> Inativo
+            </span>
             {% endif %}
           </td>
           <td>
@@ -448,7 +491,7 @@
                 <i class="fas fa-pen" style="font-size:13px;"></i>
               </a>
               <form class="toggle-form" method="post" action="/cliente/{{ c.id }}/toggle-ativo">
-                <button type="button" title="{{ 'Desativar' if c.ativo else 'Ativar' }}" 
+                <button type="button" title="{{ 'Desativar' if c.ativo else 'Ativar' }}"
                   onclick="abrirModalConfirmacao('/cliente/{{ c.id }}/toggle-ativo', null, '{{ c.nome }}', '{{ 'ativar' if not c.ativo else 'desativar' }}');">
                   <i class="fas fa-{{ 'toggle-on' if c.ativo else 'toggle-off' }}" style="font-size:14px;"></i>
                 </button>
