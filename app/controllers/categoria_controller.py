@@ -6,9 +6,11 @@ from fastapi import APIRouter, Depends, Request, Form
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from urllib.parse import urlencode
 
 from app.database import get_db
 from app.models.categoria import Categoria
+from app.models.produto import Produto
 from app.auth import get_admin
 
 router = APIRouter(prefix="/categorias", tags=["Categorias"])
@@ -24,22 +26,31 @@ templates = Jinja2Templates(directory="app/templates")
 def listar_categorias(
     request: Request,
     db: Session = Depends(get_db),
-    admin = Depends(get_admin)
+    admin = Depends(get_admin),
+    pagina: int = 1,
+    por_pagina: int = 16,
 ):
     """
     Lista todas as categorias ordenadas por nome.
     Inclui a contagem de produtos de cada categoria
     para dar contexto ao admin antes de desativar.
     """
-    categorias = db.query(Categoria).order_by(Categoria.nome).all()
+    query = db.query(Categoria).order_by(Categoria.nome)
+    from app.pagination import paginar
+
+    resultado = paginar(query, pagina, por_pagina)
 
     return templates.TemplateResponse(
         request,
         "categorias/index.html",
         {
-            "request":    request,
-            "usuario":    admin,
-            "categorias": categorias,
+            "request":          request,
+            "usuario":          admin,
+            "categorias":       resultado.itens,
+            "pagina":           resultado.atual,
+            "por_pagina":       resultado.por_pagina,
+            "total_paginas":    resultado.total_paginas,
+            "total_categorias": resultado.total_itens,
         }
     )
 
@@ -167,6 +178,44 @@ def editar_categoria(
     db.commit()
 
     return RedirectResponse(url="/categorias?editado=ok", status_code=302)
+
+
+# ============================================================
+# EXCLUSÃO
+# ============================================================
+
+@router.post("/{categoria_id}/excluir")
+def excluir_categoria(
+    categoria_id: int,
+    db: Session = Depends(get_db),
+    admin = Depends(get_admin)
+):
+    """Exclui uma categoria somente quando não há produtos vinculados."""
+    categoria = db.query(Categoria).filter(
+        Categoria.id == categoria_id
+    ).first()
+
+    if not categoria:
+        return RedirectResponse(url="/categorias", status_code=302)
+
+    produto_vinculado = db.query(Produto.id).filter(
+        Produto.categoria_id == categoria_id
+    ).first()
+
+    if produto_vinculado:
+        query = urlencode({
+            "erro": "produtos_impedem_exclusao",
+            "categoria": categoria.nome,
+        })
+        return RedirectResponse(
+            url=f"/categorias?{query}",
+            status_code=302
+        )
+
+    db.delete(categoria)
+    db.commit()
+
+    return RedirectResponse(url="/categorias?excluido=ok", status_code=302)
 
 
 # ============================================================
