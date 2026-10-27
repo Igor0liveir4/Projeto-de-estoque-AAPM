@@ -82,6 +82,7 @@ def finalizar_venda(
     carrinho_json: str = Form(...),  # JSON serializado pelo JS
     cliente_id: int    = Form(0),    # 0 = sem cliente identificado
     observacao: str    = Form(""),
+    pagamentos_json: str = Form("[]"),
     db: Session        = Depends(get_db),
     usuario            = Depends(get_usuario_logado)
 ):
@@ -98,8 +99,30 @@ def finalizar_venda(
     except (json.JSONDecodeError, ValueError):
         return RedirectResponse(url="/pdv?erro=json", status_code=302)
 
+    try:
+        pagamentos = json.loads(pagamentos_json or "[]")
+    except (json.JSONDecodeError, ValueError):
+        return RedirectResponse(url="/pdv?erro=json", status_code=302)
+
     if not itens:
         return RedirectResponse(url="/pdv?erro=vazio", status_code=302)
+
+    pagamentos_validos = []
+    if isinstance(pagamentos, list):
+        for pagamento in pagamentos:
+            if not isinstance(pagamento, dict):
+                continue
+            try:
+                tipo = str(pagamento.get("tipo", "")).strip()
+                valor = float(pagamento.get("valor") or 0)
+            except (TypeError, ValueError):
+                continue
+            if not tipo or valor <= 0:
+                continue
+            pagamentos_validos.append({
+                "tipo": tipo,
+                "valor": round(valor, 2),
+            })
 
     # Busca o cliente e verifica se é associado
     cliente             = None
@@ -176,6 +199,10 @@ def finalizar_venda(
     # ── Calcula desconto e total final
     desconto_valor = total_bruto * (desconto_percentual / 100)
     total_liquido  = total_bruto - desconto_valor
+    valor_pago = round(sum(item["valor"] for item in pagamentos_validos), 2)
+
+    if valor_pago < round(total_liquido, 2):
+        return RedirectResponse(url="/pdv?erro=pagamento", status_code=302)
 
     # ── Persiste tudo em uma única transação
     venda = Venda(
@@ -185,6 +212,7 @@ def finalizar_venda(
         total_bruto         = round(total_bruto, 2),
         total_liquido       = round(total_liquido, 2),
         observacao          = observacao or None,
+        formas_pagamento    = json.dumps(pagamentos_validos, ensure_ascii=False),
     )
     db.add(venda)
     db.flush()  # gera o venda.id sem commitar ainda
