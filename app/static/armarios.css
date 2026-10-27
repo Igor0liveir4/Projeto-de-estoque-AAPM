@@ -480,6 +480,54 @@
     margin-top: 22px;
 }
 
+:root[data-theme="light"] .armarios-hero,
+:root[data-theme="light"] .armarios-card,
+:root[data-theme="light"] .armario-card,
+:root[data-theme="light"] .armario-detail-card,
+:root[data-theme="light"] .form-card,
+:root[data-theme="light"] .armarios-empty,
+:root[data-theme="light"] .metric-card {
+    background: #ffffff;
+    border-color: var(--border);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .08);
+}
+
+html[data-theme="light"] body .armarios-page .armarios-hero,
+html[data-theme="light"] body .armarios-page .armarios-card,
+html[data-theme="light"] body .armarios-page .armario-card,
+html[data-theme="light"] body .armarios-page .metric-card,
+html[data-theme="light"] body .armarios-page .armario-detail-card,
+html[data-theme="light"] body .armarios-page .form-card,
+html[data-theme="light"] body .armarios-page .armarios-empty {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #172033;
+}
+
+:root[data-theme="light"] .armario-card-footer {
+    border-color: rgba(15, 23, 42, .12);
+}
+
+:root[data-theme="light"] .status-badge.available {
+    color: #047857;
+}
+
+:root[data-theme="light"] .status-badge.rented {
+    color: #b45309;
+}
+
+:root[data-theme="light"] .status-badge.inactive {
+    color: #475569;
+}
+
+:root[data-theme="light"] .alert.success {
+    color: #047857;
+}
+
+:root[data-theme="light"] .alert.error {
+    color: #b91c1c;
+}
+
 @media (max-width: 760px) {
     .armarios-page {
         padding-top: 26px;
