@@ -319,6 +319,30 @@
         border: 1px solid rgba(59, 130, 246, 0.18);
     }
 
+    :root[data-theme="light"] .stat-card,
+    :root[data-theme="light"] .chart-card {
+        background: var(--bg-surface);
+        border-color: var(--border);
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+
+    :root[data-theme="light"] .stat-card:hover,
+    :root[data-theme="light"] .chart-card:hover {
+        border-color: rgba(37, 99, 235, 0.3);
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+    }
+
+    :root[data-theme="light"] .stat-content h3 {
+        color: #64748b;
+    }
+
+    :root[data-theme="light"] .stat-content .value,
+    :root[data-theme="light"] .chart-card h2 {
+        color: #172033;
+    }
+
     .chart-container {
         position: relative;
         height: 300px;
@@ -513,15 +537,15 @@
     var COLORS = ['#3b82f6', '#9333ea', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899', '#84cc16'];
     var FONT = "'DM Sans', sans-serif";
 
-    /* Dark theme grid / tick colors */
-    var gridColor = 'rgba(99, 179, 237, 0.07)';
-    var tickColor = '#475569';
+    var isLightTheme = document.documentElement.getAttribute('data-theme') === 'light';
+    var gridColor = isLightTheme ? 'rgba(15, 23, 42, 0.10)' : 'rgba(99, 179, 237, 0.07)';
+    var tickColor = isLightTheme ? '#475569' : '#94a3b8';
 
     var sharedTooltip = {
-        backgroundColor: '#0d1320',
-        titleColor: '#f0f6ff',
-        bodyColor: '#94a3b8',
-        borderColor: 'rgba(59,130,246,0.2)',
+        backgroundColor: isLightTheme ? '#ffffff' : '#0d1320',
+        titleColor: isLightTheme ? '#172033' : '#f0f6ff',
+        bodyColor: isLightTheme ? '#475569' : '#94a3b8',
+        borderColor: isLightTheme ? 'rgba(15,23,42,0.16)' : 'rgba(59,130,246,0.2)',
         borderWidth: 1,
         padding: 12,
         cornerRadius: 10,
@@ -537,7 +561,7 @@
                 datasets: [{
                     data: categoriasData.data,
                     backgroundColor: COLORS,
-                    borderColor: 'rgba(8,12,20,0.8)',
+                    borderColor: isLightTheme ? '#ffffff' : 'rgba(8,12,20,0.8)',
                     borderWidth: 3,
                     hoverBorderWidth: 2,
                     hoverOffset: 6
@@ -557,7 +581,7 @@
                             padding: 16,
                             usePointStyle: true,
                             pointStyleWidth: 10,
-                            color: '#64748b'
+                            color: tickColor
                         }
                     }
                 }
@@ -639,7 +663,7 @@
                             font: { size: 12, family: FONT },
                             padding: 16,
                             usePointStyle: true,
-                            color: '#64748b'
+                            color: tickColor
                         }
                     },
                     tooltip: valorTooltip
