@@ -431,9 +431,9 @@
     }
 
     :root[data-theme="light"] .socio-card {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(148, 163, 184, 0.12));
-        border-color: rgba(15, 23, 42, 0.12);
-        box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+        background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
+        border-color: rgba(37, 99, 235, .18);
+        box-shadow: 0 16px 40px rgba(15, 23, 42, .08);
     }
 
     .socio-grid {
@@ -506,32 +506,8 @@
         line-height: 1.4;
     }
 
-<<<<<<< HEAD
     :root[data-theme="light"] .vantagem-item div p {
         color: #475569;
-=======
-    :root[data-theme="light"] .socio-card {
-        background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
-        border-color: rgba(37, 99, 235, .18);
-        box-shadow: 0 16px 40px rgba(15, 23, 42, .08);
-    }
-
-    :root[data-theme="light"] .socio-text h3,
-    :root[data-theme="light"] .vantagem-item div h5 {
-        color: #172033 !important;
-    }
-
-    :root[data-theme="light"] .socio-text p {
-        color: #475569 !important;
-    }
-
-    :root[data-theme="light"] .vantagem-item div p {
-        color: #64748b !important;
-    }
-
-    :root[data-theme="light"] .vantagem-item i {
-        color: #6d4bd1;
->>>>>>> aa0691d9a294cafcab9baf2779d4adaa664fca5a
     }
 
     .btn-card {
@@ -539,23 +515,36 @@
         align-items: center;
         justify-content: center;
         gap: 8px;
-        padding: 11px 18px;
-        border-radius: 10px;
+        padding: 12px 22px;
+        border-radius: 14px;
         font-size: 13.5px;
-        font-weight: 600;
+        font-weight: 700;
         text-decoration: none;
         transition: all 0.25s ease;
+        border: 1px solid transparent;
+        box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
     }
 
     .btn-card.solid {
         background: linear-gradient(135deg, #3b82f6, #2563eb);
         color: #fff;
-        border: 1px solid rgba(59, 130, 246, 0.4);
+        border-color: rgba(59, 130, 246, 0.4);
+        border-radius: 14px;
     }
 
     .btn-card.solid:hover {
         background: linear-gradient(135deg, #60a5fa, #3b82f6);
         transform: translateY(-2px);
+        box-shadow: 0 14px 28px rgba(59, 130, 246, 0.24);
+    }
+
+    .btn-card.solid:focus-visible {
+        outline: 2px solid rgba(96, 165, 250, 0.9);
+        outline-offset: 2px;
+    }
+
+    .socio-card .btn-card.solid {
+        border-radius: 14px;
     }
 
     /* POLITICA SENAI (TERMOS) */
@@ -853,7 +842,6 @@
             faixa.addEventListener("mouseleave", () => marqueeAnimation.play());
         }
     });
-
 </script>
 
 {% endblock %}
