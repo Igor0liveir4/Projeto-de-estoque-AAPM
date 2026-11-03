@@ -1,0 +1,66 @@
+/* Animação leve de fundo para teste */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.12), transparent 25%),
+        radial-gradient(circle at 80% 30%, rgba(96, 165, 250, 0.10), transparent 28%),
+        radial-gradient(circle at 50% 80%, rgba(147, 197, 253, 0.08), transparent 35%);
+    animation: fundoPulse 14s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: 0.5;
+    animation: gridFloat 18s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes fundoPulse {
+    0% {
+        transform: scale(1) translate3d(0, 0, 0);
+        filter: brightness(1);
+    }
+
+    50% {
+        transform: scale(1.04) translate3d(6px, -4px, 0);
+        filter: brightness(1.08);
+    }
+
+    100% {
+        transform: scale(1.02) translate3d(-8px, 5px, 0);
+        filter: brightness(1.03);
+    }
+}
+
+@keyframes gridFloat {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+
+    50% {
+        transform: translate3d(10px, -8px, 0);
+    }
+
+    100% {
+        transform: translate3d(-8px, 8px, 0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    body::before,
+    body::after {
+        animation: none;
+    }
+}

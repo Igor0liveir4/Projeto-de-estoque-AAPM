@@ -16,6 +16,7 @@
     <title>{% block title %}Gestão de Estoque AAPM{% endblock %}</title>
     <link rel="icon" type="image/png" href="/static/logo/logoAAPM-transparent.png">
     <link rel="apple-touch-icon" href="/static/logo/logoAAPM-transparent.png">
+    <link rel="stylesheet" href="/static/style.css">
     {% block head %}{% endblock %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link
@@ -64,12 +65,28 @@
             background-image: linear-gradient(rgba(37, 99, 235, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(37, 99, 235, 0.035) 1px, transparent 1px);
         }
 
-        :root[data-theme="light"] header { background: rgba(255, 255, 255, 0.92); }
-        :root[data-theme="light"] .sidebar { background: #fff; }
-        :root[data-theme="light"] .nav-btn { color: #475569; }
+        :root[data-theme="light"] header {
+            background: rgba(255, 255, 255, 0.92);
+        }
+
+        :root[data-theme="light"] .sidebar {
+            background: #fff;
+        }
+
+        :root[data-theme="light"] .nav-btn {
+            color: #475569;
+        }
+
         :root[data-theme="light"] .nav-btn:hover,
-        :root[data-theme="light"] .nav-btn.active { color: #1d4ed8; background: rgba(37, 99, 235, 0.08); }
-        :root[data-theme="light"] .nav-btn.logout { color: #dc2626; }
+        :root[data-theme="light"] .nav-btn.active {
+            color: #1d4ed8;
+            background: rgba(37, 99, 235, 0.08);
+        }
+
+        :root[data-theme="light"] .nav-btn.logout {
+            color: #dc2626;
+        }
+
         :root[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]),
         :root[data-theme="light"] select,
         :root[data-theme="light"] textarea {
@@ -77,31 +94,87 @@
             background-color: #fff !important;
             border-color: rgba(15, 23, 42, 0.18) !important;
         }
+
         :root[data-theme="light"] input::placeholder,
-        :root[data-theme="light"] textarea::placeholder { color: #64748b; }
-        :root[data-theme="light"] table { color: #172033; }
+        :root[data-theme="light"] textarea::placeholder {
+            color: #64748b;
+        }
+
+        :root[data-theme="light"] table {
+            color: #172033;
+        }
+
         :root[data-theme="light"] main :is(h1, h2, h3, h4, p, label, td, th, legend) {
             color: #1e293b !important;
         }
+
         :root[data-theme="light"] main :is(.page-title, .dashboard-title, .info-value, .metric-value, .stat-value, .form-title, .product-name) {
             color: #1e293b !important;
         }
-        :root[data-theme="light"] th { color: #475569; }
-        :root[data-theme="light"] td,
-        :root[data-theme="light"] th { border-color: rgba(15, 23, 42, 0.1); }
-        :root[data-theme="light"] .btn-theme-toggle {
-            color: #334155; background: rgba(15, 23, 42, 0.04); border-color: rgba(15, 23, 42, 0.15);
+
+        :root[data-theme="light"] th {
+            color: #475569;
         }
-        :root[data-theme="light"] .btn-theme-toggle:hover { color: #1d4ed8; background: rgba(37, 99, 235, 0.08); }
+
+        :root[data-theme="light"] td,
+        :root[data-theme="light"] th {
+            border-color: rgba(15, 23, 42, 0.1);
+        }
+
+        :root[data-theme="light"] .btn-theme-toggle {
+            color: #334155;
+            background: rgba(15, 23, 42, 0.04);
+            border-color: rgba(15, 23, 42, 0.15);
+        }
+
+        :root[data-theme="light"] .btn-theme-toggle:hover {
+            color: #1d4ed8;
+            background: rgba(37, 99, 235, 0.08);
+        }
+
+        :root[data-theme="light"] .btn-theme-toggle span,
+        :root[data-theme="dark"] .btn-theme-toggle span {
+            color: inherit !important;
+        }
 
         .btn-theme-toggle {
-            display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto;
-            padding: 8px 11px; border: 1px solid var(--border); border-radius: 9px;
-            background: rgba(255,255,255,.05); color: var(--text-primary); cursor: pointer;
-            font: 600 12px 'DM Sans', sans-serif; transition: .2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            flex: 0 0 auto;
+            padding: 8px 11px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: rgba(255, 255, 255, .05);
+            color: var(--text-primary);
+            cursor: pointer;
+            font: 600 12px 'DM Sans', sans-serif;
+            transition: .2s ease;
         }
-        .btn-theme-toggle:hover { border-color: var(--accent); }
-        .btn-theme-toggle span { white-space: nowrap; }
+
+        .btn-theme-toggle,
+        .btn-theme-toggle * {
+            color: var(--text-primary) !important;
+        }
+
+        :root[data-theme="light"] .btn-theme-toggle,
+        :root[data-theme="light"] .btn-theme-toggle * {
+            color: #0f172a !important;
+        }
+
+        :root[data-theme="dark"] .btn-theme-toggle,
+        :root[data-theme="dark"] .btn-theme-toggle * {
+            color: #e2e8f0 !important;
+        }
+
+        .btn-theme-toggle:hover {
+            border-color: var(--accent);
+        }
+
+        .btn-theme-toggle span {
+            white-space: nowrap;
+            color: inherit !important;
+        }
 
         *,
         *::before,
@@ -128,7 +201,6 @@
             width: 100%;
             max-width: 100%;
             overflow-x: hidden;
-            /* subtle grid texture */
             background-image:
                 linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
@@ -283,7 +355,7 @@
             margin: 0 4px;
         }
 
-        /* ── MAIN ───────────────────────────────────────── */
+        /* ── MAIN ───────────────── */
         main {
             /* Compensa o header fixo para o conteúdo não ficar encoberto. */
             padding: var(--header-h) 0 0;
@@ -424,7 +496,7 @@
             border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
-        /* ── GLOBAL BUTTON ──────────────────────────────── */
+        /* ── GLOBAL BOTÃO ────── */
         button,
         .btn {
             font-family: 'DM Sans', sans-serif;
@@ -448,7 +520,7 @@
             box-shadow: 0 6px 20px var(--accent-glow);
         }
 
-        /* ── FORM ELEMENTS ──────────────────────────────── */
+        /* ── FORM ELEMENTOS ─────── */
         input,
         textarea,
         select {
@@ -472,7 +544,7 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
-        /* ── TABLE ──────────────────────────────────────── */
+        /* ── TABLE ──────────── */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -511,7 +583,7 @@
             color: var(--text-primary);
         }
 
-        /* ── RESPONSIVE ─────────────────────────────────── */
+        /* ── RESPONSIVE ─────────── */
         @media (max-width: 992px) {
             .footer-grid {
                 grid-template-columns: 1fr;
@@ -612,7 +684,9 @@
             text-align: center;
         }
 
-        .server-pagination__controls { flex-wrap: wrap; }
+        .server-pagination__controls {
+            flex-wrap: wrap;
+        }
 
         .server-pagination__page {
             color: var(--text-muted);
@@ -641,8 +715,14 @@
             color: #fff;
         }
 
-        .server-pagination__button.is-disabled { cursor: not-allowed; opacity: .4; }
-        .server-pagination__ellipsis { padding: 0 2px; }
+        .server-pagination__button.is-disabled {
+            cursor: not-allowed;
+            opacity: .4;
+        }
+
+        .server-pagination__ellipsis {
+            padding: 0 2px;
+        }
 
         @media (max-width: 760px) {
             .server-pagination {
@@ -650,8 +730,11 @@
                 justify-items: center;
             }
 
-            .server-pagination__summary { order: -1; }
+            .server-pagination__summary {
+                order: -1;
+            }
         }
+
         /* Sidebar navigation */
         body.has-sidebar {
             padding-left: 244px;
@@ -811,6 +894,7 @@
                 pointer-events: auto;
             }
         }
+
         /* Scrollbars */
         html {
             scrollbar-color: #3b82f6 #0d1320;
@@ -938,7 +1022,8 @@
                     <img src="/static/logo/logoAAPM-transparent.png" alt="Logo AAPM" class="logo-header">
                 </div>
                 {% if usuario %}
-                <button class="sidebar-toggle" type="button" aria-label="Abrir menu" aria-controls="sidebar" aria-expanded="false">
+                <button class="sidebar-toggle" type="button" aria-label="Abrir menu" aria-controls="sidebar"
+                    aria-expanded="false">
                     <i class="fas fa-bars"></i>
                 </button>
                 {% set current_path = request.url.path if request is defined else '' %}
@@ -958,28 +1043,28 @@
                         <i class="fas fa-house"></i> Home
                     </a>
                     {% if is_admin %}
-                        <a href="/cliente" class="nav-btn {{ 'active' if is_cliente else '' }}" {% if is_cliente
-                            %}aria-current="page" {% endif %}>
-                            <i class="fas fa-users"></i> Clientes
-                        </a>
+                    <a href="/cliente" class="nav-btn {{ 'active' if is_cliente else '' }}" {% if is_cliente
+                        %}aria-current="page" {% endif %}>
+                        <i class="fas fa-users"></i> Clientes
+                    </a>
                     {% endif %}
                     <a href="/produtos" class="nav-btn {{ 'active' if is_produtos else '' }}" {% if is_produtos
                         %}aria-current="page" {% endif %}>
                         <i class="fas fa-box-open"></i> Produtos
                     </a>
                     {% if is_admin %}
-                        <a href="/categorias" class="nav-btn {{ 'active' if is_categorias else '' }}" {% if is_categorias
-                            %}aria-current="page" {% endif %}>
-                            <i class="fas fa-tags"></i> Categorias
-                        </a>
-                        <a href="/usuarios" class="nav-btn {{ 'active' if is_usuarios else '' }}" {% if is_usuarios
-                            %}aria-current="page" {% endif %}>
-                            <i class="fas fa-user-gear"></i> Usuários
-                        </a>
-                        <a href="/movimentacoes" class="nav-btn {{ 'active' if is_movimentacoes else '' }}" {% if
-                            is_movimentacoes %}aria-current="page" {% endif %}>
-                            <i class="fas fa-exchange-alt"></i> Movimentações
-                        </a>
+                    <a href="/categorias" class="nav-btn {{ 'active' if is_categorias else '' }}" {% if is_categorias
+                        %}aria-current="page" {% endif %}>
+                        <i class="fas fa-tags"></i> Categorias
+                    </a>
+                    <a href="/usuarios" class="nav-btn {{ 'active' if is_usuarios else '' }}" {% if is_usuarios
+                        %}aria-current="page" {% endif %}>
+                        <i class="fas fa-user-gear"></i> Usuários
+                    </a>
+                    <a href="/movimentacoes" class="nav-btn {{ 'active' if is_movimentacoes else '' }}" {% if
+                        is_movimentacoes %}aria-current="page" {% endif %}>
+                        <i class="fas fa-exchange-alt"></i> Movimentações
+                    </a>
                     {% endif %}
                     <a href="/armarios" class="nav-btn {{ 'active' if is_armarios else '' }}" {% if is_armarios
                         %}aria-current="page" {% endif %}>
@@ -995,7 +1080,8 @@
                     </a>
                 </div>
                 {% endif %}
-                <button type="button" class="btn-theme-toggle" id="theme-toggle" onclick="toggleTema()" aria-label="Ativar tema claro" title="Alternar tema">
+                <button type="button" class="btn-theme-toggle" id="theme-toggle" onclick="toggleTema()"
+                    aria-label="Ativar tema claro" title="Alternar tema">
                     <i class="fas fa-moon" id="theme-icon" aria-hidden="true"></i>
                     <span id="theme-text">Tema escuro</span>
                 </button>
@@ -1021,18 +1107,26 @@
             <span class="sidebar-brand-name">Gestao de Estoque <span>AAPM</span></span>
         </a>
         <nav class="sidebar-nav">
-            <a href="/" class="nav-btn {{ 'active' if is_home else '' }}" {% if is_home %}aria-current="page"{% endif %}><i class="fas fa-house"></i> Home</a>
+            <a href="/" class="nav-btn {{ 'active' if is_home else '' }}" {% if is_home %}aria-current="page" {% endif
+                %}><i class="fas fa-house"></i> Home</a>
             {% if is_admin %}
-            <a href="/cliente" class="nav-btn {{ 'active' if is_cliente else '' }}" {% if is_cliente %}aria-current="page"{% endif %}><i class="fas fa-users"></i> Clientes</a>
+            <a href="/cliente" class="nav-btn {{ 'active' if is_cliente else '' }}" {% if is_cliente
+                %}aria-current="page" {% endif %}><i class="fas fa-users"></i> Clientes</a>
             {% endif %}
-            <a href="/produtos" class="nav-btn {{ 'active' if is_produtos else '' }}" {% if is_produtos %}aria-current="page"{% endif %}><i class="fas fa-box-open"></i> Produtos</a>
+            <a href="/produtos" class="nav-btn {{ 'active' if is_produtos else '' }}" {% if is_produtos
+                %}aria-current="page" {% endif %}><i class="fas fa-box-open"></i> Produtos</a>
             {% if is_admin %}
-            <a href="/categorias" class="nav-btn {{ 'active' if is_categorias else '' }}" {% if is_categorias %}aria-current="page"{% endif %}><i class="fas fa-tags"></i> Categorias</a>
-            <a href="/usuarios" class="nav-btn {{ 'active' if is_usuarios else '' }}" {% if is_usuarios %}aria-current="page"{% endif %}><i class="fas fa-user-gear"></i> Usuarios</a>
-            <a href="/movimentacoes" class="nav-btn {{ 'active' if is_movimentacoes else '' }}" {% if is_movimentacoes %}aria-current="page"{% endif %}><i class="fas fa-exchange-alt"></i> Movimentacoes</a>
+            <a href="/categorias" class="nav-btn {{ 'active' if is_categorias else '' }}" {% if is_categorias
+                %}aria-current="page" {% endif %}><i class="fas fa-tags"></i> Categorias</a>
+            <a href="/usuarios" class="nav-btn {{ 'active' if is_usuarios else '' }}" {% if is_usuarios
+                %}aria-current="page" {% endif %}><i class="fas fa-user-gear"></i> Usuarios</a>
+            <a href="/movimentacoes" class="nav-btn {{ 'active' if is_movimentacoes else '' }}" {% if is_movimentacoes
+                %}aria-current="page" {% endif %}><i class="fas fa-exchange-alt"></i> Movimentacoes</a>
             {% endif %}
-            <a href="/armarios" class="nav-btn {{ 'active' if is_armarios else '' }}" {% if is_armarios %}aria-current="page"{% endif %}><i class="fas fa-door-open"></i> Armarios</a>
-            <a href="/pdv" class="nav-btn {{ 'active' if is_pdv else '' }}" {% if is_pdv %}aria-current="page"{% endif %}><i class="fas fa-cash-register"></i> PDV</a>
+            <a href="/armarios" class="nav-btn {{ 'active' if is_armarios else '' }}" {% if is_armarios
+                %}aria-current="page" {% endif %}><i class="fas fa-door-open"></i> Armarios</a>
+            <a href="/pdv" class="nav-btn {{ 'active' if is_pdv else '' }}" {% if is_pdv %}aria-current="page" {% endif
+                %}><i class="fas fa-cash-register"></i> PDV</a>
             <div class="nav-divider"></div>
             <a href="/auth/logout" class="nav-btn logout"><i class="fas fa-right-from-bracket"></i> Sair</a>
         </nav>
@@ -1102,7 +1196,8 @@
             </div>
         </div>
     </footer>
-    <div class="form-confirm-modal" id="formConfirmModal" role="dialog" aria-modal="true" aria-labelledby="formConfirmTitle" hidden>
+    <div class="form-confirm-modal" id="formConfirmModal" role="dialog" aria-modal="true"
+        aria-labelledby="formConfirmTitle" hidden>
         <div class="form-confirm-dialog" role="document">
             <div class="form-confirm-icon" aria-hidden="true"><i class="fas fa-circle-question"></i></div>
             <h2 id="formConfirmTitle">Confirmar acao</h2>

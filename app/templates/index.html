@@ -105,15 +105,32 @@
         padding: 5px 14px;
         font-size: 12px;
         font-weight: 600;
-        color: #e2e8f0;
+        color: var(--text-primary) !important;
         cursor: pointer;
         transition: all 0.25s ease;
+    }
+
+    .btn-theme-toggle span,
+    .btn-theme-toggle i {
+        color: inherit !important;
+    }
+
+    :root[data-theme="light"] .btn-theme-toggle {
+        background: rgba(15, 23, 42, 0.04);
+        border-color: rgba(15, 23, 42, 0.12);
+        color: #1e293b !important;
+    }
+
+    :root[data-theme="light"] .btn-theme-toggle:hover {
+        background: rgba(37, 99, 235, 0.08);
+        border-color: rgba(37, 99, 235, 0.20);
+        color: #1d4ed8 !important;
     }
 
     .btn-theme-toggle:hover {
         background: rgba(255, 255, 255, 0.12);
         border-color: rgba(99, 179, 237, 0.4);
-        color: #60a5fa;
+        color: #60a5fa !important;
     }
 
     /* BOTÃO PARA TELA DE LOGIN ISOLADA */
@@ -413,6 +430,12 @@
         -webkit-backdrop-filter: blur(16px);
     }
 
+    :root[data-theme="light"] .socio-card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(148, 163, 184, 0.12));
+        border-color: rgba(15, 23, 42, 0.12);
+        box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+    }
+
     .socio-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -428,11 +451,19 @@
         margin: 0 0 12px;
     }
 
+    :root[data-theme="light"] .socio-text h3 {
+        color: #172033;
+    }
+
     .socio-text p {
         color: #94a3b8;
         font-size: 15px;
         line-height: 1.6;
         margin-bottom: 24px;
+    }
+
+    :root[data-theme="light"] .socio-text p {
+        color: #475569;
     }
 
     .vantagens-list {
@@ -453,6 +484,10 @@
         margin-top: 3px;
     }
 
+    :root[data-theme="light"] .vantagem-item i {
+        color: #7c3aed;
+    }
+
     .vantagem-item div h5 {
         color: #f1f5f9;
         font-size: 14px;
@@ -460,11 +495,19 @@
         margin: 0 0 4px;
     }
 
+    :root[data-theme="light"] .vantagem-item div h5 {
+        color: #111827;
+    }
+
     .vantagem-item div p {
         color: #64748b;
         font-size: 12px;
         margin: 0;
         line-height: 1.4;
+    }
+
+    :root[data-theme="light"] .vantagem-item div p {
+        color: #475569;
     }
 
     .btn-card {
@@ -543,6 +586,14 @@
         white-space: nowrap;
     }
 
+    :root[data-theme="light"] .faixa-anuncios-rodape {
+        background: rgba(255, 255, 255, 0.8);
+        border-top: 1px solid rgba(15, 23, 42, 0.08);
+        color: #0f172a;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+
     .faixa-anuncios-conteudo {
         display: inline-flex;
     }
@@ -559,8 +610,27 @@
         letter-spacing: 0.05em;
     }
 
+    :root[data-theme="light"] .item-anuncio {
+        color: #334155;
+    }
+
     .item-anuncio i {
         color: #a78bfa;
+    }
+
+    :root[data-theme="light"] .item-anuncio i {
+        color: #7c3aed;
+    }
+
+    .btn-card.solid {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: #fff;
+        border: 1px solid rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-card.solid:hover {
+        background: linear-gradient(135deg, #60a5fa, #3b82f6);
+        transform: translateY(-2px);
     }
 
     /* RESPONSIVIDADE */
@@ -603,13 +673,6 @@
                     <span class="pulse-dot"></span>
                     Vitrine da Associação
                 </div>
-
-                <!-- BOTÃO DE ALTERNAR TEMA ADICIONADO NO HTML -->
-                <button type="button" class="btn-theme-toggle" onclick="toggleTema()"
-                    title="Alternar Modo Claro / Escuro">
-                    <i class="fas fa-moon" id="theme-icon"></i>
-                    <span id="theme-text">Modo Escuro</span>
-                </button>
             </div>
 
             <h1>Seja Bem-Vindo à<br><span>AAPM SENAI</span></h1>
