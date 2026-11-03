@@ -362,6 +362,19 @@
             </div>
         </div>
 
+        <!-- Pagamentos -->
+        {% if venda.pagamentos %}
+        <div class="comp-pagamentos">
+            <label>Pagamento</label>
+            {% for pagamento in venda.pagamentos %}
+            <div class="pagamento-item">
+                <span>{{ pagamento.tipo }}</span>
+                <strong>R$ {{ "%.2f"|format(pagamento.valor) }}</strong>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <!-- Observação -->
         {% if venda.observacao %}
         <div class="comp-obs">
