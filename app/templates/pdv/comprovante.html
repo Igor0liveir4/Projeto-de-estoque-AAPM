@@ -15,8 +15,8 @@
         display: flex;
         align-items: center;
         gap: 14px;
-        background: rgba(72,187,120,0.1);
-        border: 1px solid rgba(72,187,120,0.22);
+        background: rgba(72, 187, 120, 0.1);
+        border: 1px solid rgba(72, 187, 120, 0.22);
         border-radius: 14px;
         padding: 18px 22px;
         margin-bottom: 28px;
@@ -25,7 +25,7 @@
     .status-icon {
         width: 46px;
         height: 46px;
-        background: rgba(72,187,120,0.18);
+        background: rgba(72, 187, 120, 0.18);
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -45,7 +45,7 @@
 
     .status-text p {
         font-size: 13px;
-        color: rgba(110,231,183,0.7);
+        color: rgba(110, 231, 183, 0.7);
     }
 
     /* Card do comprovante */
@@ -140,12 +140,16 @@
         align-items: center;
         justify-content: space-between;
         padding: 10px 0;
-        border-bottom: 1px solid rgba(99,179,237,0.05);
+        border-bottom: 1px solid rgba(99, 179, 237, 0.05);
     }
 
-    .item-row:last-child { border-bottom: none; }
+    .item-row:last-child {
+        border-bottom: none;
+    }
 
-    .item-row-left { flex: 1; }
+    .item-row-left {
+        flex: 1;
+    }
 
     .item-row-nome {
         font-size: 14px;
@@ -183,7 +187,9 @@
         margin-bottom: 8px;
     }
 
-    .tot-linha.desconto { color: #6ee7b7; }
+    .tot-linha.desconto {
+        color: #6ee7b7;
+    }
 
     .tot-linha.final {
         font-size: 20px;
@@ -196,7 +202,70 @@
         font-family: 'Sora', sans-serif;
     }
 
-    .tot-linha.final span:last-child { color: var(--accent-light); }
+    .tot-linha.final span:last-child {
+        color: var(--accent-light);
+    }
+
+    /* Pagamentos */
+    .comp-pagamentos {
+        padding: 18px 28px;
+        border-top: 1px solid var(--border);
+    }
+
+    .comp-pagamentos label {
+        display: block;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        margin-bottom: 12px;
+    }
+
+    .pagamento-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 11px 14px;
+        background: var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        margin-bottom: 8px;
+    }
+
+    .pagamento-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .pagamento-item span {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: capitalize;
+    }
+
+    .pagamento-item span i {
+        width: 28px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(99, 179, 237, 0.12);
+        border-radius: 8px;
+        font-size: 12px;
+        color: var(--accent-light);
+    }
+
+    .pagamento-item strong {
+        font-family: 'Sora', sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
 
     /* Observação */
     .comp-obs {
@@ -269,10 +338,40 @@
     }
 
     @media print {
-        header, footer, .comp-acoes, .status-bar { display: none !important; }
-        body { background: white; color: #111; }
-        .comp-card { box-shadow: none; border: 1px solid #e2e8f0; }
-        .comp-wrap { margin: 0; padding: 0; max-width: 100%; }
+
+        header,
+        footer,
+        .comp-acoes,
+        .status-bar {
+            display: none !important;
+        }
+
+        body {
+            background: white;
+            color: #111;
+        }
+
+        .comp-card {
+            box-shadow: none;
+            border: 1px solid #e2e8f0;
+        }
+
+        .comp-wrap {
+            margin: 0;
+            padding: 0;
+            max-width: 100%;
+        }
+
+        .pagamento-item {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        .pagamento-item span,
+        .pagamento-item strong,
+        .comp-pagamentos label {
+            color: #111;
+        }
     }
 </style>
 {% endblock %}
@@ -311,12 +410,12 @@
                 <label>Cliente</label>
                 <p>
                     {% if venda.cliente %}
-                        {{ venda.cliente.nome }}
-                        {% if venda.cliente.is_associado %}
-                            <i class="fas fa-star" style="color:#f6e05e;font-size:11px;margin-left:3px;" title="Associado"></i>
-                        {% endif %}
+                    {{ venda.cliente.nome }}
+                    {% if venda.cliente.is_associado %}
+                    <i class="fas fa-star" style="color:#f6e05e;font-size:11px;margin-left:3px;" title="Associado"></i>
+                    {% endif %}
                     {% else %}
-                        Não identificado
+                    Não identificado
                     {% endif %}
                 </p>
             </div>
@@ -352,7 +451,8 @@
             </div>
             {% if venda.desconto_percentual and venda.desconto_percentual > 0 %}
             <div class="tot-linha desconto">
-                <span><i class="fas fa-tag" style="margin-right:5px;"></i>Desconto de associado ({{ venda.desconto_percentual|int }}%)</span>
+                <span><i class="fas fa-tag" style="margin-right:5px;"></i>Desconto de associado ({{
+                    venda.desconto_percentual|int }}%)</span>
                 <span>− R$ {{ "%.2f"|format(venda.total_bruto - venda.total_liquido) }}</span>
             </div>
             {% endif %}
@@ -368,7 +468,7 @@
             <label>Pagamento</label>
             {% for pagamento in venda.pagamentos %}
             <div class="pagamento-item">
-                <span>{{ pagamento.tipo }}</span>
+                <span><i class="fas fa-wallet"></i>{{ pagamento.tipo }}</span>
                 <strong>R$ {{ "%.2f"|format(pagamento.valor) }}</strong>
             </div>
             {% endfor %}
