@@ -52,9 +52,10 @@ body::after {
     content: "";
     position: fixed;
     inset: auto;
-    pointer-events: none;
+    pointer-events:  none;
     z-index: 0;
 }
+
 
 body::before {
     width: 72rem;
