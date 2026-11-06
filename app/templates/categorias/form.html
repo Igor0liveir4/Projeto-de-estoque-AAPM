@@ -102,7 +102,7 @@
   <div class="alert-error"><i class="fas fa-circle-exclamation"></i> {{ erro }}</div>
   {% endif %}
 
-  <form action="/categorias/{{ editando.id ~ '/editar' if editando else 'nova' }}" method="post">
+  <form action="/categorias/{{ editando.id ~ '/editar' if editando else 'nova' }}" method="post" data-confirm-message="{{ 'Confirma as alteracoes desta categoria?' if editando else 'Confirma o cadastro desta categoria?' }}">
     <div class="field">
       <label>Nome da Categoria</label>
       <div class="input-wrap">

@@ -10,7 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-    /* ── LAYOUT ─────────────────────────────────────────── */
+    /* ── LAYOUT ───────────── */
     .dashboard-container {
         font-family: 'DM Sans', sans-serif;
         max-width: 1280px;
@@ -18,7 +18,7 @@
         padding: 0 28px;
     }
 
-    /* ── HEADER ROW ─────────────────────────────────────── */
+    /* ── HEADER ROW ─────────── */
     .dashboard-header {
         display: flex;
         justify-content: space-between;
@@ -28,7 +28,7 @@
     }
 
     .dashboard-title h1 {
-        font-family: 'Syne', sans-serif;
+        font-family: 'Sora', sans-serif;
         font-size: 34px;
         font-weight: 800;
         letter-spacing: -1px;
@@ -48,7 +48,7 @@
         font-weight: 600;
     }
 
-    /* ── USER BADGE ─────────────────────────────────────── */
+    /* ── USER BADGE ───────────── */
     .user-badge {
         background: rgba(59, 130, 246, 0.08);
         color: #94a3b8;
@@ -86,7 +86,7 @@
         }
     }
 
-    /* ── STAT CARDS ─────────────────────────────────────── */
+    /* ── STAT CARDS ────────── */
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -96,7 +96,7 @@
 
     .stat-card {
         position: relative;
-        background: rgba(13, 19, 32, 0.8);
+        background: rgba(23, 34, 53, 0.88);
         border: 1px solid rgba(99, 179, 237, 0.1);
         border-radius: 16px;
         padding: 22px 20px;
@@ -245,7 +245,7 @@
     }
 
     .stat-content .value {
-        font-family: 'Syne', sans-serif;
+        font-family: 'Sora', sans-serif;
         font-size: 32px;
         color: #f0f6ff;
         font-weight: 700;
@@ -254,7 +254,7 @@
         letter-spacing: -1px;
     }
 
-    /* ── CHART CARDS ────────────────────────────────────── */
+    /* ── CHART CARDS ───────── */
     .charts-grid {
         display: grid;
         /* Mantém os dois gráficos superiores ocupando toda a largura disponível. */
@@ -264,7 +264,7 @@
     }
 
     .chart-card {
-        background: rgba(13, 19, 32, 0.8);
+        background: rgba(23, 34, 53, 0.88);
         border: 1px solid rgba(99, 179, 237, 0.1);
         border-radius: 16px;
         padding: 26px;
@@ -295,7 +295,7 @@
     }
 
     .chart-card h2 {
-        font-family: 'Syne', sans-serif;
+        font-family: 'Sora', sans-serif;
         font-size: 15px;
         font-weight: 700;
         color: #e2e8f0;
@@ -319,6 +319,30 @@
         border: 1px solid rgba(59, 130, 246, 0.18);
     }
 
+    :root[data-theme="light"] .stat-card,
+    :root[data-theme="light"] .chart-card {
+        background: var(--bg-surface);
+        border-color: var(--border);
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+
+    :root[data-theme="light"] .stat-card:hover,
+    :root[data-theme="light"] .chart-card:hover {
+        border-color: rgba(37, 99, 235, 0.3);
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+    }
+
+    :root[data-theme="light"] .stat-content h3 {
+        color: #64748b;
+    }
+
+    :root[data-theme="light"] .stat-content .value,
+    :root[data-theme="light"] .chart-card h2 {
+        color: #172033;
+    }
+
     .chart-container {
         position: relative;
         height: 300px;
@@ -328,7 +352,7 @@
         grid-column: 1 / -1;
     }
 
-    /* ── ANIMATION ──────────────────────────────────────── */
+    /* ── ANIMAÇÃO ────────────────── */
     @keyframes fadeUp {
         from {
             opacity: 0;
@@ -341,7 +365,7 @@
         }
     }
 
-    /* ── RESPONSIVE ─────────────────────────────────────── */
+    /* ── RESPONSIVIDADE ─────────────────────── */
     @media (max-width: 1024px) {
         .stats-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -404,26 +428,26 @@
     </div>
 
     <div class="stats-grid">
-            <a href="/produtos" class="stat-card blue">
-                <div class="stat-icon blue">
-                    <i class="fas fa-box"></i>
-                </div>
-                <div class="stat-content">
-                    <h3>Total de Produtos</h3>
-                    <p class="value">{{ total_produtos }}</p>
-                </div>
-            </a>
+        <a href="/produtos" class="stat-card blue">
+            <div class="stat-icon blue">
+                <i class="fas fa-box"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Total de Produtos</h3>
+                <p class="value">{{ total_produtos }}</p>
+            </div>
+        </a>
 
         {% if usuario.role == 'admin' %}
-            <a href="/categorias" class="stat-card purple">
-                <div class="stat-icon purple">
-                    <i class="fas fa-tags"></i>
-                </div>
-                <div class="stat-content">
-                    <h3>Categorias</h3>
-                    <p class="value">{{ total_categorias }}</p>
-                </div>
-            </a>
+        <a href="/categorias" class="stat-card purple">
+            <div class="stat-icon purple">
+                <i class="fas fa-tags"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Categorias</h3>
+                <p class="value">{{ total_categorias }}</p>
+            </div>
+        </a>
         {% endif %}
 
         <a href="/produtos" class="stat-card green">
@@ -437,19 +461,20 @@
         </a>
 
         {% if usuario.role == 'admin' %}
-            <a href="/usuarios" class="stat-card orange">
-                <div class="stat-icon orange">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="stat-content">
-                    <h3>Usuários do Sistema</h3>
-                    <p class="value">{{ total_usuarios }}</p>
-                </div>
-            </a>
+        <a href="/usuarios" class="stat-card orange">
+            <div class="stat-icon orange">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Usuários do Sistema</h3>
+                <p class="value">{{ total_usuarios }}</p>
+            </div>
+        </a>
         {% endif %}
-        
+
         <a href="/armarios" class="stat-card teal">
-            <div class="stat-icon" style="background: rgba(6,182,212,0.12); color: #06b6d4; border: 1px solid rgba(6,182,212,0.18);">
+            <div class="stat-icon"
+                style="background: rgba(6,182,212,0.12); color: #06b6d4; border: 1px solid rgba(6,182,212,0.18);">
                 <i class="fas fa-lock"></i>
             </div>
             <div class="stat-content">
@@ -459,7 +484,8 @@
         </a>
 
         <a href="/pdv" class="stat-card cyan">
-            <div class="stat-icon" style="background: rgba(8,145,178,0.12); color: #06b6d4; border: 1px solid rgba(8,145,178,0.18);">
+            <div class="stat-icon"
+                style="background: rgba(8,145,178,0.12); color: #06b6d4; border: 1px solid rgba(8,145,178,0.18);">
                 <i class="fas fa-cash-register"></i>
             </div>
             <div class="stat-content">
@@ -511,15 +537,15 @@
     var COLORS = ['#3b82f6', '#9333ea', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899', '#84cc16'];
     var FONT = "'DM Sans', sans-serif";
 
-    /* Dark theme grid / tick colors */
-    var gridColor = 'rgba(99, 179, 237, 0.07)';
-    var tickColor = '#475569';
+    var isLightTheme = document.documentElement.getAttribute('data-theme') === 'light';
+    var gridColor = isLightTheme ? 'rgba(15, 23, 42, 0.10)' : 'rgba(99, 179, 237, 0.07)';
+    var tickColor = isLightTheme ? '#475569' : '#94a3b8';
 
     var sharedTooltip = {
-        backgroundColor: '#0d1320',
-        titleColor: '#f0f6ff',
-        bodyColor: '#94a3b8',
-        borderColor: 'rgba(59,130,246,0.2)',
+        backgroundColor: isLightTheme ? '#ffffff' : '#0d1320',
+        titleColor: isLightTheme ? '#172033' : '#f0f6ff',
+        bodyColor: isLightTheme ? '#475569' : '#94a3b8',
+        borderColor: isLightTheme ? 'rgba(15,23,42,0.16)' : 'rgba(59,130,246,0.2)',
         borderWidth: 1,
         padding: 12,
         cornerRadius: 10,
@@ -535,7 +561,7 @@
                 datasets: [{
                     data: categoriasData.data,
                     backgroundColor: COLORS,
-                    borderColor: 'rgba(8,12,20,0.8)',
+                    borderColor: isLightTheme ? '#ffffff' : 'rgba(8,12,20,0.8)',
                     borderWidth: 3,
                     hoverBorderWidth: 2,
                     hoverOffset: 6
@@ -555,7 +581,7 @@
                             padding: 16,
                             usePointStyle: true,
                             pointStyleWidth: 10,
-                            color: '#64748b'
+                            color: tickColor
                         }
                     }
                 }
@@ -637,7 +663,7 @@
                             font: { size: 12, family: FONT },
                             padding: 16,
                             usePointStyle: true,
-                            color: '#64748b'
+                            color: tickColor
                         }
                     },
                     tooltip: valorTooltip

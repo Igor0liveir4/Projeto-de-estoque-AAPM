@@ -102,7 +102,6 @@ A aplicação conta com um painel administrativo completo (Dashboard), gráficos
 ## 👥 Equipe de Desenvolvimento
 
 * **Igor Oliveira** — *Desenvolvedor Back-end* (Regras de negócio, APIs e estruturação do banco de dados).
-* **Enzo Rodrigues Leal** — *Desenvolvedor Front-end* (Arquitetura de diretórios e organização do repositório).
 * **Gleidson Brian Muniz Lira** — *Desenvolvedor Front-end* (Estilização de interfaces e design do sistema).
 * **Francisco Araujo Lima** — *Desenvolvedor Front-end* (Estilização de interfaces e design do sistema).
 
