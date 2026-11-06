@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from app.models.categoria import Categoria
@@ -55,6 +57,42 @@ def test_item_de_venda_calcula_subtotal_e_venda_desconto():
 
     assert item.subtotal == 7.5
     assert venda.desconto_valor == 0.75
+
+
+def test_venda_preserva_referencia_pix_e_parcelas_no_credito():
+    venda = Venda(formas_pagamento=json.dumps([
+        {
+            "tipo": "Pix",
+            "valor": 60.75,
+            "txid": "PEDIDOABC123",
+            "confirmado_manualmente": True,
+        },
+        {
+            "tipo": "Cartão de Crédito",
+            "valor": 20,
+            "recebido": 20,
+            "troco": 0,
+            "parcelas": 3,
+        },
+    ]))
+
+    assert venda.pagamentos == [
+        {
+            "tipo": "Pix",
+            "valor": 60.75,
+            "recebido": 60.75,
+            "troco": 0,
+            "txid": "PEDIDOABC123",
+            "confirmado_manualmente": True,
+        },
+        {
+            "tipo": "Cartão de Crédito",
+            "valor": 20.0,
+            "recebido": 20.0,
+            "troco": 0,
+            "parcelas": 3,
+        },
+    ]
 
 
 def test_movimentacao_calcula_valor_total():

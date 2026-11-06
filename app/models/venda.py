@@ -89,10 +89,32 @@ class Venda(Base):
             if not tipo or valor_float <= 0:
                 continue
 
-            pagamentos_validos.append({
+            try:
+                recebido = float(item.get("recebido", valor_float))
+                troco = float(item.get("troco", 0))
+            except (TypeError, ValueError):
+                recebido = valor_float
+                troco = 0
+
+            pagamento = {
                 "tipo": tipo,
                 "valor": round(valor_float, 2),
-            })
+                "recebido": round(recebido, 2),
+                "troco": round(max(0, troco), 2),
+            }
+            if tipo == "Cartão de Crédito":
+                try:
+                    parcelas = int(item.get("parcelas") or 1)
+                except (TypeError, ValueError):
+                    parcelas = 1
+                if 1 <= parcelas <= 12:
+                    pagamento["parcelas"] = parcelas
+            if tipo == "Pix":
+                txid = str(item.get("txid", "")).strip()
+                if txid:
+                    pagamento["txid"] = txid
+                pagamento["confirmado_manualmente"] = item.get("confirmado_manualmente") is True
+            pagamentos_validos.append(pagamento)
 
         return pagamentos_validos
 

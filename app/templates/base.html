@@ -894,28 +894,42 @@
         }
 
         /* Scrollbars */
-        html {
-            scrollbar-color: #3b82f6 #0d1320;
+        :root {
+            --scrollbar-track: #0d1320;
+            --scrollbar-thumb: #3b82f6;
+            --scrollbar-thumb-hover: #60a5fa;
+        }
+
+        :root[data-theme="light"] {
+            --scrollbar-track: #e2e8f0;
+            --scrollbar-thumb: #60a5fa;
+            --scrollbar-thumb-hover: #2563eb;
+        }
+
+        *,
+        *::before,
+        *::after {
+            scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
             scrollbar-width: thin;
         }
 
         *::-webkit-scrollbar {
-            height: 10px;
-            width: 10px;
+            height: 8px;
+            width: 8px;
         }
 
         *::-webkit-scrollbar-track {
-            background: #0d1320;
+            background: var(--scrollbar-track);
         }
 
         *::-webkit-scrollbar-thumb {
-            background: #334155;
-            border: 2px solid #0d1320;
+            background: var(--scrollbar-thumb);
+            border: 2px solid var(--scrollbar-track);
             border-radius: 8px;
         }
 
         *::-webkit-scrollbar-thumb:hover {
-            background: #3b82f6;
+            background: var(--scrollbar-thumb-hover);
         }
 
         /* Confirmation dialog for form submissions */

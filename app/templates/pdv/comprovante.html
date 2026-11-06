@@ -248,6 +248,54 @@
         text-transform: capitalize;
     }
 
+    .pagamento-item-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    .pagamento-item-info small {
+        color: var(--text-muted);
+        font-size: 11px;
+        font-weight: 500;
+    }
+
+    .pix-status {
+        color: #34d399 !important;
+    }
+
+    .pix-reference {
+        color: var(--text-muted);
+        font-size: 11px;
+        overflow-wrap: anywhere;
+    }
+
+    .pix-icon {
+        background: rgba(52, 211, 153, 0.12) !important;
+        color: #34d399 !important;
+    }
+
+    .pagamento-item span i.pagamento-icone-credito {
+        background: #2A1B4E;
+        color: #A855F7;
+    }
+
+    .pagamento-item span i.pagamento-icone-debito {
+        background: #1E293B;
+        color: #3B82F6;
+    }
+
+    .pagamento-item span i.pagamento-icone-dinheiro {
+        background: #143823;
+        color: #22C55E;
+    }
+
+    .pagamento-item span i.pagamento-icone-transferencia {
+        background: #3B2713;
+        color: #F97316;
+    }
+
     .pagamento-item span i {
         width: 28px;
         height: 28px;
@@ -292,26 +340,40 @@
 
     /* Ações */
     .comp-acoes {
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
         margin-top: 24px;
-        flex-wrap: wrap;
     }
 
     .btn-acao {
-        flex: 1;
-        display: flex;
+        min-width: 0;
+        display: grid;
+        grid-template-columns: 18px minmax(0, 1fr) auto;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        padding: 12px;
+        gap: 7px;
+        padding: 12px 10px;
         border-radius: 10px;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 700;
+        line-height: 1.25;
         text-decoration: none;
         cursor: pointer;
         border: none;
         transition: all var(--transition);
+        text-align: center;
+        white-space: normal;
+        overflow: visible;
+        box-shadow: none;
+    }
+
+    .btn-acao > i {
+        justify-self: center;
+    }
+
+    .btn-acao kbd {
+        justify-self: end;
     }
 
     .btn-acao.primary {
@@ -337,11 +399,101 @@
         transform: translateY(-1px);
     }
 
+    .btn-acao.whatsapp {
+        background: #128c7e;
+        color: #fff;
+    }
+
+    .btn-acao.whatsapp:hover {
+        background: #0f9b72;
+        transform: translateY(-1px);
+    }
+
+    .btn-acao kbd {
+        background: rgba(148, 163, 184, 0.15);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        border-radius: 4px;
+        font: 600 9px 'DM Sans', sans-serif;
+        padding: 2px 4px;
+        white-space: nowrap;
+    }
+
+    .whatsapp-modal[hidden] { display: none; }
+
+    .whatsapp-modal {
+        align-items: center;
+        background: rgba(3, 7, 18, 0.72);
+        display: flex;
+        inset: 0;
+        justify-content: center;
+        padding: 20px;
+        position: fixed;
+        z-index: 1100;
+    }
+
+    .whatsapp-dialog {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-hover);
+        border-radius: 14px;
+        max-width: 420px;
+        padding: 24px;
+        width: 100%;
+    }
+
+    .whatsapp-dialog h3 {
+        color: var(--text-primary);
+        font: 700 19px 'Syne', sans-serif;
+        margin-bottom: 8px;
+    }
+
+    .whatsapp-dialog p {
+        color: var(--text-secondary);
+        font-size: 13px;
+        margin-bottom: 14px;
+    }
+
+    .whatsapp-dialog input { margin: 0; }
+
+    .whatsapp-error {
+        color: #fca5a5 !important;
+        margin: 8px 0 0 !important;
+    }
+
+    .whatsapp-dialog-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-top: 18px;
+    }
+
+    .whatsapp-dialog-actions button {
+        margin: 0;
+    }
+
+    .whatsapp-cancelar {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-secondary);
+    }
+
+    @media (max-width: 560px) {
+        .comp-meta { grid-template-columns: 1fr 1fr; }
+        .comp-cabecalho, .comp-meta, .itens-lista, .totais-bloco,
+        .comp-pagamentos, .comp-obs { padding-left: 18px; padding-right: 18px; }
+        .comp-acoes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 380px) {
+        .comp-acoes { grid-template-columns: 1fr; }
+        .btn-acao { min-height: 44px; }
+    }
+
     @media print {
 
         header,
         footer,
         .comp-acoes,
+        .whatsapp-modal,
         .status-bar {
             display: none !important;
         }
@@ -445,11 +597,11 @@
 
         <!-- Totais -->
         <div class="totais-bloco">
+            {% if venda.desconto_percentual and venda.desconto_percentual > 0 %}
             <div class="tot-linha">
                 <span>Subtotal bruto</span>
                 <span>R$ {{ "%.2f"|format(venda.total_bruto) }}</span>
             </div>
-            {% if venda.desconto_percentual and venda.desconto_percentual > 0 %}
             <div class="tot-linha desconto">
                 <span><i class="fas fa-tag" style="margin-right:5px;"></i>Desconto de associado ({{
                     venda.desconto_percentual|int }}%)</span>
@@ -468,7 +620,34 @@
             <label>Pagamento</label>
             {% for pagamento in venda.pagamentos %}
             <div class="pagamento-item">
-                <span><i class="fas fa-wallet"></i>{{ pagamento.tipo }}</span>
+                <div class="pagamento-item-info">
+                    <span>
+                        {% if pagamento.tipo == 'Pix' %}
+                        <svg class="pix-icon" width="28" height="28" viewBox="0 0 32 32" role="img" aria-label="Pix">
+                            <rect width="32" height="32" rx="8" fill="rgba(52,211,153,.12)"/>
+                            <path d="M16 5.5 21 10.5 16 15.5 11 10.5 16 5.5Zm0 11 5 5-5 5-5-5 5-5Zm-5.5-5.5 5 5-5 5-5-5 5-5Zm11 0 5 5-5 5-5-5 5-5Z" fill="#34d399"/>
+                        </svg>
+                        {% elif pagamento.tipo == 'Cartão de Crédito' %}
+                        <i class="fas fa-credit-card pagamento-icone-credito" aria-label="Cartão de Crédito"></i>
+                        {% elif pagamento.tipo == 'Cartão de Débito' %}
+                        <i class="fas fa-credit-card pagamento-icone-debito" aria-label="Cartão de Débito"></i>
+                        {% elif pagamento.tipo == 'Dinheiro' %}
+                        <i class="fas fa-money-bill-wave pagamento-icone-dinheiro" aria-label="Dinheiro"></i>
+                        {% elif pagamento.tipo == 'Transferência' %}
+                        <i class="fas fa-building-columns pagamento-icone-transferencia" aria-label="Transferência"></i>
+                        {% else %}
+                        <i class="fas fa-wallet"></i>
+                        {% endif %}
+                        {{ pagamento.tipo }}{% if pagamento.parcelas %} ({{ pagamento.parcelas }}x){% endif %}
+                    </span>
+                    {% if pagamento.tipo == 'Pix' and pagamento.confirmado_manualmente %}
+                    <small class="pix-status">Status: Pago — Aprovado pelo Caixa</small>
+                    <small class="pix-reference">Ref. Pix: {{ pagamento.txid or ('PEDIDO%04d'|format(venda.id)) }}</small>
+                    {% endif %}
+                    {% if pagamento.troco > 0 %}
+                    <small>Recebido: R$ {{ "%.2f"|format(pagamento.recebido) }} · Troco: R$ {{ "%.2f"|format(pagamento.troco) }}</small>
+                    {% endif %}
+                </div>
                 <strong>R$ {{ "%.2f"|format(pagamento.valor) }}</strong>
             </div>
             {% endfor %}
@@ -488,15 +667,125 @@
     <!-- Ações -->
     <div class="comp-acoes">
         <a href="/pdv/historico" class="btn-acao secondary">
-            <i class="fas fa-arrow-left"></i> Voltar ao histórico
+            <i class="fas fa-arrow-left"></i><span>Voltar ao histórico</span><kbd>Esc</kbd>
         </a>
-        <button class="btn-acao secondary" onclick="window.print()">
-            <i class="fas fa-print"></i> Imprimir
+        <button class="btn-acao secondary" id="imprimir-comprovante" type="button">
+            <i class="fas fa-print"></i><span>Imprimir</span><kbd>Ctrl + P</kbd>
+        </button>
+        <button class="btn-acao whatsapp" id="abrir-whatsapp" type="button">
+            <i class="fab fa-whatsapp"></i><span>Enviar por WhatsApp</span>
         </button>
         <a href="/pdv" class="btn-acao primary" onclick="sessionStorage.removeItem('pdv-carrinho')">
-            <i class="fas fa-plus"></i> Nova Venda
+            <i class="fas fa-plus"></i><span>Nova Venda</span><kbd>F2</kbd><kbd>Enter</kbd>
         </a>
     </div>
 
 </div>
+
+<div class="whatsapp-modal" id="whatsapp-modal" role="dialog" aria-modal="true" aria-labelledby="whatsapp-titulo" hidden>
+    <div class="whatsapp-dialog">
+        <h3 id="whatsapp-titulo">Enviar comprovante</h3>
+        <p>Informe o número do WhatsApp com DDD. O comprovante será preparado como uma mensagem para você revisar e enviar.</p>
+        <label for="whatsapp-telefone">Telefone / WhatsApp</label>
+        <input id="whatsapp-telefone" type="tel" inputmode="tel" autocomplete="tel"
+            placeholder="(11) 99999-9999" value="{{ cliente_telefone }}">
+        <p class="whatsapp-error" id="whatsapp-erro" role="alert" hidden></p>
+        <div class="whatsapp-dialog-actions">
+            <button type="button" class="whatsapp-cancelar" id="whatsapp-cancelar">Cancelar</button>
+            <button type="button" class="whatsapp-enviar" id="whatsapp-enviar">
+                <i class="fab fa-whatsapp"></i> Continuar no WhatsApp
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    const whatsappModal = document.getElementById('whatsapp-modal');
+    const whatsappTelefone = document.getElementById('whatsapp-telefone');
+    const whatsappErro = document.getElementById('whatsapp-erro');
+
+    function fecharWhatsapp() {
+        whatsappModal.hidden = true;
+        whatsappErro.hidden = true;
+    }
+
+    function enviarWhatsapp() {
+        const digitado = whatsappTelefone.value.replace(/\D/g, '');
+        const numeroLocal = digitado.startsWith('55') && (digitado.length === 12 || digitado.length === 13)
+            ? digitado.slice(2)
+            : digitado;
+        if (numeroLocal.length !== 10 && numeroLocal.length !== 11) {
+            whatsappErro.textContent = 'Digite um número válido com DDD.';
+            whatsappErro.hidden = false;
+            whatsappTelefone.focus();
+            return;
+        }
+
+        const numeroInternacional = digitado.startsWith('55') && digitado.length > 11
+            ? digitado
+            : `55${numeroLocal}`;
+        const mensagem = [
+            `Comprovante da venda #{{ "%04d"|format(venda.id) }}`,
+            `AAPM — Ponto de Venda`,
+            `Data: {{ venda.criado_em.strftime('%d/%m/%Y %H:%M') }}`,
+            `Total: R$ {{ "%.2f"|format(venda.total_liquido) }}`,
+            {% for pagamento in venda.pagamentos %}
+            `{{ pagamento.tipo }}: R$ {{ "%.2f"|format(pagamento.valor) }}{% if pagamento.tipo == 'Pix' and pagamento.txid %} (Ref. Pix: {{ pagamento.txid }}){% endif %}`,
+            {% if pagamento.tipo == 'Pix' and pagamento.confirmado_manualmente %}
+            `Pix confirmado manualmente pelo operador.`,
+            {% endif %}
+            {% endfor %}
+            `Obrigado pela compra!`
+        ].join('\n');
+
+        window.open(`https://wa.me/${numeroInternacional}?text=${encodeURIComponent(mensagem)}`, '_blank', 'noopener,noreferrer');
+        fecharWhatsapp();
+    }
+
+    document.getElementById('imprimir-comprovante').addEventListener('click', () => window.print());
+    document.getElementById('abrir-whatsapp').addEventListener('click', () => {
+        whatsappModal.hidden = false;
+        whatsappTelefone.focus();
+    });
+    document.getElementById('whatsapp-cancelar').addEventListener('click', fecharWhatsapp);
+    document.getElementById('whatsapp-enviar').addEventListener('click', enviarWhatsapp);
+    whatsappModal.addEventListener('click', event => {
+        if (event.target === whatsappModal) fecharWhatsapp();
+    });
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && !whatsappModal.hidden) {
+            fecharWhatsapp();
+            return;
+        }
+        if (event.ctrlKey && event.key.toLowerCase() === 'p') {
+            event.preventDefault();
+            window.print();
+            return;
+        }
+        if (event.key === 'F2') {
+            event.preventDefault();
+            window.location.assign('/pdv');
+            return;
+        }
+        const elemento = event.target;
+        const digitando = elemento instanceof HTMLElement &&
+            (elemento.isContentEditable || /^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(elemento.tagName));
+        if (event.key === 'Enter' && !digitando && whatsappModal.hidden) {
+            event.preventDefault();
+            window.location.assign('/pdv');
+        } else if (event.key === 'Escape' && whatsappModal.hidden) {
+            window.location.assign('/pdv/historico');
+        }
+    });
+
+    whatsappTelefone.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            enviarWhatsapp();
+        }
+    });
+})();
+</script>
 {% endblock %}

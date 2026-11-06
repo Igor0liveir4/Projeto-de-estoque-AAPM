@@ -36,7 +36,16 @@ Bash
 python criar_usuario.py
 (Após o login com esta conta, você conseguirá cadastrar novos colaboradores diretamente pelo painel do site).
 
-6. Inicializar o Servidor de Desenvolvimento
+6. Configurar a Chave Pix (opcional)
+Para habilitar o QR Code Pix estático no PDV, adicione ao arquivo `.env` local:
+
+```env
+PIX_KEY=seu_cpf_com_11_digitos
+```
+
+O valor fica apenas no `.env` (ignorado pelo Git). O QR Code e o código Pix Copia e Cola são gerados localmente. Como não há integração bancária ou webhook, o operador deve conferir o recebimento no aplicativo do banco e confirmar manualmente no PDV.
+
+7. Inicializar o Servidor de Desenvolvimento
 Coloque a aplicação para rodar localmente utilizando o Uvicorn com hot-reload ativado:
 
 Bash
@@ -158,6 +167,7 @@ O projeto segue o padrão arquitetural MVC (Model-View-Controller) adaptado para
 │   │   ├── home.html                  # Dashboard interno pós-login (Gráficos)
 │   │   └── index.html                 # Landing page pública para usuários anônimos
 │   ├── auth.py                    # Utilitários de segurança (JWT e hash de senhas)
+│   ├── pix.py                     # Geração local do payload e QR Code Pix
 │   ├── database.py                # Inicialização e injeção do banco (SessionLocal)
 │   └── main.py                    # Ponto de entrada do FastAPI (Montagem das rotas)
 ├── migrations/                    # Arquivos gerados automaticamente pelo Alembic

@@ -7,12 +7,14 @@
 <style>
     .pdv-layout {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
+        grid-template-columns: minmax(0, 1fr) clamp(300px, 30vw, 380px);
         gap: 0;
         height: calc(100vh - var(--header-h));
+        height: calc(100dvh - var(--header-h));
         overflow: hidden;
         width: 100%;
         min-width: 0;
+        min-height: 360px;
     }
 
     /* ── Painel de Produtos ── */
@@ -283,6 +285,88 @@
 
     .modal-variacao.aberto { display: flex; }
 
+    .pix-modal {
+        align-items: center;
+        background: rgba(2, 6, 23, 0.78);
+        display: none;
+        inset: 0;
+        justify-content: center;
+        overflow-y: auto;
+        padding: 20px;
+        position: fixed;
+        z-index: 1100;
+    }
+
+    .pix-modal.aberto { display: flex; }
+
+    .pix-modal-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-hover);
+        border-radius: 16px;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+        max-width: 440px;
+        padding: 24px;
+        width: 100%;
+    }
+
+    .pix-modal-card h3 {
+        color: var(--text-primary);
+        font: 700 20px 'Syne', sans-serif;
+        margin-bottom: 8px;
+    }
+
+    .pix-modal-card p {
+        color: var(--text-secondary);
+        font-size: 14px;
+    }
+
+    .pix-qr {
+        background: #fff;
+        border-radius: 12px;
+        display: block;
+        height: 220px;
+        margin: 18px auto;
+        padding: 10px;
+        width: 220px;
+    }
+
+    .pix-copia-cola {
+        display: flex;
+        gap: 8px;
+    }
+
+    .pix-copia-cola input {
+        margin: 0;
+        min-width: 0;
+    }
+
+    .pix-modal-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-top: 18px;
+    }
+
+    .pix-modal-actions button {
+        margin: 0;
+    }
+
+    .pix-btn-cancelar {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-secondary);
+    }
+
+    .pix-btn-confirmar {
+        background: #059669;
+    }
+
+    .pix-modal-erro {
+        color: #fca5a5 !important;
+        margin-top: 10px;
+    }
+
     .modal-variacao-card {
         background: var(--bg-surface);
         border: 1px solid var(--border-hover);
@@ -420,6 +504,39 @@
         flex: 1;
         overflow-y: auto;
         padding: 12px 20px;
+        min-height: 0;
+        overscroll-behavior: contain;
+    }
+
+    .carrinho-resize {
+        align-items: center;
+        background: var(--bg-surface);
+        border-top: 1px solid var(--border);
+        display: flex;
+        flex: 0 0 20px;
+        justify-content: center;
+        touch-action: none;
+        user-select: none;
+    }
+
+    .carrinho-resize-handle {
+        align-items: center;
+        color: var(--text-muted);
+        cursor: ns-resize;
+        display: flex;
+        height: 100%;
+        justify-content: center;
+        width: 100%;
+        outline-offset: -2px;
+    }
+
+    .carrinho-resize-handle:hover,
+    .carrinho-resize-handle:focus-visible {
+        color: var(--accent-light);
+    }
+
+    .carrinho-resize-handle i {
+        font-size: 15px;
     }
 
     .carrinho-vazio {
@@ -531,9 +648,12 @@
 
     /* Totais + finalizar */
     .carrinho-footer {
-        border-top: 1px solid var(--border);
         padding: 16px 20px 20px;
-        flex-shrink: 0;
+        flex: 0 1 auto;
+        min-height: 0;
+        max-height: calc(100% - 220px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
         background: var(--bg-surface);
         position: relative;
         z-index: 1;
@@ -637,11 +757,11 @@
 
     @media (max-width: 1180px) {
         .pdv-layout {
-            grid-template-columns: minmax(0, 1fr) 320px;
+            grid-template-columns: minmax(0, 1fr) 300px;
         }
 
         .produtos-grid {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             grid-auto-rows: 226px;
             align-content: start;
             padding: 16px;
@@ -656,16 +776,34 @@
         .pdv-layout {
             grid-template-columns: 1fr;
             height: auto;
+            min-height: 0;
             overflow: visible;
         }
 
         .produtos-panel {
-            height: 60vh;
+            height: min(60vh, 560px);
+            min-height: 320px;
         }
 
         .carrinho-panel {
             height: auto;
-            min-height: 420px;
+            min-height: 0;
+            overflow: visible;
+        }
+
+        #carrinho-itens {
+            flex: 0 1 auto;
+            min-height: 100px;
+            max-height: min(32vh, 240px);
+        }
+
+        .carrinho-footer {
+            max-height: none;
+            overflow: visible;
+        }
+
+        .carrinho-resize {
+            flex-basis: 34px;
         }
     }
 
@@ -694,6 +832,38 @@
 
         .modal-campos {
             grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .produtos-grid,
+        .produtos-grid.compacto {
+            grid-template-columns: 1fr;
+            grid-auto-rows: 190px;
+        }
+
+        .produto-imagem {
+            height: 92px;
+        }
+
+        .carrinho-header,
+        .cliente-wrap,
+        #carrinho-itens,
+        .carrinho-footer {
+            padding-left: 14px;
+            padding-right: 14px;
+        }
+
+        .carrinho-resize {
+            margin: 0 14px;
+        }
+
+        .pagamento-tipo {
+            min-width: 0;
+        }
+
+        .pagamento-valor {
+            width: 88px;
         }
     }
 
@@ -761,6 +931,8 @@
 
     .pagamentos-header {
         display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 12px;
@@ -779,7 +951,9 @@
         border: 0;
         border-radius: 8px;
         padding: 8px 12px;
+        width: 100%;
         font-weight: 700;
+        font-size: 12px;
         cursor: pointer;
         transition: background var(--transition);
     }
@@ -796,8 +970,9 @@
     }
 
     .pagamento-row {
-        display: flex;
         align-items: center;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
         gap: 10px;
         padding: 10px;
         border: 1px solid var(--border);
@@ -806,13 +981,23 @@
     }
 
     .pagamento-tipo {
-        flex: 1;
-        min-width: 120px;
+        min-width: 0;
         font-size: 13px;
-        color: var(--text-primary);
-        background: transparent;
+        color: var(--text-primary) !important;
+        -webkit-text-fill-color: var(--text-primary);
+        color-scheme: dark;
+        background: var(--bg-card);
         border: 0;
         cursor: pointer;
+    }
+
+    .pagamento-tipo option {
+        color: var(--text-primary);
+        background: var(--bg-card);
+    }
+
+    :root[data-theme="light"] .pagamento-tipo {
+        color-scheme: light;
     }
 
     .pagamento-valor-wrap {
@@ -831,6 +1016,32 @@
         background: var(--bg-card);
         color: var(--text-primary);
         font-weight: 500;
+        text-align: right;
+    }
+
+    .pagamento-parcelas-wrap {
+        display: none;
+        grid-column: 1 / -1;
+    }
+
+    .pagamento-parcelas-wrap label {
+        color: var(--text-secondary);
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .pagamento-parcelas {
+        margin: 0;
+        width: 100%;
+    }
+
+    .pagamento-troco {
+        color: #10b981;
+        font-size: 13px;
+        font-weight: 700;
+        margin: 0 0 8px;
         text-align: right;
     }
 
@@ -965,6 +1176,14 @@
             </div>
         </div>
 
+        <div class="carrinho-resize">
+            <span class="carrinho-resize-handle" id="carrinho-resize-handle" role="separator"
+                aria-orientation="horizontal" aria-label="Arraste para ajustar o espaço dos produtos selecionados"
+                aria-valuemin="80" aria-valuemax="800" aria-valuenow="300" tabindex="0">
+                <i class="fas fa-grip-lines"></i>
+            </span>
+        </div>
+
         <!-- Totais + finalizar -->
         <div class="carrinho-footer">
             <div class="carrinho-header-inline">
@@ -989,9 +1208,10 @@
             <div class="pagamentos-wrap">
                 <div class="pagamentos-header">
                     <label>Formas de pagamento</label>
-                    <button type="button" id="btn-add-pagamento" class="btn-add-pagamento">+ Outra</button>
+                    <button type="button" id="btn-add-pagamento" class="btn-add-pagamento">+ Adicionar forma de pagamento</button>
                 </div>
                 <div id="pagamentos-list" class="pagamentos-list"></div>
+                <div id="pagamento-troco" class="pagamento-troco" hidden></div>
                 <div class="pagamento-restante" id="pagamento-restante">Restante: R$ 0,00</div>
             </div>
 
@@ -1005,6 +1225,8 @@
                 <input type="hidden" name="cliente_id" id="cliente-id-input" value="0">
                 <input type="hidden" name="observacao" id="obs-hidden-input">
                 <input type="hidden" name="pagamentos_json" id="pagamentos-json-input" value="[]">
+                <input type="hidden" name="pix_confirmacao_token" id="pix-confirmacao-token">
+                <input type="hidden" name="pix_txid" id="pix-txid">
                 <button id="btn-finalizar" type="button" disabled>
                     <i class="fas fa-check-circle"></i>
                     Finalizar Venda
@@ -1045,6 +1267,24 @@
     </div>
 </div>
 
+<div class="pix-modal" id="pix-modal" role="dialog" aria-modal="true" aria-labelledby="pix-modal-title">
+    <div class="pix-modal-card">
+        <h3 id="pix-modal-title">Aguardando pagamento Pix</h3>
+        <p>Valor Pix: <strong id="pix-modal-valor"></strong></p>
+        <img class="pix-qr" id="pix-modal-qr" alt="QR Code Pix para pagamento">
+        <label for="pix-modal-copia-cola">Pix Copia e Cola</label>
+        <div class="pix-copia-cola">
+            <input id="pix-modal-copia-cola" type="text" readonly aria-label="Código Pix Copia e Cola">
+            <button type="button" id="pix-copiar">Copiar</button>
+        </div>
+        <p id="pix-modal-erro" class="pix-modal-erro" role="alert" hidden></p>
+        <div class="pix-modal-actions">
+            <button type="button" id="pix-cancelar" class="pix-btn-cancelar">Cancelar</button>
+            <button type="button" id="pix-confirmar" class="pix-btn-confirmar">Confirmar Pagamento Recebido</button>
+        </div>
+    </div>
+</div>
+
 <script>
 let carrinho = JSON.parse(sessionStorage.getItem('pdv-carrinho') || '[]')
     .filter(item => Number.isInteger(item.variacao_id));
@@ -1052,6 +1292,59 @@ let isAssociado = false;
 const MAX_PAGAMENTOS = 2;
 const PLACEHOLDER_IMAGEM = '/static/img/produto-placeholder.png';
 let formasPagamento = [{ tipo: '', valor: '' }];
+
+const carrinhoItensElement = document.getElementById('carrinho-itens');
+const carrinhoPanelElement = document.querySelector('.carrinho-panel');
+const carrinhoResizeHandle = document.getElementById('carrinho-resize-handle');
+let alturaItensCarrinho = null;
+
+function aplicarAlturaItensCarrinho(altura) {
+    const mobile = window.matchMedia('(max-width: 860px)').matches;
+    const maxAltura = mobile
+        ? Math.max(160, Math.floor(window.innerHeight * 0.7))
+        : Math.max(160, Math.floor(carrinhoPanelElement.clientHeight * 0.7));
+
+    alturaItensCarrinho = Math.max(80, Math.min(altura, maxAltura));
+    if (mobile) {
+        carrinhoItensElement.style.flex = '0 1 auto';
+        carrinhoItensElement.style.maxHeight = `${alturaItensCarrinho}px`;
+    } else {
+        carrinhoItensElement.style.maxHeight = '';
+        carrinhoItensElement.style.flex = `0 1 ${alturaItensCarrinho}px`;
+    }
+
+    carrinhoResizeHandle.setAttribute('aria-valuemax', String(maxAltura));
+    carrinhoResizeHandle.setAttribute('aria-valuenow', String(alturaItensCarrinho));
+}
+
+carrinhoResizeHandle.addEventListener('pointerdown', event => {
+    event.preventDefault();
+    const alturaInicial = alturaItensCarrinho || carrinhoItensElement.clientHeight;
+    const yInicial = event.clientY;
+    carrinhoResizeHandle.setPointerCapture(event.pointerId);
+
+    function moverAlca(moveEvent) {
+        aplicarAlturaItensCarrinho(alturaInicial + moveEvent.clientY - yInicial);
+    }
+
+    function soltarAlca() {
+        carrinhoResizeHandle.removeEventListener('pointermove', moverAlca);
+        carrinhoResizeHandle.removeEventListener('pointerup', soltarAlca);
+        carrinhoResizeHandle.removeEventListener('pointercancel', soltarAlca);
+    }
+
+    carrinhoResizeHandle.addEventListener('pointermove', moverAlca);
+    carrinhoResizeHandle.addEventListener('pointerup', soltarAlca);
+    carrinhoResizeHandle.addEventListener('pointercancel', soltarAlca);
+});
+
+carrinhoResizeHandle.addEventListener('keydown', event => {
+    if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
+    event.preventDefault();
+    const alturaAtual = alturaItensCarrinho || carrinhoItensElement.clientHeight;
+    const direcao = event.key === 'ArrowUp' ? 1 : -1;
+    aplicarAlturaItensCarrinho(alturaAtual + direcao * 40);
+});
 
 function resolverImagemUrl(url) {
     if (typeof url !== 'string') return PLACEHOLDER_IMAGEM;
@@ -1070,14 +1363,21 @@ function criarLinhaPagamento(index = 0) {
     row.innerHTML = `
         <select class="pagamento-tipo" aria-label="Forma de pagamento">
             <option value="">Selecione</option>
-            <option value="Cartão">Cartão</option>
-            <option value="Pix">Pix</option>
+            <option value="Cartão de Crédito">Cartão de Crédito</option>
+            <option value="Cartão de Débito">Cartão de Débito</option>
+            <option value="Pix" {% if not pix_configurado %}disabled{% endif %}>Pix</option>
             <option value="Dinheiro">Dinheiro</option>
             <option value="Transferência">Transferência</option>
         </select>
         <div class="pagamento-valor-wrap">
             <span>R$</span>
             <input type="number" class="pagamento-valor" min="0" step="0.01" placeholder="0,00" aria-label="Valor do pagamento">
+        </div>
+        <div class="pagamento-parcelas-wrap">
+            <label for="pagamento-parcelas-${index}">Parcelas no crédito</label>
+            <select class="pagamento-parcelas" id="pagamento-parcelas-${index}" aria-label="Número de parcelas">
+                ${Array.from({ length: 12 }, (_, parcela) => `<option value="${parcela + 1}">${parcela + 1}x</option>`).join('')}
+            </select>
         </div>
         <button type="button" class="btn-remover-pagamento" title="Remover forma de pagamento" aria-label="Remover forma de pagamento">
             <i class="fas fa-trash"></i>
@@ -1086,6 +1386,9 @@ function criarLinhaPagamento(index = 0) {
 
     row.querySelector('.pagamento-tipo').value = formasPagamento[index]?.tipo || '';
     row.querySelector('.pagamento-valor').value = formasPagamento[index]?.valor || '';
+    row.querySelector('.pagamento-parcelas').value = formasPagamento[index]?.parcelas || 1;
+    row.querySelector('.pagamento-parcelas-wrap').style.display =
+        formasPagamento[index]?.tipo === 'Cartão de Crédito' ? 'block' : 'none';
 
     row.querySelector('.btn-remover-pagamento').addEventListener('click', () => {
         const list = document.getElementById('pagamentos-list');
@@ -1100,16 +1403,29 @@ function criarLinhaPagamento(index = 0) {
         renderPagamentos();
     });
 
-    row.querySelector('.pagamento-tipo').addEventListener('change', (event) => {
-        formasPagamento[index].tipo = event.target.value;
+    row.querySelector('.pagamento-tipo').addEventListener('change', event => {
+        const pagamento = formasPagamento[index];
+        pagamento.tipo = event.target.value;
+        if (pagamento.tipo === 'Cartão de Crédito' && !pagamento.parcelas) pagamento.parcelas = 1;
+        row.querySelector('.pagamento-parcelas-wrap').style.display =
+            pagamento.tipo === 'Cartão de Crédito' ? 'block' : 'none';
+
+        const restante = calcularResumoPagamentos(formasPagamento, index).restante;
+        pagamento.valor = restante / 100;
+        row.querySelector('.pagamento-valor').value = pagamento.valor > 0 ? pagamento.valor.toFixed(2) : '';
         atualizarPagamentoResumo();
         syncPagamentosHidden();
     });
 
-    row.querySelector('.pagamento-valor').addEventListener('input', (event) => {
+    row.querySelector('.pagamento-valor').addEventListener('input', event => {
         const valor = parseFloat(event.target.value || 0);
         formasPagamento[index].valor = Number.isFinite(valor) ? valor : 0;
         atualizarPagamentoResumo();
+        syncPagamentosHidden();
+    });
+
+    row.querySelector('.pagamento-parcelas').addEventListener('change', event => {
+        formasPagamento[index].parcelas = Number(event.target.value);
         syncPagamentosHidden();
     });
 
@@ -1144,21 +1460,59 @@ function syncPagamentosHidden() {
     const form = document.getElementById('pagamentos-json-input');
     const pagamentosValidos = formasPagamento
         .filter(item => item.tipo && Number(item.valor) > 0)
-        .map(item => ({ tipo: item.tipo, valor: Number(item.valor) }));
+        .map(item => {
+            const pagamento = { tipo: item.tipo, valor: Number(item.valor) };
+            if (item.tipo === 'Cartão de Crédito') pagamento.parcelas = Number(item.parcelas) || 1;
+            return pagamento;
+        });
     form.value = JSON.stringify(pagamentosValidos);
 }
 
-function atualizarPagamentoResumo() {
-    const totalAtual = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
-    const valorPago = formasPagamento
-        .filter(item => item.tipo && Number(item.valor) > 0)
-        .reduce((sum, item) => sum + Number(item.valor || 0), 0);
-    const elem = document.getElementById('pagamento-restante');
+function obterTotalVendaCentavos() {
+    const total = carrinho.reduce((sum, item) => sum + item.preco * item.quantidade, 0);
+    const totalComDesconto = isAssociado ? total * (1 - DESCONTO_PCT / 100) : total;
+    return Math.round(totalComDesconto * 100);
+}
 
-    const valorFinal = isAssociado ? totalAtual * (1 - DESCONTO_PCT / 100) : totalAtual;
-    const restanteFinal = Math.max(0, valorFinal - valorPago);
-    elem.textContent = 'Restante: ' + fmtBRL(restanteFinal);
-    elem.style.color = restanteFinal > 0 ? '#fbbf24' : '#6ee7b7';
+function calcularResumoPagamentos(pagamentos = formasPagamento, ignorarIndex = -1) {
+    let restante = obterTotalVendaCentavos();
+    let troco = 0;
+    let excedenteSemDinheiro = false;
+    let valorAplicado = 0;
+
+    pagamentos.forEach((pagamento, index) => {
+        if (index === ignorarIndex || !pagamento.tipo) return;
+        const valor = Math.max(0, Math.round(Number(pagamento.valor || 0) * 100));
+        if (valor === 0) return;
+
+        const aplicado = Math.min(valor, restante);
+        valorAplicado += aplicado;
+        if (pagamento.tipo === 'Dinheiro') {
+            troco += valor - aplicado;
+        } else if (valor > restante) {
+            excedenteSemDinheiro = true;
+        }
+        restante -= aplicado;
+    });
+
+    return { restante, troco, excedenteSemDinheiro, valorAplicado };
+}
+
+function atualizarPagamentoResumo() {
+    const resumo = calcularResumoPagamentos();
+    const restante = document.getElementById('pagamento-restante');
+    const troco = document.getElementById('pagamento-troco');
+
+    restante.textContent = 'Restante: ' + fmtBRL(resumo.restante / 100);
+    restante.style.color = resumo.restante > 0 ? '#fbbf24' : '#6ee7b7';
+    troco.textContent = 'Troco: ' + fmtBRL(resumo.troco / 100);
+    troco.hidden = resumo.troco === 0;
+
+    document.getElementById('btn-finalizar').disabled =
+        carrinho.length === 0 ||
+        resumo.restante > 0 ||
+        resumo.valorAplicado === 0 ||
+        resumo.excedenteSemDinheiro;
 }
 
 window.limparCarrinho = function () {
@@ -1303,7 +1657,10 @@ function adicionarVariacaoSelecionada(variacao, quantidade) {
 }
 
 document.addEventListener('keydown', event => {
-    if (event.key === 'Escape') fecharSeletorVariacao();
+    if (event.key === 'Escape') {
+        fecharSeletorVariacao();
+        fecharModalPix();
+    }
 });
 
 // ── Alterar quantidade ─────────────────────────
@@ -1345,6 +1702,33 @@ function atualizarPrecosProdutos() {
 }
 
 // ── Render ─────────────────────────────────────
+function atualizarEstoqueProdutos() {
+    document.querySelectorAll('.produto-card').forEach(card => {
+        const quantidadeNoCarrinho = carrinho
+            .filter(item => item.produto_id === Number(card.dataset.id))
+            .reduce((total, item) => total + item.quantidade, 0);
+        const estoqueDisponivel = Math.max(0, Number(card.dataset.estoque) - quantidadeNoCarrinho);
+        const indicadorEstoque = card.querySelector('.produto-estoque');
+        let badgeCritico = card.querySelector('.badge-critico');
+
+        indicadorEstoque.textContent = estoqueDisponivel === 0
+            ? 'Sem estoque'
+            : `${estoqueDisponivel} em estoque`;
+        card.classList.toggle('sem-estoque', estoqueDisponivel === 0);
+
+        if (estoqueDisponivel > 0 && estoqueDisponivel <= 5) {
+            if (!badgeCritico) {
+                badgeCritico = document.createElement('span');
+                badgeCritico.className = 'badge-critico';
+                badgeCritico.textContent = 'Baixo';
+                card.prepend(badgeCritico);
+            }
+        } else if (badgeCritico) {
+            badgeCritico.remove();
+        }
+    });
+}
+
 function renderCarrinho() {
     const wrapper = document.getElementById('carrinho-itens');
     const vazio = document.getElementById('carrinho-vazio');
@@ -1354,6 +1738,7 @@ function renderCarrinho() {
 
     const totalItems = carrinho.reduce((a, i) => a + i.quantidade, 0);
     sessionStorage.setItem('pdv-carrinho', JSON.stringify(carrinho));
+    atualizarEstoqueProdutos();
     count.textContent = totalItems;
     btnFin.disabled = carrinho.length === 0;
 
@@ -1443,20 +1828,91 @@ function limparErro() {
 const formsBtn = document.getElementById('btn-add-pagamento');
 formsBtn.addEventListener('click', adicionarPagamento);
 
-document.getElementById('btn-finalizar').addEventListener('click', function (event) {
-    const totalAtual = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
-    const valorPago = formasPagamento
-        .filter(item => item.tipo && Number(item.valor) > 0)
-        .reduce((sum, item) => sum + Number(item.valor || 0), 0);
-    const valorFinal = isAssociado ? totalAtual * (1 - DESCONTO_PCT / 100) : totalAtual;
+const pixModal = document.getElementById('pix-modal');
+const pixModalErro = document.getElementById('pix-modal-erro');
+const pixConfirmacaoToken = document.getElementById('pix-confirmacao-token');
+const pixFinalizeButton = document.getElementById('btn-finalizar');
+let gerandoPix = false;
+
+function fecharModalPix() {
+    pixModal.classList.remove('aberto');
+    pixConfirmacaoToken.value = '';
+    document.getElementById('pix-txid').value = '';
+    document.getElementById('pix-modal-qr').removeAttribute('src');
+    document.getElementById('pix-modal-copia-cola').value = '';
+    pixModalErro.hidden = true;
+}
+
+async function abrirConfirmacaoPix() {
+    if (gerandoPix) return;
+    gerandoPix = true;
+    pixFinalizeButton.disabled = true;
+    pixModalErro.hidden = true;
+
+    try {
+        syncPagamentosHidden();
+        const dados = new URLSearchParams({
+            pagamentos_json: document.getElementById('pagamentos-json-input').value,
+            carrinho_json: document.getElementById('carrinho-json-input').value
+        });
+        const resposta = await fetch('/pdv/pix', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: dados.toString(),
+            credentials: 'same-origin'
+        });
+        const resultado = await resposta.json();
+        if (!resposta.ok) throw new Error(resultado.detail || 'Não foi possível gerar o Pix.');
+
+        document.getElementById('pix-modal-valor').textContent =
+            fmtBRL(resultado.valor_centavos / 100);
+        document.getElementById('pix-modal-qr').src = resultado.qr_code;
+        document.getElementById('pix-modal-copia-cola').value = resultado.payload;
+        document.getElementById('pix-copiar').textContent = 'Copiar';
+        pixConfirmacaoToken.value = resultado.confirmacao_token;
+        document.getElementById('pix-txid').value = resultado.txid;
+        pixModal.classList.add('aberto');
+    } catch (erro) {
+        mostrarErro(erro.message || 'Não foi possível gerar o Pix.');
+    } finally {
+        gerandoPix = false;
+        atualizarPagamentoResumo();
+    }
+}
+
+document.getElementById('pix-copiar').addEventListener('click', async () => {
+    const campo = document.getElementById('pix-modal-copia-cola');
+    try {
+        await navigator.clipboard.writeText(campo.value);
+        document.getElementById('pix-copiar').textContent = 'Copiado';
+    } catch (erro) {
+        campo.focus();
+        campo.select();
+        pixModalErro.textContent = 'Não foi possível copiar automaticamente. Selecione e copie o código.';
+        pixModalErro.hidden = false;
+    }
+});
+
+document.getElementById('pix-cancelar').addEventListener('click', fecharModalPix);
+pixModal.addEventListener('click', event => {
+    if (event.target === pixModal) fecharModalPix();
+});
+
+document.getElementById('pix-confirmar').addEventListener('click', () => {
+    if (!pixConfirmacaoToken.value) {
+        pixModalErro.textContent = 'Gere novamente o QR Code antes de confirmar o pagamento.';
+        pixModalErro.hidden = false;
+        return;
+    }
+    pixModal.classList.remove('aberto');
+    document.getElementById('form-venda').submit();
+});
+
+pixFinalizeButton.addEventListener('click', async function (event) {
+    const resumo = calcularResumoPagamentos();
 
     document.getElementById('obs-hidden-input').value = document.getElementById('obs-input').value;
-    document.getElementById('pagamentos-json-input').value = JSON.stringify(
-        formasPagamento.filter(item => item.tipo && Number(item.valor) > 0).map(item => ({
-            tipo: item.tipo,
-            valor: Number(item.valor)
-        }))
-    );
+    syncPagamentosHidden();
 
     if (carrinho.length === 0) {
         event.preventDefault();
@@ -1464,12 +1920,22 @@ document.getElementById('btn-finalizar').addEventListener('click', function (eve
         return;
     }
 
-    if (valorPago < valorFinal) {
+    if (resumo.restante > 0 || resumo.valorAplicado === 0 || resumo.excedenteSemDinheiro) {
         event.preventDefault();
-        mostrarErro('Pagamento insuficiente para fechar a venda.');
+        mostrarErro(resumo.excedenteSemDinheiro
+            ? 'Somente pagamentos em dinheiro podem gerar troco.'
+            : 'Pagamento insuficiente para fechar a venda.');
         return;
     }
 
+    if (formasPagamento.some(item => item.tipo === 'Pix' && Number(item.valor) > 0)) {
+        event.preventDefault();
+        await abrirConfirmacaoPix();
+        return;
+    }
+
+    pixConfirmacaoToken.value = '';
+    document.getElementById('pix-txid').value = '';
     document.getElementById('form-venda').submit();
 });
 
@@ -1485,6 +1951,8 @@ const params = new URLSearchParams(window.location.search);
 const erros = {
     json: 'Erro ao processar o carrinho. Tente novamente.',
     vazio: 'O carrinho está vazio.',
+    pagamento: 'Revise os valores e formas de pagamento antes de finalizar.',
+    pix_confirmacao: 'A confirmação Pix expirou ou os dados da venda foram alterados. Gere um novo QR Code.',
     produto_inexistente: 'Produto não encontrado. Atualize a página.',
     variacao_inexistente: 'Variação não encontrada. Atualize a página e tente novamente.',
     quantidade: 'Quantidade inválida.',
