@@ -36,18 +36,6 @@ Bash
 python criar_usuario.py
 (Após o login com esta conta, você conseguirá cadastrar novos colaboradores diretamente pelo painel do site).
 
-6. Configurar a Chave Pix (opcional)
-Para habilitar o QR Code Pix estático no PDV, adicione ao arquivo `.env` local:
-
-```env
-PIX_KEY=seu_cpf_com_11_digitos
-```
-
-O valor fica apenas no `.env` (ignorado pelo Git). O QR Code e o código Pix Copia e Cola são gerados localmente. Como não há integração bancária ou webhook, o operador deve conferir o recebimento no aplicativo do banco e confirmar manualmente no PDV.
-
-7. Inicializar o Servidor de Desenvolvimento
-Coloque a aplicação para rodar localmente utilizando o Uvicorn com hot-reload ativado:
-
 Bash
 python -m uvicorn app.main:app --reload
 Acesse o sistema pelo navegador através do endereço: http://127.0.0.1:8000

@@ -103,6 +103,8 @@
         gap: 16px;
     }
 
+    .comp-meta.publico { grid-template-columns: 1fr; }
+
     .meta-item label {
         display: block;
         font-size: 10px;
@@ -409,6 +411,16 @@
         transform: translateY(-1px);
     }
 
+    .btn-acao.email {
+        background: #1d4ed8;
+        color: #fff;
+    }
+
+    .btn-acao.email:hover {
+        background: #2563eb;
+        transform: translateY(-1px);
+    }
+
     .btn-acao kbd {
         background: rgba(148, 163, 184, 0.15);
         border: 1px solid rgba(148, 163, 184, 0.2);
@@ -454,6 +466,22 @@
 
     .whatsapp-dialog input { margin: 0; }
 
+    .whatsapp-consent {
+        align-items: flex-start;
+        color: var(--text-secondary);
+        display: flex;
+        font-size: 12px;
+        gap: 9px;
+        line-height: 1.4;
+        margin-top: 14px;
+    }
+
+    .whatsapp-consent input {
+        accent-color: #128c7e;
+        flex: 0 0 auto;
+        margin: 2px 0 0;
+    }
+
     .whatsapp-error {
         color: #fca5a5 !important;
         margin: 8px 0 0 !important;
@@ -476,11 +504,49 @@
         color: var(--text-secondary);
     }
 
+    .envio-aviso[hidden] { display: none; }
+
+    .envio-aviso {
+        position: fixed;
+        z-index: 1200;
+        top: calc(var(--header-h) + 12px);
+        right: 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        width: min(420px, calc(100% - 32px));
+        max-height: calc(100vh - var(--header-h) - 24px);
+        overflow-y: auto;
+        padding: 14px 18px;
+        border: 1px solid rgba(34, 197, 94, 0.4);
+        border-radius: 12px;
+        background: var(--bg-surface);
+        color: var(--text-primary);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.45;
+        text-align: left;
+        overflow-wrap: anywhere;
+        box-sizing: border-box;
+    }
+
+    .envio-aviso i {
+        color: #22c55e;
+        flex: 0 0 auto;
+        margin-top: 2px;
+    }
+
+    .envio-aviso span {
+        min-width: 0;
+    }
+
     @media (max-width: 560px) {
         .comp-meta { grid-template-columns: 1fr 1fr; }
         .comp-cabecalho, .comp-meta, .itens-lista, .totais-bloco,
         .comp-pagamentos, .comp-obs { padding-left: 18px; padding-right: 18px; }
         .comp-acoes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .envio-aviso { right: 16px; }
     }
 
     @media (max-width: 380px) {
@@ -494,6 +560,7 @@
         footer,
         .comp-acoes,
         .whatsapp-modal,
+        .envio-aviso,
         .status-bar {
             display: none !important;
         }
@@ -553,7 +620,8 @@
         </div>
 
         <!-- Metadados -->
-        <div class="comp-meta">
+        <div class="comp-meta {{ 'publico' if modo_publico else '' }}">
+            {% if not modo_publico %}
             <div class="meta-item">
                 <label>Operador</label>
                 <p>{{ venda.usuario.nome if venda.usuario else '—' }}</p>
@@ -571,6 +639,7 @@
                     {% endif %}
                 </p>
             </div>
+            {% endif %}
             <div class="meta-item">
                 <label>Data / Hora</label>
                 <p>{{ venda.criado_em.strftime('%d/%m/%Y %H:%M') }}</p>
@@ -666,97 +735,223 @@
 
     <!-- Ações -->
     <div class="comp-acoes">
+        {% if not modo_publico %}
         <a href="/pdv/historico" class="btn-acao secondary">
             <i class="fas fa-arrow-left"></i><span>Voltar ao histórico</span><kbd>Esc</kbd>
         </a>
+        {% endif %}
         <button class="btn-acao secondary" id="imprimir-comprovante" type="button">
             <i class="fas fa-print"></i><span>Imprimir</span><kbd>Ctrl + P</kbd>
         </button>
+        {% if not modo_publico %}
         <button class="btn-acao whatsapp" id="abrir-whatsapp" type="button">
             <i class="fab fa-whatsapp"></i><span>Enviar por WhatsApp</span>
+        </button>
+        <button class="btn-acao email" id="abrir-email" type="button">
+            <i class="fas fa-envelope"></i><span>Enviar por E-mail</span>
         </button>
         <a href="/pdv" class="btn-acao primary" onclick="sessionStorage.removeItem('pdv-carrinho')">
             <i class="fas fa-plus"></i><span>Nova Venda</span><kbd>F2</kbd><kbd>Enter</kbd>
         </a>
+        {% endif %}
     </div>
 
 </div>
 
+{% if not modo_publico %}
 <div class="whatsapp-modal" id="whatsapp-modal" role="dialog" aria-modal="true" aria-labelledby="whatsapp-titulo" hidden>
     <div class="whatsapp-dialog">
         <h3 id="whatsapp-titulo">Enviar comprovante</h3>
-        <p>Informe o número do WhatsApp com DDD. O comprovante será preparado como uma mensagem para você revisar e enviar.</p>
+        <p>Informe o número com DDD. O sistema enviará o PDF do comprovante pelo WhatsApp Business.</p>
         <label for="whatsapp-telefone">Telefone / WhatsApp</label>
         <input id="whatsapp-telefone" type="tel" inputmode="tel" autocomplete="tel"
             placeholder="(11) 99999-9999" value="{{ cliente_telefone }}">
+        <label class="whatsapp-consent" for="whatsapp-consentimento">
+            <input id="whatsapp-consentimento" type="checkbox">
+            <span>Confirmo que o cliente autorizou receber mensagens da loja pelo WhatsApp.</span>
+        </label>
         <p class="whatsapp-error" id="whatsapp-erro" role="alert" hidden></p>
         <div class="whatsapp-dialog-actions">
             <button type="button" class="whatsapp-cancelar" id="whatsapp-cancelar">Cancelar</button>
-            <button type="button" class="whatsapp-enviar" id="whatsapp-enviar">
-                <i class="fab fa-whatsapp"></i> Continuar no WhatsApp
+            <button type="button" class="whatsapp-enviar" id="whatsapp-enviar" disabled>
+                <i class="fab fa-whatsapp"></i> Enviar PDF
             </button>
         </div>
     </div>
 </div>
 
+<div class="whatsapp-modal" id="email-modal" role="dialog" aria-modal="true" aria-labelledby="email-titulo" hidden>
+    <div class="whatsapp-dialog">
+        <h3 id="email-titulo">Enviar comprovante por e-mail</h3>
+        <p>Informe o e-mail do destinatário. O comprovante em PDF será enviado automaticamente.</p>
+        <label for="email-destinatario">E-mail do cliente</label>
+        <input id="email-destinatario" type="email" inputmode="email" autocomplete="email"
+            placeholder="cliente@exemplo.com" value="{{ cliente_email }}">
+        <p class="whatsapp-error" id="email-erro" role="alert" hidden></p>
+        <div class="whatsapp-dialog-actions">
+            <button type="button" class="whatsapp-cancelar" id="email-cancelar">Cancelar</button>
+            <button type="button" class="whatsapp-enviar" id="email-enviar">
+                <i class="fas fa-envelope"></i> Enviar PDF
+            </button>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="envio-aviso" id="envio-aviso" role="status" aria-live="polite" hidden>
+    <i class="fas fa-check-circle" aria-hidden="true"></i><span id="envio-aviso-texto"></span>
+</div>
+
 <script>
 (function () {
+    const modoPublico = {{ modo_publico|tojson }};
+    const linkComprovante = {{ link_comprovante|tojson }};
     const whatsappModal = document.getElementById('whatsapp-modal');
     const whatsappTelefone = document.getElementById('whatsapp-telefone');
+    const whatsappConsentimento = document.getElementById('whatsapp-consentimento');
+    const whatsappEnviarBotao = document.getElementById('whatsapp-enviar');
     const whatsappErro = document.getElementById('whatsapp-erro');
+    const emailModal = document.getElementById('email-modal');
+    const emailDestinatario = document.getElementById('email-destinatario');
+    const emailErro = document.getElementById('email-erro');
+    const envioAviso = document.getElementById('envio-aviso');
+    const envioAvisoTexto = document.getElementById('envio-aviso-texto');
+    let avisoTimeout;
 
-    function fecharWhatsapp() {
-        whatsappModal.hidden = true;
-        whatsappErro.hidden = true;
+    function mostrarAviso(mensagem) {
+        window.clearTimeout(avisoTimeout);
+        envioAvisoTexto.textContent = mensagem;
+        envioAviso.hidden = false;
+        avisoTimeout = window.setTimeout(() => {
+            envioAviso.hidden = true;
+        }, 6000);
     }
 
-    function enviarWhatsapp() {
-        const digitado = whatsappTelefone.value.replace(/\D/g, '');
-        const numeroLocal = digitado.startsWith('55') && (digitado.length === 12 || digitado.length === 13)
-            ? digitado.slice(2)
-            : digitado;
-        if (numeroLocal.length !== 10 && numeroLocal.length !== 11) {
-            whatsappErro.textContent = 'Digite um número válido com DDD.';
+    function fecharWhatsapp() {
+        if (whatsappModal) whatsappModal.hidden = true;
+        if (whatsappErro) whatsappErro.hidden = true;
+    }
+
+    function fecharEmail() {
+        emailModal.hidden = true;
+        emailErro.hidden = true;
+    }
+
+    async function enviarWhatsapp() {
+        const telefone = whatsappTelefone.value.trim();
+        if (!/^(?:\D*\d){10,13}\D*$/.test(telefone)) {
+            whatsappErro.textContent = 'Digite um telefone válido com DDD.';
             whatsappErro.hidden = false;
             whatsappTelefone.focus();
             return;
         }
+        if (!whatsappConsentimento.checked) {
+            whatsappErro.textContent = 'Confirme que o cliente autorizou receber mensagens pelo WhatsApp.';
+            whatsappErro.hidden = false;
+            whatsappConsentimento.focus();
+            return;
+        }
 
-        const numeroInternacional = digitado.startsWith('55') && digitado.length > 11
-            ? digitado
-            : `55${numeroLocal}`;
-        const mensagem = [
-            `Comprovante da venda #{{ "%04d"|format(venda.id) }}`,
-            `AAPM — Ponto de Venda`,
-            `Data: {{ venda.criado_em.strftime('%d/%m/%Y %H:%M') }}`,
-            `Total: R$ {{ "%.2f"|format(venda.total_liquido) }}`,
-            {% for pagamento in venda.pagamentos %}
-            `{{ pagamento.tipo }}: R$ {{ "%.2f"|format(pagamento.valor) }}{% if pagamento.tipo == 'Pix' and pagamento.txid %} (Ref. Pix: {{ pagamento.txid }}){% endif %}`,
-            {% if pagamento.tipo == 'Pix' and pagamento.confirmado_manualmente %}
-            `Pix confirmado manualmente pelo operador.`,
-            {% endif %}
-            {% endfor %}
-            `Obrigado pela compra!`
-        ].join('\n');
-
-        window.open(`https://wa.me/${numeroInternacional}?text=${encodeURIComponent(mensagem)}`, '_blank', 'noopener,noreferrer');
-        fecharWhatsapp();
+        whatsappEnviarBotao.disabled = true;
+        whatsappErro.hidden = true;
+        try {
+            const resposta = await fetch('/pdv/venda/{{ venda.id }}/enviar-whatsapp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    telefone,
+                    cliente_autorizou: whatsappConsentimento.checked,
+                }),
+            });
+            const dados = await resposta.json();
+            if (!resposta.ok) {
+                throw new Error(dados.detail || 'Não foi possível enviar o comprovante pelo WhatsApp.');
+            }
+            fecharWhatsapp();
+            mostrarAviso('A Meta aceitou o envio do PDF. A entrega depende do WhatsApp do destinatário.');
+        } catch (erro) {
+            whatsappErro.textContent = erro instanceof Error
+                ? erro.message
+                : 'Não foi possível enviar o PDF. Verifique a conexão e tente novamente.';
+            whatsappErro.hidden = false;
+        } finally {
+            whatsappEnviarBotao.disabled = !whatsappConsentimento.checked;
+        }
     }
 
+    async function enviarEmail() {
+        const destinatario = emailDestinatario.value.trim();
+        if (!emailDestinatario.validity.valid || !destinatario) {
+            emailErro.textContent = 'Digite um endereço de e-mail válido.';
+            emailErro.hidden = false;
+            emailDestinatario.focus();
+            return;
+        }
+
+        const botaoOriginal = emailEnviarBotao.innerHTML;
+        emailEnviarBotao.disabled = true;
+        emailEnviarBotao.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+        emailErro.hidden = true;
+        try {
+            const resposta = await fetch('/pdv/venda/{{ venda.id }}/enviar-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ destinatario }),
+            });
+            const dados = await resposta.json();
+            if (!resposta.ok) {
+                throw new Error(dados.detail || 'Não foi possível enviar o comprovante por e-mail.');
+            }
+            fecharEmail();
+            mostrarAviso('Comprovante PDF enviado por e-mail com sucesso.');
+        } catch (erro) {
+            emailErro.textContent = erro instanceof Error
+                ? erro.message
+                : 'Não foi possível enviar o PDF. Verifique a conexão e tente novamente.';
+            emailErro.hidden = false;
+        } finally {
+            emailEnviarBotao.disabled = false;
+            emailEnviarBotao.innerHTML = botaoOriginal;
+        }
+    }
+
+    const emailEnviarBotao = document.getElementById('email-enviar');
     document.getElementById('imprimir-comprovante').addEventListener('click', () => window.print());
-    document.getElementById('abrir-whatsapp').addEventListener('click', () => {
-        whatsappModal.hidden = false;
-        whatsappTelefone.focus();
-    });
-    document.getElementById('whatsapp-cancelar').addEventListener('click', fecharWhatsapp);
-    document.getElementById('whatsapp-enviar').addEventListener('click', enviarWhatsapp);
-    whatsappModal.addEventListener('click', event => {
-        if (event.target === whatsappModal) fecharWhatsapp();
-    });
+    if (!modoPublico) {
+        document.getElementById('abrir-whatsapp').addEventListener('click', () => {
+            whatsappModal.hidden = false;
+            whatsappTelefone.focus();
+        });
+        document.getElementById('abrir-email').addEventListener('click', () => {
+            if (emailDestinatario.value.trim() && emailDestinatario.validity.valid) {
+                enviarEmail();
+                return;
+            }
+            emailModal.hidden = false;
+            emailDestinatario.focus();
+        });
+        document.getElementById('whatsapp-cancelar').addEventListener('click', fecharWhatsapp);
+        document.getElementById('whatsapp-enviar').addEventListener('click', enviarWhatsapp);
+        document.getElementById('email-cancelar').addEventListener('click', fecharEmail);
+        document.getElementById('email-enviar').addEventListener('click', enviarEmail);
+        whatsappConsentimento.addEventListener('change', () => {
+            whatsappEnviarBotao.disabled = !whatsappConsentimento.checked;
+        });
+        whatsappModal.addEventListener('click', event => {
+            if (event.target === whatsappModal) fecharWhatsapp();
+        });
+        emailModal.addEventListener('click', event => {
+            if (event.target === emailModal) fecharEmail();
+        });
+    }
 
     document.addEventListener('keydown', event => {
-        if (event.key === 'Escape' && !whatsappModal.hidden) {
+        if (whatsappModal && event.key === 'Escape' && !whatsappModal.hidden) {
             fecharWhatsapp();
+            return;
+        }
+        if (emailModal && event.key === 'Escape' && !emailModal.hidden) {
+            fecharEmail();
             return;
         }
         if (event.ctrlKey && event.key.toLowerCase() === 'p') {
@@ -764,7 +959,7 @@
             window.print();
             return;
         }
-        if (event.key === 'F2') {
+        if (!modoPublico && event.key === 'F2') {
             event.preventDefault();
             window.location.assign('/pdv');
             return;
@@ -772,20 +967,28 @@
         const elemento = event.target;
         const digitando = elemento instanceof HTMLElement &&
             (elemento.isContentEditable || /^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(elemento.tagName));
-        if (event.key === 'Enter' && !digitando && whatsappModal.hidden) {
+        if (!modoPublico && event.key === 'Enter' && !digitando && whatsappModal.hidden && emailModal.hidden) {
             event.preventDefault();
             window.location.assign('/pdv');
-        } else if (event.key === 'Escape' && whatsappModal.hidden) {
+        } else if (!modoPublico && event.key === 'Escape' && whatsappModal.hidden && emailModal.hidden) {
             window.location.assign('/pdv/historico');
         }
     });
 
-    whatsappTelefone.addEventListener('keydown', event => {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            enviarWhatsapp();
-        }
-    });
+    if (!modoPublico) {
+        whatsappTelefone.addEventListener('keydown', event => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                enviarWhatsapp();
+            }
+        });
+        emailDestinatario.addEventListener('keydown', event => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                enviarEmail();
+            }
+        });
+    }
 })();
 </script>
 {% endblock %}

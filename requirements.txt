@@ -11,3 +11,4 @@ python-jose[cryptography]
 httpx
 pytest
 segno
+reportlab

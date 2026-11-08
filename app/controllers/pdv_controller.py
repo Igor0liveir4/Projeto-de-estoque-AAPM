@@ -10,10 +10,13 @@ import hashlib
 import math
 import os
 import secrets
+import logging
 from datetime import datetime, timedelta, timezone
+from urllib.parse import urlencode, urlsplit
 from fastapi import APIRouter, Depends, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from jose import JWTError, jwt
@@ -26,15 +29,94 @@ from app.models.cliente import Cliente
 from app.auth import ALGORITHM, SECRET_KEY, get_usuario_logado
 from app.pagination import paginar
 from app.pix import gerar_payload_pix, gerar_qr_pix_data_uri, validar_chave_pix_cpf
+from app.email_service import (
+    EmailConfigurationError,
+    EmailSendError,
+    enviar_comprovante_email,
+)
+from app.whatsapp_service import (
+    WhatsappConfigurationError,
+    WhatsappSendError,
+    enviar_comprovante_whatsapp,
+)
 
 router = APIRouter(prefix="/pdv", tags=["PDV"])
 templates = Jinja2Templates(directory="app/templates")
+logger = logging.getLogger(__name__)
 
 DESCONTO_ASSOCIADO = 10.0  # percentual fixo
 
 
+class EnviarComprovanteWhatsappRequest(BaseModel):
+    telefone: str
+    cliente_autorizou: bool
+
+
+class EnviarComprovanteEmailRequest(BaseModel):
+    destinatario: str
+
+
 def _hash_form_value(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def _token_comprovante_publico(venda_id: int) -> str:
+    if not SECRET_KEY or not ALGORITHM:
+        raise HTTPException(
+            status_code=503,
+            detail="O compartilhamento público do comprovante não está configurado.",
+        )
+    return jwt.encode({
+        "purpose": "public_sale_receipt",
+        "sale_id": venda_id,
+        "jti": secrets.token_urlsafe(16),
+        "exp": datetime.now(timezone.utc) + timedelta(days=365),
+    }, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def _validar_token_comprovante(token: str, venda_id: int) -> bool:
+    if not SECRET_KEY or not ALGORITHM:
+        return False
+    try:
+        dados = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    except (JWTError, TypeError):
+        return False
+    return (
+        dados.get("purpose") == "public_sale_receipt"
+        and dados.get("sale_id") == venda_id
+    )
+
+
+def _url_comprovante_publico(request: Request, venda_id: int, token: str) -> str:
+    rota = request.url_for("comprovante_publico", venda_id=str(venda_id))
+    base_configurada = os.getenv("PUBLIC_BASE_URL", "").strip().rstrip("/")
+    if base_configurada:
+        partes = urlsplit(base_configurada)
+        if (
+            partes.scheme not in {"http", "https"}
+            or not partes.netloc
+            or partes.path not in {"", "/"}
+            or partes.query
+            or partes.fragment
+        ):
+            raise HTTPException(
+                status_code=503,
+                detail="A URL pública do sistema está configurada incorretamente.",
+            )
+        base = f"{partes.scheme}://{partes.netloc}{rota.path}"
+    else:
+        base = str(rota)
+    return f"{base}?{urlencode({'token': token})}"
+
+
+def _dados_comprovante(venda: Venda, modo_publico: bool, link_comprovante: str) -> dict:
+    return {
+        "venda": venda,
+        "cliente_telefone": venda.cliente.telefone if venda.cliente and not modo_publico else "",
+        "cliente_email": venda.cliente.email if venda.cliente and not modo_publico else "",
+        "modo_publico": modo_publico,
+        "link_comprovante": link_comprovante,
+    }
 
 
 def _pix_configurado() -> bool:
@@ -393,16 +475,104 @@ def detalhe_venda(
     if not venda:
         return RedirectResponse(url="/pdv", status_code=302)
 
+    token = _token_comprovante_publico(venda.id)
+    link_comprovante = _url_comprovante_publico(request, venda.id, token)
     return templates.TemplateResponse(
         request,
         "pdv/comprovante.html",
         {
             "request": request,
             "usuario": usuario,
-            "venda": venda,
-            "cliente_telefone": venda.cliente.telefone if venda.cliente else "",
+            **_dados_comprovante(venda, modo_publico=False, link_comprovante=link_comprovante),
         }
     )
+
+
+@router.get("/comprovante-publico/{venda_id}", name="comprovante_publico")
+def comprovante_publico(
+    venda_id: int,
+    request: Request,
+    token: str,
+    db: Session = Depends(get_db),
+):
+    if not _validar_token_comprovante(token, venda_id):
+        raise HTTPException(status_code=404, detail="Comprovante não encontrado.")
+
+    venda = db.query(Venda).filter(Venda.id == venda_id).first()
+    if not venda:
+        raise HTTPException(status_code=404, detail="Comprovante não encontrado.")
+
+    return templates.TemplateResponse(
+        request,
+        "pdv/comprovante.html",
+        {
+            "request": request,
+            "usuario": None,
+            **_dados_comprovante(venda, modo_publico=True, link_comprovante=str(request.url)),
+        },
+        headers={
+            "Cache-Control": "private, no-store",
+            "Referrer-Policy": "no-referrer",
+            "X-Robots-Tag": "noindex, nofollow",
+        },
+    )
+
+
+@router.post("/venda/{venda_id}/enviar-whatsapp")
+def enviar_whatsapp_comprovante(
+    venda_id: int,
+    dados: EnviarComprovanteWhatsappRequest,
+    db: Session = Depends(get_db),
+    usuario=Depends(get_usuario_logado),
+):
+    if not dados.cliente_autorizou:
+        return JSONResponse(
+            {"detail": "Confirme que o cliente autorizou o envio do comprovante pelo WhatsApp."},
+            status_code=400,
+        )
+
+    venda = db.query(Venda).filter(Venda.id == venda_id).first()
+    if not venda:
+        return JSONResponse({"detail": "Venda não encontrada."}, status_code=404)
+
+    try:
+        mensagem_id = enviar_comprovante_whatsapp(venda, dados.telefone)
+    except WhatsappConfigurationError as exc:
+        return JSONResponse({"detail": str(exc)}, status_code=503)
+    except ValueError as exc:
+        return JSONResponse({"detail": str(exc)}, status_code=400)
+    except WhatsappSendError as exc:
+        logger.warning("Falha no envio de comprovante WhatsApp da venda %s: %s", venda_id, exc)
+        return JSONResponse({"detail": str(exc)}, status_code=502)
+
+    return JSONResponse({
+        "message": "A Meta aceitou o envio do comprovante.",
+        "message_id": mensagem_id,
+    })
+
+
+@router.post("/venda/{venda_id}/enviar-email")
+def enviar_email_comprovante(
+    venda_id: int,
+    dados: EnviarComprovanteEmailRequest,
+    db: Session = Depends(get_db),
+    usuario=Depends(get_usuario_logado),
+):
+    venda = db.query(Venda).filter(Venda.id == venda_id).first()
+    if not venda:
+        return JSONResponse({"detail": "Venda não encontrada."}, status_code=404)
+
+    try:
+        enviar_comprovante_email(venda, dados.destinatario)
+    except EmailConfigurationError as exc:
+        return JSONResponse({"detail": str(exc)}, status_code=503)
+    except ValueError as exc:
+        return JSONResponse({"detail": str(exc)}, status_code=400)
+    except EmailSendError as exc:
+        logger.warning("Falha no envio de comprovante por e-mail da venda %s: %s", venda_id, exc)
+        return JSONResponse({"detail": str(exc)}, status_code=502)
+
+    return JSONResponse({"message": "Comprovante enviado por e-mail com sucesso."})
 
 
 @router.get("/historico")

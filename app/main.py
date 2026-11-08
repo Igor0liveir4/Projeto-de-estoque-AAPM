@@ -48,7 +48,8 @@ ROTAS_PROTEGIDAS = (
 @app.middleware("http")
 async def redirecionar_visitante_para_inicio(request: Request, call_next):
     """Redireciona visitantes sem sessao ao acessar paginas restritas."""
-    if request.url.path.startswith(ROTAS_PROTEGIDAS):
+    rota_comprovante_publico = request.url.path.startswith("/pdv/comprovante-publico/")
+    if request.url.path.startswith(ROTAS_PROTEGIDAS) and not rota_comprovante_publico:
         if get_usuario_opcional(request) is None:
             return RedirectResponse(url="/", status_code=302)
 
