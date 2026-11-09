@@ -344,25 +344,26 @@
     .comp-acoes {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
+        gap: 12px;
         margin-top: 24px;
     }
 
     .btn-acao {
         min-width: 0;
+        min-height: 52px;
         display: grid;
         grid-template-columns: 18px minmax(0, 1fr) auto;
         align-items: center;
         justify-content: center;
-        gap: 7px;
-        padding: 12px 10px;
-        border-radius: 10px;
+        gap: 8px;
+        padding: 12px 14px;
+        border-radius: 12px;
         font-size: 13px;
         font-weight: 700;
-        line-height: 1.25;
+        line-height: 1.2;
         text-decoration: none;
         cursor: pointer;
-        border: none;
+        border: 1px solid transparent;
         transition: all var(--transition);
         text-align: center;
         white-space: normal;
@@ -372,15 +373,24 @@
 
     .btn-acao > i {
         justify-self: center;
+        font-size: 15px;
     }
 
     .btn-acao kbd {
         justify-self: end;
+        background: rgba(148, 163, 184, 0.14);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 6px;
+        font: 600 9px 'DM Sans', sans-serif;
+        padding: 2px 5px;
+        white-space: nowrap;
+        color: inherit;
     }
 
     .btn-acao.primary {
         background: var(--accent);
         color: white;
+        grid-column: 1 / -1;
     }
 
     .btn-acao.primary:hover {
@@ -390,44 +400,38 @@
     }
 
     .btn-acao.secondary {
-        background: var(--bg-card);
+        background: rgba(15, 23, 42, 0.7);
         color: var(--text-secondary);
-        border: 1px solid var(--border);
+        border-color: var(--border);
     }
 
     .btn-acao.secondary:hover {
         color: var(--text-primary);
         border-color: var(--border-hover);
+        background: rgba(15, 23, 42, 0.9);
         transform: translateY(-1px);
     }
 
     .btn-acao.whatsapp {
-        background: #128c7e;
+        background: linear-gradient(135deg, #10b981, #059669);
         color: #fff;
     }
 
     .btn-acao.whatsapp:hover {
-        background: #0f9b72;
+        background: linear-gradient(135deg, #34d399, #10b981);
         transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.2);
     }
 
     .btn-acao.email {
-        background: #1d4ed8;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
         color: #fff;
     }
 
     .btn-acao.email:hover {
-        background: #2563eb;
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
         transform: translateY(-1px);
-    }
-
-    .btn-acao kbd {
-        background: rgba(148, 163, 184, 0.15);
-        border: 1px solid rgba(148, 163, 184, 0.2);
-        border-radius: 4px;
-        font: 600 9px 'DM Sans', sans-serif;
-        padding: 2px 4px;
-        white-space: nowrap;
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
     }
 
     .whatsapp-modal[hidden] { display: none; }
@@ -714,7 +718,9 @@
                     <small class="pix-reference">Ref. Pix: {{ pagamento.txid or ('PEDIDO%04d'|format(venda.id)) }}</small>
                     {% endif %}
                     {% if pagamento.troco > 0 %}
-                    <small>Recebido: R$ {{ "%.2f"|format(pagamento.recebido) }} · Troco: R$ {{ "%.2f"|format(pagamento.troco) }}</small>
+                    <small>Valor: R$ {{ "%.2f"|format(pagamento.valor) }} · Recebido: R$ {{ "%.2f"|format(pagamento.recebido) }} · Troco: R$ {{ "%.2f"|format(pagamento.troco) }}</small>
+                    {% elif pagamento.valor > 0 %}
+                    <small>Valor: R$ {{ "%.2f"|format(pagamento.valor) }}</small>
                     {% endif %}
                 </div>
                 <strong>R$ {{ "%.2f"|format(pagamento.valor) }}</strong>
