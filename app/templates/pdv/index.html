@@ -1072,6 +1072,74 @@
         margin-top: 8px;
         text-align: right;
     }
+
+    /* Divisões mais leves entre as áreas do PDV */
+    body:has(.pdv-layout) header {
+        border-bottom: 0;
+        box-shadow: none;
+    }
+
+    body:has(.pdv-layout) .sidebar {
+        border-right: 0;
+    }
+
+    body:has(.pdv-layout) .sidebar-brand {
+        border-bottom: 0;
+    }
+
+    .produtos-panel,
+    .carrinho-panel {
+        border: 0;
+    }
+
+    .produtos-toolbar,
+    .carrinho-header,
+    .cliente-wrap,
+    .carrinho-resize,
+    .total-linha.final,
+    .pagamentos-wrap {
+        border: 0;
+    }
+
+    .produtos-toolbar {
+        background: transparent;
+    }
+
+    .carrinho-panel {
+        box-shadow: -12px 0 32px rgba(15, 23, 42, 0.045);
+    }
+
+    .carrinho-header {
+        padding-bottom: 12px;
+    }
+
+    .cliente-wrap {
+        padding-top: 10px;
+    }
+
+    .carrinho-resize {
+        flex-basis: 18px;
+        background: transparent;
+    }
+
+    .carrinho-resize-handle {
+        width: 44px;
+        border-radius: 999px;
+        transition: background var(--transition), color var(--transition);
+    }
+
+    .carrinho-resize-handle:hover,
+    .carrinho-resize-handle:focus-visible {
+        background: color-mix(in srgb, var(--accent) 10%, transparent);
+    }
+
+    .total-linha.final {
+        padding-top: 4px;
+    }
+
+    .pagamentos-wrap {
+        padding-top: 8px;
+    }
 </style>
 {% endblock %}
 
