@@ -25,6 +25,7 @@
 
     <link rel="stylesheet" href="/static/css/base.css">
     <link rel="stylesheet" href="/static/css/components_modal_confirmacao.css">
+    <link rel="stylesheet" href="/static/css/loading.css">
     {% block late_head %}{% endblock %}
 
 </head>
@@ -223,6 +224,16 @@
             </div>
         </div>
     </div>
+    <div class="app-loading-overlay" id="app-loading" role="status" aria-live="polite" hidden>
+        <div class="app-loading-card">
+            <span class="app-loading-spinner" aria-hidden="true"></span>
+            <div>
+                <strong>Carregando...</strong>
+                <p>O servidor está preparando esta página. Aguarde um instante.</p>
+            </div>
+        </div>
+    </div>
+
     <script>
         function atualizarBotaoTema() {
             var claro = document.documentElement.getAttribute('data-theme') === 'light';
@@ -376,6 +387,7 @@
             });
         })();
     </script>
+    <script src="/static/js/loading.js"></script>
 </body>
 
 </html>
