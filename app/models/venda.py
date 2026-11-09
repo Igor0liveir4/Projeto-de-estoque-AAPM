@@ -5,9 +5,10 @@
 # o mesmo padrão usado em qualquer sistema comercial real.
 # ============================================================
 
-from sqlalchemy import Column, Integer, Float, String, DateTime, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, Float, String, DateTime, ForeignKey, Boolean, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+import json
 from app.database import Base
 
 
@@ -41,6 +42,7 @@ class Venda(Base):
 
     # Observação opcional do operador
     observacao = Column(String(255), nullable=True)
+    formas_pagamento = Column(Text, nullable=True)
 
     criado_em = Column(DateTime, server_default=func.now())
 
@@ -57,6 +59,64 @@ class Venda(Base):
     def desconto_valor(self) -> float:
         """Valor monetário do desconto."""
         return self.total_bruto - self.total_liquido
+
+    @property
+    def pagamentos(self) -> list:
+        """Lista de formas de pagamento registradas na venda."""
+        if not self.formas_pagamento:
+            return []
+
+        try:
+            dados = json.loads(self.formas_pagamento)
+        except (TypeError, ValueError):
+            return []
+
+        if not isinstance(dados, list):
+            return []
+
+        pagamentos_validos = []
+        for item in dados:
+            if not isinstance(item, dict):
+                continue
+
+            tipo = str(item.get("tipo", "")).strip()
+            valor = item.get("valor")
+            try:
+                valor_float = float(valor)
+            except (TypeError, ValueError):
+                continue
+
+            if not tipo or valor_float <= 0:
+                continue
+
+            try:
+                recebido = float(item.get("recebido", valor_float))
+                troco = float(item.get("troco", 0))
+            except (TypeError, ValueError):
+                recebido = valor_float
+                troco = 0
+
+            pagamento = {
+                "tipo": tipo,
+                "valor": round(valor_float, 2),
+                "recebido": round(recebido, 2),
+                "troco": round(max(0, troco), 2),
+            }
+            if tipo == "Cartão de Crédito":
+                try:
+                    parcelas = int(item.get("parcelas") or 1)
+                except (TypeError, ValueError):
+                    parcelas = 1
+                if 1 <= parcelas <= 12:
+                    pagamento["parcelas"] = parcelas
+            if tipo == "Pix":
+                txid = str(item.get("txid", "")).strip()
+                if txid:
+                    pagamento["txid"] = txid
+                pagamento["confirmado_manualmente"] = item.get("confirmado_manualmente") is True
+            pagamentos_validos.append(pagamento)
+
+        return pagamentos_validos
 
     def __repr__(self):
         return f"<Venda id={self.id} total={self.total_liquido}>"

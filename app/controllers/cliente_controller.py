@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.cliente import Cliente
 from app.auth import get_admin
+from app.pagination import paginar
 
 router = APIRouter(prefix="/cliente", tags=["Cliente"])
 templates = Jinja2Templates(directory="app/templates")
@@ -16,6 +17,8 @@ def listar_clientes(
     request: Request,
     busca: str = "",
     apenas_associados: bool = False,
+    pagina: int = 1,
+    por_pagina: int = 16,
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
@@ -30,7 +33,7 @@ def listar_clientes(
     if apenas_associados:
         query = query.filter(Cliente.is_associado == True)
 
-    clientes = query.order_by(Cliente.nome).all()
+    resultado = paginar(query.order_by(Cliente.nome), pagina, por_pagina)
 
     total_associados = db.query(Cliente).filter(
         Cliente.is_associado == True,
@@ -39,14 +42,18 @@ def listar_clientes(
 
     return templates.TemplateResponse(
         request,
-        "cliente/index.html",
+        "Cliente/index.html",
         {
             "request":           request,
             "usuario":           admin,
-            "clientes":          clientes,
+            "clientes":          resultado.itens,
             "busca":             busca,
             "apenas_associados": apenas_associados,
             "total_associados":  total_associados,
+            "pagina":            resultado.atual,
+            "por_pagina":        resultado.por_pagina,
+            "total_paginas":     resultado.total_paginas,
+            "total_clientes":    resultado.total_itens,
         }
     )
 
@@ -55,7 +62,7 @@ def listar_clientes(
 def form_novo(request: Request, admin = Depends(get_admin)):
     return templates.TemplateResponse(
         request,
-        "cliente/form.html",
+        "Cliente/form.html",
         {"request": request, "usuario": admin, "editando": None}
     )
 
@@ -94,10 +101,9 @@ def form_editar(
 
     return templates.TemplateResponse(
         request,
-        "cliente/form.html",
+        "Cliente/form.html",
         {"request": request, "usuario": admin, "editando": editando}
     )
-
 
 @router.post("/{cliente_id}/editar")
 def editar(
@@ -132,4 +138,4 @@ def toggle_ativo(
     if cliente:
         cliente.ativo = not cliente.ativo
         db.commit()
-    return RedirectResponse(url="/clientes", status_code=302)
+    return RedirectResponse(url="/cliente", status_code=302)
