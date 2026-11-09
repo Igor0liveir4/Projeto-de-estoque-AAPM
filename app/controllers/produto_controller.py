@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, selectinload
 
 from app.database import get_db
 from app.models.produto import Produto
@@ -137,7 +137,10 @@ def listar_produtos(
     if categoria_id:
         query = query.filter(Produto.categoria_id == categoria_id)
 
-    ordered_query = query.order_by(Produto.nome)
+    ordered_query = query.options(
+        selectinload(Produto.variacoes),
+        joinedload(Produto.categoria),
+    ).order_by(Produto.nome)
 
     resultado = paginar(ordered_query, pagina, por_pagina)
 
@@ -145,19 +148,24 @@ def listar_produtos(
     # e o estoque global quando a listagem não estiver filtrada.
     filtered_query = query
     if busca or categoria_id:
+        filtered_ids = filtered_query.with_entities(Produto.id).subquery()
         total_estoque = (
             db.query(func.coalesce(func.sum(Variacao.estoque_atual), 0))
             .join(Produto, Variacao.produto_id == Produto.id)
-            .filter(Produto.id.in_([p.id for p in filtered_query.all()]))
+            .filter(Produto.id.in_(filtered_ids))
             .scalar()
         )
         total_esgotados = (
-            db.query(Produto.id)
-            .outerjoin(Variacao)
-            .filter(Produto.id.in_([p.id for p in filtered_query.all()]))
-            .group_by(Produto.id)
-            .having(func.coalesce(func.sum(Variacao.estoque_atual), 0) == 0)
-            .count()
+            db.query(func.count())
+            .select_from(
+                db.query(Produto.id)
+                .outerjoin(Variacao)
+                .filter(Produto.id.in_(filtered_ids))
+                .group_by(Produto.id)
+                .having(func.coalesce(func.sum(Variacao.estoque_atual), 0) == 0)
+                .subquery()
+            )
+            .scalar()
         )
     else:
         total_estoque = (
