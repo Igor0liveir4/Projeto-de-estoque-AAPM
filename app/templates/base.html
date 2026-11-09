@@ -867,6 +867,15 @@
                 padding: 0;
             }
 
+            body.has-sidebar .header-content {
+                display: none;
+            }
+
+            body.has-sidebar .sidebar-toggle {
+                order: -1;
+                margin-right: auto;
+            }
+
             .logo-header {
                 height: 32px;
                 width: 92px;
@@ -1069,6 +1078,27 @@
             border: 0;
             height: 1px;
             background: linear-gradient(90deg, transparent, var(--border), transparent);
+        }
+
+        @media (max-width: 768px) {
+            .btn-theme-toggle {
+                align-self: center;
+                width: 40px;
+                height: 40px;
+                min-width: 40px;
+                padding: 0;
+                margin-left: 0;
+                border-radius: 50%;
+                order: 2;
+            }
+
+            .btn-theme-toggle span {
+                display: none;
+            }
+
+            .btn-theme-toggle i {
+                font-size: 16px;
+            }
         }
 
         @media (max-width: 480px) {
