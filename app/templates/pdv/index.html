@@ -1038,31 +1038,20 @@
     }
 
     .pagamento-troco {
-        color: #10b981;
-        font-size: 13px;
-        font-weight: 700;
-        margin: 0 0 8px;
-        text-align: right;
-    }
-
-    .btn-remover-pagamento {
-        background: transparent;
-        border: 0;
-        color: var(--text-muted);
-        cursor: pointer;
-        font-size: 14px;
         display: flex;
+        justify-content: flex-end;
         align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        border-radius: 4px;
-        transition: color var(--transition), background var(--transition);
-    }
-
-    .btn-remover-pagamento:hover {
-        color: #f87171;
-        background: rgba(239, 68, 68, 0.1);
+        margin: 0 0 8px;
+        padding: 8px 12px;
+        border: 1px solid rgba(16, 185, 129, 0.35);
+        border-radius: 10px;
+        background: rgba(16, 185, 129, 0.12);
+        color: #86efac;
+        font-size: 14px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        text-align: right;
+        box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.14);
     }
 
     .pagamento-restante {
@@ -1071,6 +1060,10 @@
         color: var(--text-primary);
         margin-top: 8px;
         text-align: right;
+    }
+
+    .pagamento-restante strong {
+        color: var(--text-primary);
     }
 </style>
 {% endblock %}
@@ -1212,7 +1205,7 @@
                 </div>
                 <div id="pagamentos-list" class="pagamentos-list"></div>
                 <div id="pagamento-troco" class="pagamento-troco" hidden></div>
-                <div class="pagamento-restante" id="pagamento-restante">Restante: R$ 0,00</div>
+                <div class="pagamento-restante" id="pagamento-restante">Valor: R$ 0,00</div>
             </div>
 
             <div class="obs-wrap">
@@ -1270,12 +1263,14 @@
 <div class="pix-modal" id="pix-modal" role="dialog" aria-modal="true" aria-labelledby="pix-modal-title">
     <div class="pix-modal-card">
         <h3 id="pix-modal-title">Aguardando pagamento Pix</h3>
-        <p>Valor Pix: <strong id="pix-modal-valor"></strong></p>
-        <img class="pix-qr" id="pix-modal-qr" alt="QR Code Pix para pagamento">
-        <label for="pix-modal-copia-cola">Pix Copia e Cola</label>
-        <div class="pix-copia-cola">
-            <input id="pix-modal-copia-cola" type="text" readonly aria-label="Código Pix Copia e Cola">
-            <button type="button" id="pix-copiar">Copiar</button>
+        <p id="pix-modal-info">Valor Pix: <strong id="pix-modal-valor"></strong></p>
+        <div id="pix-modal-qr-wrap">
+            <img class="pix-qr" id="pix-modal-qr" alt="QR Code Pix para pagamento">
+            <label for="pix-modal-copia-cola">Pix Copia e Cola</label>
+            <div class="pix-copia-cola">
+                <input id="pix-modal-copia-cola" type="text" readonly aria-label="Código Pix Copia e Cola">
+                <button type="button" id="pix-copiar">Copiar</button>
+            </div>
         </div>
         <p id="pix-modal-erro" class="pix-modal-erro" role="alert" hidden></p>
         <div class="pix-modal-actions">
@@ -1353,7 +1348,6 @@ function resolverImagemUrl(url) {
     return valor;
 }
 
-// Captura o valor do desconto vindo do Jinja2 com segurança
 const DESCONTO_PCT = parseFloat("{{ desconto_associado }}") || 0;
 
 function criarLinhaPagamento(index = 0) {
@@ -1502,10 +1496,12 @@ function atualizarPagamentoResumo() {
     const resumo = calcularResumoPagamentos();
     const restante = document.getElementById('pagamento-restante');
     const troco = document.getElementById('pagamento-troco');
+    const valorTotal = Math.max(0, obterTotalVendaCentavos() / 100);
+    const valorRecebido = Math.max(0, valorTotal - (resumo.restante / 100));
 
-    restante.textContent = 'Restante: ' + fmtBRL(resumo.restante / 100);
+    restante.textContent = 'Valor: ' + fmtBRL(valorTotal);
     restante.style.color = resumo.restante > 0 ? '#fbbf24' : '#6ee7b7';
-    troco.textContent = 'Troco: ' + fmtBRL(resumo.troco / 100);
+    troco.textContent = 'Recebido: ' + fmtBRL(valorRecebido) + ' • Troco: ' + fmtBRL(resumo.troco / 100);
     troco.hidden = resumo.troco === 0;
 
     document.getElementById('btn-finalizar').disabled =
@@ -1522,7 +1518,6 @@ window.limparCarrinho = function () {
     mostrarErro('Carrinho limpo.');
 };
 
-// ── Busca ──────────────────────────────────────
 const campoBuscaProduto = document.getElementById('busca-produto');
 let temporizadorBuscaProduto;
 
@@ -1533,7 +1528,6 @@ campoBuscaProduto.addEventListener('input', function () {
         card.style.display = nome.includes(q) ? '' : 'none';
     });
 
-    // Consulta também os produtos das demais páginas e volta ao primeiro resultado.
     clearTimeout(temporizadorBuscaProduto);
     temporizadorBuscaProduto = setTimeout(() => {
         const parametros = new URLSearchParams({
@@ -1554,7 +1548,6 @@ document.getElementById('form-busca-produto').addEventListener('submit', functio
     window.location.assign(`/pdv?${parametros.toString()}`);
 });
 
-// ── Seleção de variação ────────────────────────
 let produtoSelecionado = null;
 let variacoesSelecionadas = [];
 
@@ -1663,7 +1656,6 @@ document.addEventListener('keydown', event => {
     }
 });
 
-// ── Alterar quantidade ─────────────────────────
 window.alterarQtd = function (variacaoId, delta) {
     let item = carrinho.find(i => i.variacao_id === variacaoId);
     if (!item) return;
@@ -1678,7 +1670,6 @@ window.removerItem = function (variacaoId) {
     renderCarrinho();
 };
 
-// ── Cliente / Desconto ─────────────────────────
 window.atualizarCliente = function () {
     const sel = document.getElementById('cliente-select');
     const opt = sel.options[sel.selectedIndex];
@@ -1701,7 +1692,6 @@ function atualizarPrecosProdutos() {
     });
 }
 
-// ── Render ─────────────────────────────────────
 function atualizarEstoqueProdutos() {
     document.querySelectorAll('.produto-card').forEach(card => {
         const quantidadeNoCarrinho = carrinho
@@ -1744,7 +1734,6 @@ function renderCarrinho() {
 
     if (carrinho.length === 0) {
         vazio.style.display = 'flex';
-        // remove item lines
         wrapper.querySelectorAll('.item-linha').forEach(el => el.remove());
         linDesc.style.display = 'none';
         setTotais(0, 0);
@@ -1753,7 +1742,6 @@ function renderCarrinho() {
     }
 
     vazio.style.display = 'none';
-    // Rebuild item lines
     wrapper.querySelectorAll('.item-linha').forEach(el => el.remove());
 
     carrinho.forEach(item => {
@@ -1787,7 +1775,6 @@ function renderCarrinho() {
     setTotais(bruto, liquido);
     atualizarPagamentoResumo();
 
-    // Monta hidden inputs para o form
     const itensParaForm = carrinho.map(i => ({
         produto_id: i.produto_id,
         variacao_id: i.variacao_id,
@@ -1802,7 +1789,6 @@ function setTotais(bruto, liquido) {
     document.getElementById('total-val').textContent = fmtBRL(liquido);
 }
 
-// ── Utilitários ────────────────────────────────
 function fmtBRL(v) {
     return 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',');
 }
@@ -1832,7 +1818,10 @@ const pixModal = document.getElementById('pix-modal');
 const pixModalErro = document.getElementById('pix-modal-erro');
 const pixConfirmacaoToken = document.getElementById('pix-confirmacao-token');
 const pixFinalizeButton = document.getElementById('btn-finalizar');
+const pixModalQrWrap = document.getElementById('pix-modal-qr-wrap');
+const pixModalInfo = document.getElementById('pix-modal-info');
 let gerandoPix = false;
+let pagamentoModalTipoAtivo = 'Pix';
 
 function fecharModalPix() {
     pixModal.classList.remove('aberto');
@@ -1840,7 +1829,23 @@ function fecharModalPix() {
     document.getElementById('pix-txid').value = '';
     document.getElementById('pix-modal-qr').removeAttribute('src');
     document.getElementById('pix-modal-copia-cola').value = '';
+    pixModalQrWrap.style.display = 'block';
+    pixModalInfo.innerHTML = 'Valor Pix: <strong id="pix-modal-valor"></strong>';
     pixModalErro.hidden = true;
+    pagamentoModalTipoAtivo = 'Pix';
+}
+
+function abrirModalConfirmacaoPagamento(tipo, valor) {
+    pagamentoModalTipoAtivo = tipo;
+    const titulo = tipo === 'Pix' ? 'Aguardando pagamento Pix' : `Confirmar pagamento ${tipo}`;
+    const textoValor = tipo === 'Pix' ? 'Valor Pix' : `Valor ${tipo}`;
+
+    document.getElementById('pix-modal-title').textContent = titulo;
+    pixModalInfo.innerHTML = `${textoValor}: <strong id="pix-modal-valor"></strong>`;
+    document.getElementById('pix-modal-valor').textContent = fmtBRL(valor);
+    pixModalQrWrap.style.display = tipo === 'Pix' ? 'block' : 'none';
+    pixModalErro.hidden = true;
+    pixModal.classList.add('aberto');
 }
 
 async function abrirConfirmacaoPix() {
@@ -1864,14 +1869,12 @@ async function abrirConfirmacaoPix() {
         const resultado = await resposta.json();
         if (!resposta.ok) throw new Error(resultado.detail || 'Não foi possível gerar o Pix.');
 
-        document.getElementById('pix-modal-valor').textContent =
-            fmtBRL(resultado.valor_centavos / 100);
+        abrirModalConfirmacaoPagamento('Pix', resultado.valor_centavos / 100);
         document.getElementById('pix-modal-qr').src = resultado.qr_code;
         document.getElementById('pix-modal-copia-cola').value = resultado.payload;
         document.getElementById('pix-copiar').textContent = 'Copiar';
         pixConfirmacaoToken.value = resultado.confirmacao_token;
         document.getElementById('pix-txid').value = resultado.txid;
-        pixModal.classList.add('aberto');
     } catch (erro) {
         mostrarErro(erro.message || 'Não foi possível gerar o Pix.');
     } finally {
@@ -1899,11 +1902,17 @@ pixModal.addEventListener('click', event => {
 });
 
 document.getElementById('pix-confirmar').addEventListener('click', () => {
-    if (!pixConfirmacaoToken.value) {
-        pixModalErro.textContent = 'Gere novamente o QR Code antes de confirmar o pagamento.';
-        pixModalErro.hidden = false;
+    if (pagamentoModalTipoAtivo === 'Pix') {
+        if (!pixConfirmacaoToken.value) {
+            pixModalErro.textContent = 'Gere novamente o QR Code antes de confirmar o pagamento.';
+            pixModalErro.hidden = false;
+            return;
+        }
+        pixModal.classList.remove('aberto');
+        document.getElementById('form-venda').submit();
         return;
     }
+
     pixModal.classList.remove('aberto');
     document.getElementById('form-venda').submit();
 });
@@ -1928,9 +1937,17 @@ pixFinalizeButton.addEventListener('click', async function (event) {
         return;
     }
 
-    if (formasPagamento.some(item => item.tipo === 'Pix' && Number(item.valor) > 0)) {
+    const pagamentosComValor = formasPagamento.filter(item => item.tipo && Number(item.valor) > 0);
+    if (pagamentosComValor.some(item => item.tipo === 'Pix')) {
         event.preventDefault();
         await abrirConfirmacaoPix();
+        return;
+    }
+
+    if (pagamentosComValor.length > 0) {
+        event.preventDefault();
+        const valorTotal = pagamentosComValor.reduce((total, item) => total + Number(item.valor || 0), 0);
+        abrirModalConfirmacaoPagamento(pagamentosComValor[0].tipo, valorTotal);
         return;
     }
 
@@ -1946,7 +1963,6 @@ document.getElementById('obs-input').addEventListener('input', function () {
 renderPagamentos();
 renderCarrinho();
 
-// ── Erros vindos do servidor via query param ───
 const params = new URLSearchParams(window.location.search);
 const erros = {
     json: 'Erro ao processar o carrinho. Tente novamente.',

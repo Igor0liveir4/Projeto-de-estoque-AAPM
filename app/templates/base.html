@@ -24,17 +24,10 @@
         rel="stylesheet">
     <style>
         :root {
-<<<<<<< HEAD
-            --bg-base: #080c14;
-            --bg-surface: #0d1320;
-            --bg-card: #111827;
-            --bg-card-hover: #161f30;
-=======
             --bg-base: #0d1422;
             --bg-surface: #121c2d;
             --bg-card: #172235;
             --bg-card-hover: #1d2a40;
->>>>>>> 2278898e0a85bee144099baa6a3cf0118a15b66f
             --border: rgba(99, 179, 237, 0.1);
             --border-hover: rgba(99, 179, 237, 0.28);
             --accent: #3b82f6;
@@ -55,8 +48,6 @@
             --senai-yellow: #ffcb05;
         }
 
-<<<<<<< HEAD
-=======
         :root[data-theme="light"] {
             color-scheme: light;
             --bg-base: #f1f5f9;
@@ -185,7 +176,6 @@
             color: inherit !important;
         }
 
->>>>>>> 2278898e0a85bee144099baa6a3cf0118a15b66f
         *,
         *::before,
         *::after {
@@ -196,11 +186,8 @@
 
         html {
             scroll-behavior: smooth;
-<<<<<<< HEAD
-=======
             max-width: 100%;
             overflow-x: hidden;
->>>>>>> 2278898e0a85bee144099baa6a3cf0118a15b66f
         }
 
         body {
@@ -213,23 +200,12 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-<<<<<<< HEAD
-            /* subtle grid texture */
-            background-image:
-                linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-        }
-
-        /* ── HEADER ────── */
-=======
             width: 100%;
             max-width: 100%;
             overflow-x: hidden;
         }
 
         /* ── HEADER  */
->>>>>>> 2278898e0a85bee144099baa6a3cf0118a15b66f
         header {
             position: fixed;
             top: 0;
@@ -377,11 +353,7 @@
             margin: 0 4px;
         }
 
-<<<<<<< HEAD
-        /* ── MAIN ─────── */
-=======
         /* ── MAIN ───────────────── */
->>>>>>> 2278898e0a85bee144099baa6a3cf0118a15b66f
         main {
             /* Compensa o header fixo para o conteúdo não ficar encoberto. */
             padding: var(--header-h) 0 0;
@@ -522,11 +494,7 @@
             border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
-<<<<<<< HEAD
-        /* ── GLOBAL BUTTON ────────────── */
-=======
         /* ── GLOBAL BOTÃO ────── */
->>>>>>> 2278898e0a85bee144099baa6a3cf0118a15b66f
         button,
         .btn {
             font-family: 'DM Sans', sans-serif;
@@ -550,11 +518,7 @@
             box-shadow: 0 6px 20px var(--accent-glow);
         }
 
-<<<<<<< HEAD
-        /* ── FORM ELEMENTS ────────────── */
-=======
         /* ── FORM ELEMENTOS ─────── */
->>>>>>> 2278898e0a85bee144099baa6a3cf0118a15b66f
         input,
         textarea,
         select {
@@ -617,11 +581,7 @@
             color: var(--text-primary);
         }
 
-<<<<<<< HEAD
-        /* ── RESPONSIVE ────────── */
-=======
         /* ── RESPONSIVE ─────────── */
->>>>>>> 2278898e0a85bee144099baa6a3cf0118a15b66f
         @media (max-width: 992px) {
             .footer-grid {
                 grid-template-columns: 1fr;
@@ -1086,10 +1046,7 @@
                 {% set is_usuarios = current_path == '/usuarios' or current_path.startswith('/usuarios/') %}
                 {% set is_movimentacoes = current_path == '/movimentacoes' or current_path.startswith('/movimentacoes/')
                 %}
-<<<<<<< HEAD
-=======
                 {% set is_armarios = current_path == '/armarios' or current_path.startswith('/armarios/') %}
->>>>>>> 2278898e0a85bee144099baa6a3cf0118a15b66f
                 {% set is_pdv = current_path == '/pdv' or current_path.startswith('/pdv/') %}
                 {% set is_admin = usuario.role == 'admin' %}
                 <div class="nav-buttons">
@@ -1097,26 +1054,17 @@
                         endif %}>
                         <i class="fas fa-house"></i> Home
                     </a>
-<<<<<<< HEAD
-=======
                     {% if is_admin %}
->>>>>>> 2278898e0a85bee144099baa6a3cf0118a15b66f
                     <a href="/cliente" class="nav-btn {{ 'active' if is_cliente else '' }}" {% if is_cliente
                         %}aria-current="page" {% endif %}>
                         <i class="fas fa-users"></i> Clientes
                     </a>
-<<<<<<< HEAD
-=======
                     {% endif %}
->>>>>>> 2278898e0a85bee144099baa6a3cf0118a15b66f
                     <a href="/produtos" class="nav-btn {{ 'active' if is_produtos else '' }}" {% if is_produtos
                         %}aria-current="page" {% endif %}>
                         <i class="fas fa-box-open"></i> Produtos
                     </a>
-<<<<<<< HEAD
-=======
                     {% if is_admin %}
->>>>>>> 2278898e0a85bee144099baa6a3cf0118a15b66f
                     <a href="/categorias" class="nav-btn {{ 'active' if is_categorias else '' }}" {% if is_categorias
                         %}aria-current="page" {% endif %}>
                         <i class="fas fa-tags"></i> Categorias
@@ -1129,14 +1077,11 @@
                         is_movimentacoes %}aria-current="page" {% endif %}>
                         <i class="fas fa-exchange-alt"></i> Movimentações
                     </a>
-<<<<<<< HEAD
-=======
                     {% endif %}
                     <a href="/armarios" class="nav-btn {{ 'active' if is_armarios else '' }}" {% if is_armarios
                         %}aria-current="page" {% endif %}>
                         <i class="fas fa-door-open"></i> Armários
                     </a>
->>>>>>> 2278898e0a85bee144099baa6a3cf0118a15b66f
                     <a href="/pdv" class="nav-btn {{ 'active' if is_pdv else '' }}" {% if is_pdv %}aria-current="page"
                         {% endif %}>
                         <i class="fas fa-cash-register"></i> PDV
@@ -1230,11 +1175,8 @@
                     </li>
                     <li><a href="/produtos"><i class="fas fa-chevron-right" style="font-size: 10px;"></i> Catálogo de
                             Produtos</a></li>
-<<<<<<< HEAD
-=======
                     <li><a href="/armarios"><i class="fas fa-chevron-right" style="font-size: 10px;"></i> Mapa de
                             Armários</a></li>
->>>>>>> 2278898e0a85bee144099baa6a3cf0118a15b66f
                     <li><a href="/pdv"><i class="fas fa-chevron-right" style="font-size: 10px;"></i> Ponto de Venda
                             (PDV)</a></li>
                     <li><a href="https://sp.senai.br" target="_blank"><i class="fas fa-globe"

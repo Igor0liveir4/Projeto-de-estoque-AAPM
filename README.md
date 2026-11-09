@@ -38,12 +38,6 @@ python criar_usuario.py
 
 Bash
 python -m uvicorn app.main:app --reload
-<<<<<<< HEAD
-```
-
-
-
-=======
 Acesse o sistema pelo navegador através do endereço: http://127.0.0.1:8000
 
 🛠️ Principais Recursos Implementados
@@ -249,4 +243,3 @@ Histórico e rotas dedicadas para entradas e saídas manuais de mercadorias no a
 Diferenciação clara entre visitantes (Landing Page comercial com catálogo de novidades) e usuários autenticados (Dashboard interno).
 
 Tratamento customizado do Erro 404 integrado de forma assíncrona com carregamento via API externa do Unsplash.
->>>>>>> 2278898e0a85bee144099baa6a3cf0118a15b66f
