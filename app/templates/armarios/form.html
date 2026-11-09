@@ -3,13 +3,14 @@
 {% block title %}{{ "Editar" if editando else "Novo" }} Armário - AAPM{% endblock %}
 
 {% block head %}
-<link rel="stylesheet" href="/static/armarios.css">
+<link rel="stylesheet" href="/static/css/armarios_form.css">
+<link rel="stylesheet" href="/static/css/armarios.css">
 {% endblock %}
 
 {% block content %}
 <section class="armarios-page">
     <a href="/armarios" class="button-link"><i class="fas fa-arrow-left"></i> Voltar ao mapa</a>
-    <div class="form-layout" style="margin-top: 18px;">
+    <div class="form-layout armarios_form-inline-fb3bd801c6">
         <div class="form-card">
             <p class="page-eyebrow">Gestão de armários</p>
             <h2>{{ "Editar armário" if editando else "Novo armário" }}</h2>
@@ -27,12 +28,12 @@
                         autofocus>
                 </div>
                 <div class="field">
-                    <label for="localizacao">Localização <span style="font-weight:400">(opcional)</span></label>
+                    <label for="localizacao">Localização <span class="armarios_form-inline-7e3a94476f">(opcional)</span></label>
                     <input id="localizacao" type="text" name="localizacao" placeholder="Ex.: Bloco A - Térreo"
                         value="{{ editando.localizacao if editando else (valores.localizacao if valores else '') }}">
                 </div>
                 <div class="field">
-                    <label for="observacao">Observação <span style="font-weight:400">(opcional)</span></label>
+                    <label for="observacao">Observação <span class="armarios_form-inline-7e3a94476f">(opcional)</span></label>
                     <textarea id="observacao" name="observacao" maxlength="255"
                         placeholder="Informação adicional sobre o armário">{{ editando.observacao if editando else (valores.observacao if valores else '') }}</textarea>
                 </div>

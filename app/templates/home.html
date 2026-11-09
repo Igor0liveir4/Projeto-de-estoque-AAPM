@@ -2,6 +2,10 @@
 
 {% block title %}Dashboard - Gestão de Estoque AAPM{% endblock %}
 
+{% block late_head %}
+<link rel="stylesheet" href="/static/css/dashboard.css">
+{% endblock %}
+
 {% block content %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <link
@@ -9,405 +13,9 @@
     rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<style>
-    /* ── LAYOUT ───────────── */
-    .dashboard-container {
-        font-family: 'DM Sans', sans-serif;
-        max-width: 1280px;
-        margin: 40px auto;
-        padding: 0 28px;
-    }
 
-    /* ── HEADER ROW ─────────── */
-    .dashboard-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 40px;
-        animation: fadeUp 0.4s ease both;
-    }
 
-    .dashboard-title h1 {
-        font-family: 'Sora', sans-serif;
-        font-size: 34px;
-        font-weight: 800;
-        letter-spacing: -1px;
-        margin: 0;
-        color: #f0f6ff;
-        line-height: 1;
-    }
 
-    .dashboard-title p {
-        color: #64748b;
-        font-size: 14px;
-        margin: 10px 0 0 0;
-    }
-
-    .dashboard-title p span {
-        color: #60a5fa;
-        font-weight: 600;
-    }
-
-    /* ── USER BADGE ───────────── */
-    .user-badge {
-        background: rgba(59, 130, 246, 0.08);
-        color: #94a3b8;
-        padding: 8px 15px;
-        border-radius: 24px;
-        font-weight: 600;
-        font-size: 12px;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        border: 1px solid rgba(59, 130, 246, 0.15);
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-    }
-
-    .status-dot {
-        width: 7px;
-        height: 7px;
-        background: #10b981;
-        border-radius: 50%;
-        box-shadow: 0 0 8px #10b981;
-        animation: pulseGreen 2s ease infinite;
-        flex-shrink: 0;
-    }
-
-    @keyframes pulseGreen {
-
-        0%,
-        100% {
-            opacity: 1;
-        }
-
-        50% {
-            opacity: 0.4;
-        }
-    }
-
-    /* ── STAT CARDS ────────── */
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 18px;
-        margin-bottom: 28px;
-    }
-
-    .stat-card {
-        position: relative;
-        background: rgba(23, 34, 53, 0.88);
-        border: 1px solid rgba(99, 179, 237, 0.1);
-        border-radius: 16px;
-        padding: 22px 20px;
-        display: flex;
-        align-items: center;
-        gap: 18px;
-        cursor: pointer;
-        overflow: hidden;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        transition:
-            border-color 0.25s ease,
-            box-shadow 0.25s ease,
-            transform 0.25s ease;
-        animation: fadeUp 0.4s ease both;
-    }
-
-    /* allow using the stat-card class on anchor tags */
-    a.stat-card {
-        text-decoration: none;
-        color: inherit;
-        display: flex;
-    }
-
-    /* stagger the 4 cards */
-    .stat-card:nth-child(1) {
-        animation-delay: 0.05s;
-    }
-
-    .stat-card:nth-child(2) {
-        animation-delay: 0.10s;
-    }
-
-    .stat-card:nth-child(3) {
-        animation-delay: 0.15s;
-    }
-
-    .stat-card:nth-child(4) {
-        animation-delay: 0.20s;
-    }
-
-    /* subtle shimmer sweep */
-    .stat-card::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(110deg,
-                transparent 30%,
-                rgba(255, 255, 255, 0.04) 50%,
-                transparent 70%);
-        transform: translateX(-100%);
-        transition: transform 0.6s ease;
-        pointer-events: none;
-    }
-
-    .stat-card:hover::after {
-        transform: translateX(100%);
-    }
-
-    .stat-card:hover {
-        border-color: rgba(59, 130, 246, 0.3);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
-            0 0 0 1px rgba(59, 130, 246, 0.08);
-        transform: translateY(-3px);
-    }
-
-    /* top accent glow per variant */
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        opacity: 0;
-        transition: opacity 0.25s ease;
-    }
-
-    .stat-card:hover::before {
-        opacity: 1;
-    }
-
-    .stat-card.blue::before {
-        background: linear-gradient(90deg, transparent, #3b82f6, transparent);
-    }
-
-    .stat-card.purple::before {
-        background: linear-gradient(90deg, transparent, #9333ea, transparent);
-    }
-
-    .stat-card.green::before {
-        background: linear-gradient(90deg, transparent, #16a34a, transparent);
-    }
-
-    .stat-card.orange::before {
-        background: linear-gradient(90deg, transparent, #ea580c, transparent);
-    }
-
-    .stat-icon {
-        width: 52px;
-        height: 52px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 22px;
-        flex-shrink: 0;
-        transition: transform 0.25s ease;
-    }
-
-    .stat-card:hover .stat-icon {
-        transform: scale(1.08) rotate(-3deg);
-    }
-
-    .stat-icon.blue {
-        background: rgba(59, 130, 246, 0.12);
-        color: #60a5fa;
-        border: 1px solid rgba(59, 130, 246, 0.18);
-    }
-
-    .stat-icon.purple {
-        background: rgba(147, 51, 234, 0.12);
-        color: #c084fc;
-        border: 1px solid rgba(147, 51, 234, 0.18);
-    }
-
-    .stat-icon.green {
-        background: rgba(22, 163, 74, 0.12);
-        color: #4ade80;
-        border: 1px solid rgba(22, 163, 74, 0.18);
-    }
-
-    .stat-icon.orange {
-        background: rgba(234, 88, 12, 0.12);
-        color: #fb923c;
-        border: 1px solid rgba(234, 88, 12, 0.18);
-    }
-
-    .stat-content h3 {
-        font-size: 10.5px;
-        color: #475569;
-        font-weight: 700;
-        margin: 0 0 6px 0;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-    }
-
-    .stat-content .value {
-        font-family: 'Sora', sans-serif;
-        font-size: 32px;
-        color: #f0f6ff;
-        font-weight: 700;
-        margin: 0;
-        line-height: 1;
-        letter-spacing: -1px;
-    }
-
-    /* ── CHART CARDS ───────── */
-    .charts-grid {
-        display: grid;
-        /* Mantém os dois gráficos superiores ocupando toda a largura disponível. */
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 18px;
-        margin-bottom: 28px;
-    }
-
-    .chart-card {
-        background: rgba(23, 34, 53, 0.88);
-        border: 1px solid rgba(99, 179, 237, 0.1);
-        border-radius: 16px;
-        padding: 26px;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        transition:
-            border-color 0.25s ease,
-            box-shadow 0.25s ease;
-        min-width: 0;
-        animation: fadeUp 0.4s ease both;
-    }
-
-    .chart-card:nth-child(1) {
-        animation-delay: 0.25s;
-    }
-
-    .chart-card:nth-child(2) {
-        animation-delay: 0.30s;
-    }
-
-    .chart-card:nth-child(3) {
-        animation-delay: 0.35s;
-    }
-
-    .chart-card:hover {
-        border-color: rgba(59, 130, 246, 0.22);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    }
-
-    .chart-card h2 {
-        font-family: 'Sora', sans-serif;
-        font-size: 15px;
-        font-weight: 700;
-        color: #e2e8f0;
-        margin: 0 0 22px 0;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        letter-spacing: -0.2px;
-    }
-
-    .chart-card h2 i {
-        font-size: 15px;
-        color: #3b82f6;
-        background: rgba(59, 130, 246, 0.1);
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid rgba(59, 130, 246, 0.18);
-    }
-
-    :root[data-theme="light"] .stat-card,
-    :root[data-theme="light"] .chart-card {
-        background: var(--bg-surface);
-        border-color: var(--border);
-        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-        backdrop-filter: none;
-        -webkit-backdrop-filter: none;
-    }
-
-    :root[data-theme="light"] .stat-card:hover,
-    :root[data-theme="light"] .chart-card:hover {
-        border-color: rgba(37, 99, 235, 0.3);
-        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
-    }
-
-    :root[data-theme="light"] .stat-content h3 {
-        color: #64748b;
-    }
-
-    :root[data-theme="light"] .stat-content .value,
-    :root[data-theme="light"] .chart-card h2 {
-        color: #172033;
-    }
-
-    .chart-container {
-        position: relative;
-        height: 300px;
-    }
-
-    .full-width {
-        grid-column: 1 / -1;
-    }
-
-    /* ── ANIMAÇÃO ────────────────── */
-    @keyframes fadeUp {
-        from {
-            opacity: 0;
-            transform: translateY(18px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* ── RESPONSIVIDADE ─────────────────────── */
-    @media (max-width: 1024px) {
-        .stats-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-    }
-
-    @media (max-width: 768px) {
-        .dashboard-container {
-            padding: 0 16px;
-            margin: 20px auto;
-        }
-
-        .dashboard-header {
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .dashboard-title h1 {
-            font-size: 26px;
-        }
-
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .charts-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .full-width {
-            grid-column: 1;
-        }
-
-        .chart-container {
-            height: 240px;
-        }
-    }
-
-    strong {
-        color: #f63b3b;
-    }
-</style>
 
 <div class="dashboard-container">
 
@@ -473,8 +81,8 @@
         {% endif %}
 
         <a href="/armarios" class="stat-card teal">
-            <div class="stat-icon"
-                style="background: rgba(6,182,212,0.12); color: #06b6d4; border: 1px solid rgba(6,182,212,0.18);">
+            <div class="stat-icon dashboard-inline-6b84a6d46e"
+               >
                 <i class="fas fa-lock"></i>
             </div>
             <div class="stat-content">
@@ -484,8 +92,8 @@
         </a>
 
         <a href="/pdv" class="stat-card cyan">
-            <div class="stat-icon"
-                style="background: rgba(8,145,178,0.12); color: #06b6d4; border: 1px solid rgba(8,145,178,0.18);">
+            <div class="stat-icon dashboard-inline-673600ca51"
+               >
                 <i class="fas fa-cash-register"></i>
             </div>
             <div class="stat-content">
@@ -512,7 +120,7 @@
 
         <div class="chart-card full-width">
             <h2><i class="fas fa-chart-column"></i> Valor Total em Estoque por Categoria (R$)</h2>
-            <div class="chart-container" style="height: 340px;">
+            <div class="chart-container dashboard-inline-182edd5e4d">
                 <canvas id="valorChart"></canvas>
             </div>
         </div>

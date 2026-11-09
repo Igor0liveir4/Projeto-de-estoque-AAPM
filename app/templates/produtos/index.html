@@ -3,397 +3,56 @@
 {% block title %}Produtos - AAPM{% endblock %}
 {% from "components/pagination.html" import render as render_pagination with context %}
 
+{% block head %}
+<link rel="stylesheet" href="/static/css/produtos_index.css">
+{% endblock %}
+
 {% block content %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<style>
-    /* VARIÁVEIS DE COR PADRONIZADAS (Baseadas no Design System) */
-    :root {
-        --bg-main: var(--bg-base);
-        --bg-card: var(--bg-surface);
-        --bg-input: var(--bg-base);
-        --border: rgba(99, 179, 237, 0.14);
-        --border-hover: rgba(99, 179, 237, 0.28);
-        --accent: #4a72ff; /* Azul vibrante dos botões */
-        --accent-light: #6b8cff; /* Azul hover */
-        --accent-glow: rgba(74, 114, 255, 0.2);
-        --text-main: var(--text-primary);
-        --text-muted: var(--text-secondary);
-        --radius: 12px;
-        --transition: 0.2s ease;
-        
-        /* Cores de Status */
-        --success: #10b981;
-        --warning: #f59e0b;
-        --danger: #ef4444;
-    }
 
-    :root[data-theme="light"] {
-        --bg-main: #f1f5f9;
-        --bg-card: #ffffff;
-        --bg-input: #f8fafc;
-        --border: rgba(15, 23, 42, 0.12);
-        --border-hover: rgba(15, 23, 42, 0.22);
-        --text-main: #172033;
-        --text-muted: #64748b;
-    }
 
-    .page-wrapper {
-        min-height: 90vh;
-        background: transparent;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        padding: 40px 20px;
-        display: flex;
-        justify-content: center;
-    }
 
-    .catalog-container {
-        width: 100%;
-        max-width: 1150px;
-    }
-
-    /* METRICS CARDS GRID */
-    .metrics-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 16px;
-        margin-bottom: 32px;
-    }
-
-    .metric-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 20px;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-    }
-
-    .metric-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-    }
-
-    /* FILTERS BAR */
-    .search-bar-container {
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: 16px 16px 0 0;
-        padding: 16px 20px;
-        display: flex;
-        gap: 16px;
-        align-items: center;
-        border-bottom: none;
-    }
-
-    .search-wrapper {
-        position: relative;
-        flex: 1;
-    }
-
-    .search-wrapper i {
-        position: absolute;
-        left: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-muted);
-        font-size: 14px;
-    }
-
-    .search-input {
-        background: var(--bg-input);
-        border: 1px solid var(--border);
-        padding: 10px 14px 10px 40px;
-        border-radius: 8px;
-        font-size: 13px;
-        color: var(--text-main);
-        width: 100%;
-        box-sizing: border-box;
-        transition: all var(--transition);
-    }
-
-    .search-input:focus {
-        outline: none;
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px var(--accent-glow);
-    }
-
-    /* TABLE MANAGEMENT */
-    .table-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: 0 0 20px 20px;
-        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
-        overflow: hidden;
-    }
-
-    .custom-table {
-        width: 100%;
-        border-collapse: collapse;
-        text-align: left;
-        background: var(--bg-card);
-    }
-
-    .custom-table th {
-        background: var(--bg-card);
-        padding: 14px 20px;
-        color: var(--text-muted);
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        border-bottom: 1px solid var(--border);
-    }
-
-    .prod-row {
-        background: var(--bg-card);
-        border-bottom: 1px solid var(--border);
-        transition: background 0.15s ease;
-        cursor: pointer;
-    }
-
-    .prod-row:hover {
-        background: var(--border) !important;
-    }
-
-    .prod-row:active {
-        background: var(--border-hover) !important;
-    }
-
-    .prod-row td {
-        background: transparent !important;
-    }
-
-    .custom-table td {
-        padding: 12px 20px;
-        color: var(--text-main);
-        font-size: 13px;
-        vertical-align: middle;
-        background: transparent;
-    }
-
-    /* BADGES */
-    .badge {
-        padding: 4px 8px;
-        border-radius: 6px;
-        font-weight: 600;
-        font-size: 11px;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .badge-success {
-        background: rgba(16, 185, 129, 0.08);
-        color: var(--success);
-        border: 1px solid rgba(16, 185, 129, 0.15);
-    }
-
-    .badge-warning {
-        background: rgba(245, 158, 11, 0.08);
-        color: var(--warning);
-        border: 1px solid rgba(245, 158, 11, 0.15);
-    }
-
-    .badge-danger {
-        background: rgba(239, 68, 68, 0.08);
-        color: var(--danger);
-        border: 1px solid rgba(239, 68, 68, 0.15);
-    }
-
-    .badge-category {
-        background: var(--bg-input);
-        color: var(--text-muted);
-        border: 1px solid var(--border);
-    }
-
-    /* ACTIONS & BUTTONS */
-    .btn-add {
-        background: var(--accent);
-        color: #ffffff;
-        border: none;
-        padding: 11px 20px;
-        text-decoration: none;
-        border-radius: 12px;
-        font-size: 14px;
-        font-weight: 700;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        transition: all var(--transition);
-        box-shadow: 0 4px 14px var(--accent-glow);
-        font-family: 'DM Sans', sans-serif;
-        white-space: nowrap;
-    }
-
-    .btn-add:hover {
-        background: var(--accent-light);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px var(--accent-glow);
-    }
-
-    .btn-action-edit {
-        background: var(--accent);
-        color: #ffffff;
-        padding: 10px 16px;
-        text-decoration: none;
-        border-radius: 8px;
-        font-size: 13px;
-        font-weight: 600;
-        border: none;
-        cursor: pointer;
-        transition: all var(--transition);
-    }
-
-    .btn-action-edit:hover {
-        background: var(--accent-light);
-    }
-
-    .btn-action-disable {
-        background: transparent;
-        color: var(--text-muted);
-        padding: 6px 10px;
-        border-radius: 6px;
-        font-size: 12px;
-        border: 1px solid var(--border);
-        cursor: pointer;
-        font-family: inherit;
-        transition: all var(--transition);
-    }
-
-    .btn-action-disable:hover {
-        background: rgba(239, 68, 68, 0.05);
-        color: var(--danger);
-        border-color: rgba(239, 68, 68, 0.3);
-    }
-
-    /* PAGINAÇÃO */
-    .table-footer {
-        background: var(--bg-card);
-        padding: 14px 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 16px;
-        border-top: 1px solid var(--border);
-        font-size: 12px;
-        color: var(--text-muted);
-    }
-
-    .page-size-control,
-    .pagination-controls {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .page-size-select {
-        appearance: none;
-        background: var(--bg-input);
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        color: var(--text-main);
-        font: inherit;
-        padding: 5px 8px;
-        cursor: pointer;
-    }
-
-    .page-button {
-        min-width: 30px;
-        height: 30px;
-        padding: 0 8px;
-        background: var(--bg-input);
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        color: var(--text-muted);
-        font: inherit;
-        font-size: 12px;
-        cursor: pointer;
-        transition: all var(--transition);
-    }
-
-    .page-button:hover:not(:disabled) {
-        background: var(--border);
-        color: var(--text-main);
-    }
-
-    .page-button.is-active {
-        background: var(--accent);
-        border-color: var(--accent);
-        color: #fff;
-        font-weight: 700;
-    }
-
-    .page-button:disabled {
-        cursor: not-allowed;
-        opacity: 0.35;
-    }
-
-    .pagination-ellipsis {
-        padding: 0 2px;
-        color: var(--text-muted);
-    }
-
-    .empty-table-message td {
-        padding: 36px 20px;
-        color: var(--text-muted);
-        text-align: center;
-    }
-
-    @media (max-width: 680px) {
-        .page-wrapper { padding: 28px 14px; }
-        .metrics-grid { grid-template-columns: 1fr; }
-        .search-bar-container { align-items: stretch; flex-direction: column; }
-        .table-footer { align-items: flex-start; flex-direction: column; }
-        .pagination-controls { justify-content: flex-start; }
-    }
-</style>
 
 <div class="page-wrapper">
     <div class="catalog-container">
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
+        <div class="produtos_index-inline-4db1dd4b58">
             <div>
-                <h1 style="font-family: 'Sora', sans-serif; font-size: 34px; font-weight: 800; letter-spacing: -1px; color: var(--text-main); margin: 0 0 10px 0; line-height: 1;">
-                    Gerenciar <span style="color: var(--accent);">Produtos</span>
+                <h1 class="produtos_index-inline-824c8d8355">
+                    Gerenciar <span class="produtos_index-inline-91b434c2e8">Produtos</span>
                 </h1>
-                <p style="color: var(--text-muted); font-size: 14px; margin: 0;">
+                <p class="produtos_index-inline-1f30f3f3dc">
                     Visão geral de inventário ativo e balanço patrimonial.
                 </p>
             </div>
             <a href="/produtos/novo" class="btn-add">
-                <i class="fas fa-plus" style="font-size: 11px;"></i>
+                <i class="fas fa-plus produtos_index-inline-e9e0e4af65"></i>
                 <span>NOVO ITEM</span>
             </a>
         </div>
 
         <div class="metrics-grid">
             <div class="metric-card">
-                <div class="metric-icon" style="background: rgba(74, 114, 255, 0.08); color: var(--accent);"><i class="fas fa-boxes-stacked"></i></div>
+                <div class="metric-icon produtos_index-inline-cee77af9f8"><i class="fas fa-boxes-stacked"></i></div>
                 <div>
-                    <span style="display: block; color: var(--text-muted); font-size: 11px; text-transform: uppercase; font-weight: 500;">Registrados</span>
-                    <strong style="color: var(--text-main); font-size: 18px; font-weight: 600;">{{ total_produtos }} ativos</strong>
+                    <span class="produtos_index-inline-46f337df8d">Registrados</span>
+                    <strong class="produtos_index-inline-f18b9f6b8e">{{ total_produtos }} ativos</strong>
                 </div>
             </div>
             <div class="metric-card">
-                <div class="metric-icon" style="background: rgba(16, 185, 129, 0.08); color: var(--success);"><i class="fas fa-circle-check"></i></div>
+                <div class="metric-icon produtos_index-inline-23a3c5cc2f"><i class="fas fa-circle-check"></i></div>
                 <div>
-                    <span style="display: block; color: var(--text-muted); font-size: 11px; text-transform: uppercase; font-weight: 500;">Em Estoque</span>
-                    <strong style="color: var(--text-main); font-size: 18px; font-weight: 600;">{{ total_estoque }} unidades</strong>
+                    <span class="produtos_index-inline-46f337df8d">Em Estoque</span>
+                    <strong class="produtos_index-inline-f18b9f6b8e">{{ total_estoque }} unidades</strong>
                 </div>
             </div>
             <div class="metric-card">
-                <div class="metric-icon" style="background: rgba(239, 68, 68, 0.08); color: var(--danger);"><i class="fas fa-triangle-exclamation"></i></div>
+                <div class="metric-icon produtos_index-inline-58bdb0a040"><i class="fas fa-triangle-exclamation"></i></div>
                 <div>
-                    <span style="display: block; color: var(--text-muted); font-size: 11px; text-transform: uppercase; font-weight: 500;">Esgotados</span>
-                    <strong style="color: var(--text-main); font-size: 18px; font-weight: 600;">{{ total_esgotados }} sem saldo</strong>
+                    <span class="produtos_index-inline-46f337df8d">Esgotados</span>
+                    <strong class="produtos_index-inline-f18b9f6b8e">{{ total_esgotados }} sem saldo</strong>
                 </div>
             </div>
         </div>
@@ -410,17 +69,17 @@
         </form>
 
         <div class="table-card">
-            <div style="overflow-x: auto;">
+            <div class="produtos_index-inline-42d4450c02">
                 <table class="custom-table" id="productsTable">
                     <thead>
                         <tr>
-                            <th style="width: 70px;">Item</th>
+                            <th class="produtos_index-inline-be8da06696">Item</th>
                             <th>Nome do Ativo</th>
                             <th>Categoria</th>
                             <th>Preço Unitário</th>
-                            <th style="text-align: center;">Quantidade</th>
-                            <th style="text-align: center;">Status</th>
-                            <th style="text-align: center; width: 80px;" onclick="event.stopPropagation();">Ações</th>
+                            <th class="produtos_index-inline-72a68ac344">Quantidade</th>
+                            <th class="produtos_index-inline-72a68ac344">Status</th>
+                            <th class="produtos_index-inline-76cd972290" onclick="event.stopPropagation();">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -428,13 +87,13 @@
                         <tr class="prod-row" data-nome="{{ produto.nome }}" onclick="window.location.href='/produtos/{{ produto.id }}/editar'">
 
                             <td>
-                                <img src="{{ produto.imagem_url }}" alt="{{ produto.nome }}" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border); background: var(--bg-input);">
+                                <img src="{{ produto.imagem_url }}" alt="{{ produto.nome }}" class="produtos_index-inline-f943431c8d">
                             </td>
 
-                            <td style="font-weight: 500; letter-spacing: -0.2px;">
-                                <span style="color: var(--text-muted); font-size: 11px; font-family: monospace; display: block;">#{{ produto.id }}</span>
+                            <td class="produtos_index-inline-bde55667e8">
+                                <span class="produtos_index-inline-34d6418e9b">#{{ produto.id }}</span>
                                 {{ produto.nome }}
-                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">{{ produto.variacoes|length }} variação{% if produto.variacoes|length != 1 %}es{% endif %}</div>
+                                <div class="produtos_index-inline-7bafa35f45">{{ produto.variacoes|length }} variação{% if produto.variacoes|length != 1 %}es{% endif %}</div>
                             </td>
 
                             <td>
@@ -443,11 +102,11 @@
                                 </span>
                             </td>
 
-                            <td style="color: var(--text-muted); font-weight: 500;">
+                            <td class="produtos_index-inline-623e02107d">
                                 R$ {{ "%.2f"|format(produto.preco) }}
                             </td>
 
-                            <td style="text-align: center;">
+                            <td class="produtos_index-inline-72a68ac344">
                                 {% if produto.estoque_total == 0 %}
                                 <span class="badge badge-danger">0 un</span>
                                 {% elif produto.estoque_total < 10 %} 
@@ -457,17 +116,17 @@
                                 {% endif %}
                             </td>
 
-                            <td style="text-align: center;">
+                            <td class="produtos_index-inline-72a68ac344">
                                 {% if produto.ativo %}
-                                <span style="color: var(--success); font-size: 12px;"><i class="fas fa-circle" style="font-size: 8px; margin-right: 5px;"></i> Ativo</span>
+                                <span class="produtos_index-inline-f8b7863d6d"><i class="fas fa-circle produtos_index-inline-b5d262a75d"></i> Ativo</span>
                                 {% else %}
-                                <span style="color: var(--text-muted); font-size: 12px;"><i class="fas fa-circle" style="font-size: 8px; margin-right: 5px;"></i> Inativo</span>
+                                <span class="produtos_index-inline-bfc60b4648"><i class="fas fa-circle produtos_index-inline-b5d262a75d"></i> Inativo</span>
                                 {% endif %}
                             </td>
 
-                            <td style="text-align: center;" onclick="event.stopPropagation();">
-                                <div style="display: inline-flex; gap: 6px;">
-                                    <form method="POST" action="/produtos/{{ produto.id }}/desativar" style="display: inline;">
+                            <td class="produtos_index-inline-72a68ac344" onclick="event.stopPropagation();">
+                                <div class="produtos_index-inline-2e75dce2f9">
+                                    <form method="POST" action="/produtos/{{ produto.id }}/desativar" class="produtos_index-inline-434fc32ec2">
                                         <button type="button" class="btn-action-disable" title="Remover item" onclick="abrirModalConfirmacao(null, '/produtos/{{ produto.id }}/desativar', '{{ produto.nome }}');">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -720,7 +379,7 @@
                 const emptyMessage = document.createElement('tr');
                 emptyMessage.id = 'emptyTableMessage';
                 emptyMessage.className = 'empty-table-message';
-                emptyMessage.innerHTML = '<td colspan="7"><i class="fas fa-box-open" style="margin-right: 8px;"></i>Nenhum produto encontrado.</td>';
+                emptyMessage.innerHTML = '<td colspan="7"><i class="fas fa-box-open produtos_index-inline-d1cc5713a9"></i>Nenhum produto encontrado.</td>';
                 tableBody.appendChild(emptyMessage);
                 if (paginationSummary) paginationSummary.textContent = 'Nenhum registro encontrado';
             } else {
