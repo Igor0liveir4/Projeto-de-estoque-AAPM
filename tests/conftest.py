@@ -8,6 +8,7 @@ from app.database import Base, get_db
 from app.main import app
 from app.models import armario, categoria, cliente, movimentacao, produto, usuario, variacoes, venda  # noqa: F401
 
+"python -m pytest"
 
 @pytest.fixture
 def db_session():
