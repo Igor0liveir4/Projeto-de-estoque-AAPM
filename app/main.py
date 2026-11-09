@@ -3,7 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload, selectinload
 from sqlalchemy import func
 import json
 import httpx
@@ -113,6 +113,7 @@ def tela_home(
     if usuario is None:
         produtos_db = (
             db.query(Produto)
+            .options(selectinload(Produto.variacoes), joinedload(Produto.categoria))
             .filter(Produto.ativo == True)
             .order_by(Produto.id.desc())
             .limit(8)

@@ -38,6 +38,10 @@ python criar_usuario.py
 
 Bash
 python -m uvicorn app.main:app --reload
+```
+
+
+
 Acesse o sistema pelo navegador através do endereço: http://127.0.0.1:8000
 
 🛠️ Principais Recursos Implementados

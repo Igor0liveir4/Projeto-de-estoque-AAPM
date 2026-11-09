@@ -17,7 +17,7 @@ from fastapi import APIRouter, Depends, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import func
 from jose import JWTError, jwt
 
@@ -142,6 +142,7 @@ def tela_pdv(
     """
     query_produtos = (
         db.query(Produto)
+        .options(selectinload(Produto.variacoes))
         .join(Produto.variacoes)
         .filter(Produto.ativo == True)
         .group_by(Produto.id)
